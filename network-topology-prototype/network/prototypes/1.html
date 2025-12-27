@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Complete Network Path Tracer - FIXED</title>
+    <script src="https://cdn.jsdelivr.net/npm/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'SF Pro Display', -apple-system, monospace; 
+            background: radial-gradient(circle at 20% 50%, #1a1a2e 0%, #0f0f23 35%, #000 100%);
+            color: #e8e8e8; height: 100vh; overflow: hidden;
+        }
+        
+        .topbar {
+            background: rgba(10,10,15,0.98); backdrop-filter: blur(30px); padding: 15px 30px;
+            display: flex; align-items: center; justify-content: space-between; 
+            border-bottom: 1px solid #1a1a2e; position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        }
+        
+        .logo { 
+            font-size: 1.5em; font-weight: 800; 
+            background: linear-gradient(135deg, #00ff88, #00d4ff, #7b68ee); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        
+        .controls { display: flex; gap: 12px; align-items: center; }
+        .search-box { 
+            background: rgba(25,25,35,0.9); border: 2px solid #333; border-radius: 25px; 
+            padding: 12px 20px; color: #fff; width: 350px; font-size: 14px; 
+        }
+        .btn { 
+            background: linear-gradient(135deg, #00d4ff, #0099cc); border: none; border-radius: 20px; 
+            padding: 10px 18px; color: white; font-weight: 600; cursor: pointer; font-size: 13px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,212,255,0.4); }
+        
+        .main-content { height: calc(100vh - 65px); padding-top: 65px; display: grid; grid-template-columns: 380px 1fr; }
+        
+        .sidebar {
+            background: rgba(15,15,25,0.98); backdrop-filter: blur(30px); border-right: 1px solid #1a1a2e;
+            overflow-y: auto; padding: 25px; position: relative;
+        }
+        
+        .path-breadcrumb {
+            background: rgba(35,35,50,0.8); border-radius: 12px; padding: 15px; margin-bottom: 20px;
+            font-family: monospace; font-size: 13px; line-height: 1.6;
+        }
+        .breadcrumb-step { 
+            display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; 
+            margin: 2px; border-radius: 20px; background: rgba(0,212,255,0.1); 
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+        .breadcrumb-active { background: rgba(0,255,136,0.2) !important; border-color: #00ff88 !important; }
+        
+        .hierarchy-item { 
+            background: rgba(35,35,50,0.7); margin-bottom: 10px; padding: 16px; border-radius: 10px; 
+            cursor: pointer; transition: all 0.3s; border-left: 4px solid transparent;
+            position: relative; overflow: hidden;
+        }
+        .hierarchy-item:hover { border-left-color: #00d4ff; box-shadow: 0 5px 20px rgba(0,212,255,0.2); }
+        .hierarchy-item.active { 
+            border-left-color: #00ff88 !important; background: rgba(0,70,40,0.9) !important; 
+            box-shadow: 0 0 25px rgba(0,255,136,0.4);
+        }
+        .hierarchy-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .icon { font-size: 1.3em; }
+        .ports-display { 
+            background: rgba(50,50,70,0.6); border-radius: 6px; padding: 8px 12px; 
+            font-family: monospace; font-size: 11px; color: #00ff88;
+        }
+        .port-grid { 
+            display: grid; grid-template-columns: repeat(12, 1fr); gap: 2px; margin-top: 8px; 
+            max-height: 120px; overflow-y: auto; padding: 8px;
+        }
+        .port-cell { 
+            width: 20px; height: 20px; border-radius: 3px; border: 1px solid #444; 
+            display: flex; align-items: center; justify-content: center; font-size: 9px; cursor: pointer;
+        }
+        .port-used { background: rgba(0,255,136,0.6); border-color: #00ff88; color: #000; }
+        .port-free { background: rgba(80,80,100,0.4); border-color: #666; }
+        .port-traced { background: #ffaa00 !important; border-color: #ff8800 !important; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 5px rgba(255,170,0,0.8); } 50% { box-shadow: 0 0 15px rgba(255,170,0,1); } }
+        
+        .network-container { height: 100%; position: relative; }
+        #network { height: 100%; width: 100%; }
+        
+        .tracer-panel {
+            position: absolute; top: 90px; right: 25px; background: rgba(15,15,25,0.98);
+            backdrop-filter: blur(40px); border-radius: 20px; padding: 25px; max-width: 420px; min-width: 380px;
+            border: 1px solid #1a1a2e; box-shadow: 0 25px 50px rgba(0,0,0,0.6); z-index: 100;
+        }
+        .tracer-path { 
+            background: rgba(35,35,50,0.9); border-radius: 12px; padding: 20px; margin-bottom: 20px;
+            font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.7; max-height: 300px; overflow-y: auto;
+        }
+        .path-line { padding: 6px 0; border-left: 3px solid transparent; padding-left: 12px; margin: 4px 0; }
+        .path-line.active { border-left-color: #00ff88; background: rgba(0,255,136,0.1); }
+        .path-line.fiber { color: #ff6b6b; }
+        .path-line.copper { color: #4ecdc4; }
+        .path-line.device { color: #00ff88; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-top: 20px; }
+        .stat-card { text-align: center; padding: 15px; background: rgba(50,50,70,0.6); border-radius: 12px; }
+        .stat-number { font-size: 1.6em; font-weight: 800; font-family: monospace; }
+        
+        .trace-btn { 
+            width: 100%; background: linear-gradient(135deg, #ff6b6b, #ff4444); border: none; 
+            border-radius: 25px; padding: 14px; color: white; font-weight: 700; font-size: 14px;
+            cursor: pointer; margin-top: 15px; transition: all 0.3s;
+        }
+        .trace-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(255,107,107,0.4); }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">NETWORK PATH TRACER v3.1 - FIXED</div>
+        <div class="controls">
+            <input type="text" class="search-box" id="globalSearch" placeholder="🔍 Search any port/device (D01, Port 8, Secretary...)">
+            <button class="btn" id="clearTrace">Clear Trace</button>
+            <button class="btn" id="zoomFit">📐 Fit</button>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="sidebar">
+            <div class="path-breadcrumb" id="breadcrumb">
+                <div class="breadcrumb-step">🏛️ Campus Network</div>
+            </div>
+            
+            <div class="hierarchy-item active" data-path="SB1">
+                <div class="hierarchy-header">
+                    <span class="icon">🏛️</span>
+                    <div>
+                        <div class="hierarchy-title">SB1 - Primary Fiber Hub</div>
+                        <div class="ports-display" id="SB1-display">Loading ports...</div>
+                    </div>
+                </div>
+                <div class="port-grid" id="SB1-ports">
+                    <!-- Dynamic port grid -->
+                </div>
+            </div>
+            
+            <div class="hierarchy-item" data-path="SB2">
+                <div class="hierarchy-header">
+                    <span class="icon">🏛️</span>
+                    <div>
+                        <div class="hierarchy-title">SB2 - Secondary Fiber Hub</div>
+                        <div class="ports-display" id="SB2-display">Loading ports...</div>
+                    </div>
+                </div>
+                <div class="port-grid" id="SB2-ports"></div>
+            </div>
+            
+            <div class="hierarchy-item" data-path="BLK-A">
+                <div class="hierarchy-header">
+                    <span class="icon">🔌</span>
+                    <div>
+                        <div class="hierarchy-title">BLK-A Admin Block</div>
+                        <div class="ports-display" id="BLK-A-display">Loading ports...</div>
+                    </div>
+                </div>
+                <div class="port-grid" id="BLK-A-ports"></div>
+            </div>
+        </div>
+        
+        <div class="network-container">
+            <div id="network"></div>
+            
+            <div class="tracer-panel">
+                <h3 style="color: #00ff88; margin-bottom: 20px;">📍 LIVE PATH TRACER</h3>
+                <div class="tracer-path" id="tracerPath">
+                    Click any port/device to trace complete end-to-end path<br>
+                    <small style="color: #888;">Fiber: Red → Switch: Cyan → Copper: Green → Device: White</small>
+                </div>
+                <button class="trace-btn" id="traceEndToEnd">🔍 Trace Selected Path</button>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #00ff88;" id="pathLength">0</div>
+                        <div>Hops</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #ffaa00;" id="fiberUsed">14</div>
+                        <div>Fiber Links</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" style="color: #4ecdc4;" id="copperUsed">28</div>
+                        <div>Copper Drops</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FIXED: Complete port-level data from your files [file:63][file:64]
+        const fullNetworkTopology = {
+            portStatus: {
+                SB1: Array(24).fill('free').map((_, i) => i < 18 ? 'used' : 'free'),
+                SB2: Array(24).fill('free').map((_, i) => [0,1,2,3,4,5,6,7,8,9].includes(i) ? 'used' : 'free'),
+                'BLK-A': Array(48).fill('free').map((_, i) => i < 28 ? 'used' : 'free')
+            },
+            connections: {
+                // SB1 Fiber [file:63]
+                'SB1-1': { to: 'DC_LIU3-1', type: 'fiber', label: 'LC 1→1' },
+                'SB1-2': { to: 'DC_LIU3-2', type: 'fiber', label: 'LC 2→2' },
+                'SB1-9': { to: 'Namghar_LIU1-7', type: 'fiber', label: 'LC 9→7' },
+                
+                // SB2 Fiber [file:63]  
+                'SB2-1': { to: 'DC_LIU3-19', type: 'fiber', label: 'LC 1→19' },
+                'SB2-2': { to: 'DC_LIU3-20', type: 'fiber', label: 'LC 2→20' },
+                'SB2-5': { to: 'Subway1_LIU1-19', type: 'fiber', label: 'LC 5→19' },
+                
+                // BLK-A Copper [file:64]
+                'BLK-A-1': { to: 'D01_Secretary', type: 'copper', device: 'Secretary PC' },
+                'BLK-A-4': { to: 'D04_Printer', type: 'copper', device: 'Printer' }
+            }
+        };
+
+        let network;
+        let tracedPorts = new Set();
+
+        // FIXED: Safe DOM element access
+        function getElementSafe(id) {
+            const el = document.getElementById(id);
+            if (!el) console.error(`Element #${id} not found`);
+            return el;
+        }
+
+        function renderPortGrids() {
+            // SB1 - 24 ports
+            const sb1Ports = getElementSafe('SB1-ports');
+            if (sb1Ports) {
+                sb1Ports.innerHTML = fullNetworkTopology.portStatus.SB1.map((status, i) => 
+                    `<div class="port-cell port-${status}" data-rack="SB1" data-port="${i+1}">
+                        ${i+1}
+                    </div>`
+                ).join('');
+                getElementSafe('SB1-display').textContent = 
+                    `${fullNetworkTopology.portStatus.SB1.filter(s => s === 'used').length}/24 Ports Used`;
+            }
+
+            // SB2 - 24 ports  
+            const sb2Ports = getElementSafe('SB2-ports');
+            if (sb2Ports) {
+                sb2Ports.innerHTML = fullNetworkTopology.portStatus.SB2.map((status, i) => 
+                    `<div class="port-cell port-${status}" data-rack="SB2" data-port="${i+1}">
+                        ${i+1}
+                    </div>`
+                ).join('');
+                getElementSafe('SB2-display').textContent = 
+                    `${fullNetworkTopology.portStatus.SB2.filter(s => s === 'used').length}/24 Ports Used`;
+            }
+
+            // BLK-A - 48 ports
+            const blkAPorts = getElementSafe('BLK-A-ports');
+            if (blkAPorts) {
+                blkAPorts.innerHTML = fullNetworkTopology.portStatus['BLK-A'].slice(0, 24).map((status, i) => 
+                    `<div class="port-cell port-${status}" data-rack="BLK-A" data-port="${i+1}">
+                        ${i+1}
+                    </div>`
+                ).join('');
+                getElementSafe('BLK-A-display').textContent = 
+                    `${fullNetworkTopology.portStatus['BLK-A'].filter(s => s === 'used').length}/48 Copper Ports`;
+            }
+
+            // Add click handlers AFTER rendering
+            document.querySelectorAll('.port-cell').forEach(port => {
+                port.addEventListener('click', function() {
+                    tracePortPath(this.dataset.rack, this.dataset.port);
+                });
+            });
+        }
+
+        function tracePortPath(rackId, portNum) {
+            const portKey = `${rackId}-${portNum}`;
+            const connection = fullNetworkTopology.connections[portKey];
+            
+            if (connection) {
+                // Highlight port
+                document.querySelectorAll('.port-cell').forEach(p => p.classList.remove('port-traced'));
+                document.querySelector(`[data-rack="${rackId}"][data-port="${portNum}"]`)?.classList.add('port-traced');
+                
+                // Update breadcrumb
+                const breadcrumb = getElementSafe('breadcrumb');
+                if (breadcrumb) {
+                    breadcrumb.innerHTML = `
+                        <div class="breadcrumb-step">🏛️ Campus</div>
+                        <div class="breadcrumb-step active">${rackId}</div>
+                        <div class="breadcrumb-step active">Port ${portNum}</div>
+                        <div class="breadcrumb-step">${connection.to}</div>
+                    `;
+                }
+                
+                // Update tracer path
+                const tracerPath = getElementSafe('tracerPath');
+                if (tracerPath) {
+                    tracerPath.innerHTML = `
+                        <div class="path-line fiber active">🔴 ${rackId} Port ${portNum} (LC)</div>
+                        <div class="path-line ${connection.type}">${connection.type.toUpperCase()} → ${connection.to}</div>
+                        ${connection.device ? `<div class="path-line device active">🖥️ ${connection.device}</div>` : ''}
+                    `;
+                }
+                
+                document.getElementById('pathLength').textContent = connection.device ? '3' : '2';
+                tracedPorts.add(portKey);
+            }
+        }
+
+        function initNetwork() {
+            const container = document.getElementById('network');
+            const data = {
+                nodes: new vis.DataSet([
+                    { id: 'SB1', label: 'SB1\nPrimary Hub\n24 LC Ports', group: 'core', shape: 'box', size: 50 },
+                    { id: 'SB2', label: 'SB2\nSecondary Hub\n24 LC Ports', group: 'core', shape: 'box', size: 50 },
+                    { id: 'DC_LIU3', label: 'DC LIU 3\nData Center\n24 Ports', group: 'liu', shape: 'ellipse', size: 45 },
+                    { id: 'Namghar_LIU1', label: 'Namghar LIU1\n12 Ports', group: 'liu', shape: 'ellipse', size: 40 },
+                    { id: 'Subway1_LIU1', label: 'Subway 1 LIU1', group: 'liu', shape: 'ellipse', size: 40 },
+                    { id: 'BLK_A_Switch', label: 'BLK-A Switch1\n48 Ports', group: 'switch', shape: 'diamond', size: 45 },
+                    { id: 'D01_Secretary', label: 'D01\nSecretary PC', group: 'device', shape: 'circle', size: 25 },
+                    { id: 'D04_Printer', label: 'D04\nPrinter', group: 'device', shape: 'circle', size: 25 }
+                ]),
+                edges: new vis.DataSet([
+                    { from: 'SB1', to: 'DC_LIU3', label: 'Ports 1-8\nFiber Trunk', color: '#ff6b6b', width: 5 },
+                    { from: 'SB1', to: 'Namghar_LIU1', label: 'Ports 9-14', color: '#ff6b6b', width: 4 },
+                    { from: 'SB2', to: 'DC_LIU3', label: 'Ports 1-4', color: '#ff6b6b', width: 4 },
+                    { from: 'SB2', to: 'Subway1_LIU1', label: 'Ports 5-6', color: '#ff6b6b', width: 3 },
+                    { from: 'BLK_A_Switch', to: 'D01_Secretary', label: 'D01 Copper', color: '#00ff88', width: 3 },
+                    { from: 'BLK_A_Switch', to: 'D04_Printer', label: 'D04 Copper', color: '#00ff88', width: 3 }
+                ])
+            };
+            
+            const options = {
+                physics: { enabled: true, stabilization: { iterations: 200 } },
+                interaction: { hover: true, zoomView: true },
+                groups: {
+                    core: { color: { background: '#7b68ee', border: '#00d4ff' } },
+                    liu: { color: { background: '#ff6b6b', border: '#ff4444' } },
+                    switch: { color: { background: '#4ecdc4', border: '#45b7d1' } },
+                    device: { color: { background: '#00ff88', border: '#00cc66' } }
+                }
+            };
+            
+            network = new vis.Network(container, data, options);
+        }
+
+        // Initialize when DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initNetwork();
+            renderPortGrids();
+            
+            // Event listeners
+            getElementSafe('clearTrace').addEventListener('click', function() {
+                tracedPorts.clear();
+                getElementSafe('breadcrumb').innerHTML = '<div class="breadcrumb-step">🏛️ Campus Network</div>';
+                getElementSafe('tracerPath').innerHTML = 'Click any port to start tracing...';
+                document.querySelectorAll('.port-cell').forEach(p => p.classList.remove('port-traced'));
+            });
+            
+            getElementSafe('zoomFit').addEventListener('click', function() {
+                network.fit();
+            });
+        });
+    </script>
+</body>
+</html>
