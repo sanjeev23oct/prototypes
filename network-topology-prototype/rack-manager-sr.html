@@ -521,5 +521,78 @@
             console.log('🏢 Server Room Rack Manager initialized with navigation support');
         });
     </script>
+
+    <!-- Port Information Edit Modal -->
+    <div class="port-edit-modal" id="portEditModal">
+        <div class="port-edit-content">
+            <div class="port-edit-header">
+                <h3 id="portEditTitle">Edit Port Information</h3>
+                <button class="close-modal" onclick="closePortEditModal()">✕</button>
+            </div>
+            
+            <div class="port-edit-body">
+                <div class="form-group">
+                    <label>Port Number</label>
+                    <input type="text" id="editPortNumber" readonly class="form-control-readonly">
+                </div>
+                
+                <div class="form-group">
+                    <label>Device Type</label>
+                    <input type="text" id="editDeviceType" readonly class="form-control-readonly">
+                </div>
+                
+                <div class="form-group">
+                    <label>Port Status</label>
+                    <select id="editPortStatus" class="form-control">
+                        <option value="free">Free</option>
+                        <option value="active">Active</option>
+                        <option value="uplink">Uplink</option>
+                        <option value="disabled">Disabled</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Connected Device</label>
+                    <input type="text" id="editConnectedDevice" class="form-control" placeholder="e.g., Gate 2C WiFi, CCTV Camera">
+                </div>
+                
+                <div class="form-group">
+                    <label>Device IP Address</label>
+                    <input type="text" id="editDeviceIP" class="form-control" placeholder="e.g., 192.168.30.25">
+                </div>
+                
+                <div class="form-group">
+                    <label>VLAN ID</label>
+                    <input type="text" id="editVLAN" class="form-control" placeholder="e.g., VLAN 10">
+                </div>
+                
+                <div class="form-group">
+                    <label>Connected To (Port/Panel)</label>
+                    <input type="text" id="editConnectedTo" class="form-control" placeholder="e.g., PP-1 Port 6, Switch Port 23">
+                </div>
+                
+                <div class="form-group">
+                    <label>Cable ID</label>
+                    <input type="text" id="editCableID" class="form-control" placeholder="e.g., CAT6-G2C-001">
+                </div>
+                
+                <div class="form-group">
+                    <label>Location / Room</label>
+                    <input type="text" id="editLocation" class="form-control" placeholder="e.g., Security Room, Gate 2C">
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="editNotes" class="form-control" rows="3" placeholder="Additional notes about this port connection..."></textarea>
+                </div>
+            </div>
+            
+            <div class="port-edit-footer">
+                <button class="btn btn-secondary" onclick="closePortEditModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="clearPortInfo()">Clear Info</button>
+                <button class="btn btn-primary" onclick="savePortInfo()">Save Changes</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

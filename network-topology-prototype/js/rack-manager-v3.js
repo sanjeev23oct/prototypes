@@ -10,6 +10,7 @@ let cableCounter = 1;
 let cablesVisible = true;
 let currentRackId = 'G2C';
 let rackConfigurations = {};
+let portData = {}; // Store port information
 
 // Initialize Gate 2C rack configuration based on rack2c.txt data
 function initializeRackConfigurations() {
@@ -751,38 +752,272 @@ function findEmptyRangeContaining(unitNumber) {
     return null;
 }
 
+// Port editing modal functions
+function openPortEditModal(portId, deviceId, portNumber, unitNumber) {
+    const modal = document.getElementById('portEditModal');
+    if (!modal) {
+        console.error('Port edit modal not found');
+        return;
+    }
+    
+    // Store current port info
+    modal.dataset.currentPortId = portId;
+    modal.dataset.currentDeviceId = deviceId;
+    modal.dataset.currentPortNumber = portNumber;
+    modal.dataset.currentUnitNumber = unitNumber;
+    
+    // Get device info
+    const device = rackData[unitNumber];
+    const deviceName = device ? device.name : deviceId;
+    const deviceType = device ? device.deviceType : 'unknown';
+    
+    // Update modal title
+    const modalTitle = document.getElementById('portEditTitle');
+    if (modalTitle) {
+        modalTitle.textContent = `Edit Port Information - ${deviceName} Port ${portNumber}`;
+    }
+    
+    // Set readonly fields
+    const portNumberField = document.getElementById('editPortNumber');
+    if (portNumberField) portNumberField.value = `Port ${portNumber}`;
+    
+    const deviceTypeField = document.getElementById('editDeviceType');
+    if (deviceTypeField) deviceTypeField.value = deviceName;
+    
+    // Check if port has an existing connection
+    const connection = connections.find(c => c.portA === portId || c.portB === portId);
+    
+    // Load existing port data if available, or populate from connection
+    let existingData = portData[portId] || {};
+    
+    // If port is connected but no saved data, populate from connection
+    if (connection && !portData[portId]) {
+        const otherPortId = connection.portA === portId ? connection.portB : connection.portA;
+        const otherPortInfo = getPortInfo(otherPortId);
+        const config = rackConfigurations[currentRackId];
+        const portMapping = config?.portMappings?.[portId];
+        
+        existingData = {
+            status: portMapping?.uplink ? 'uplink' : 'active',
+            connectedDevice: portMapping?.endDevice || otherPortInfo.device,
+            connectedTo: otherPortId,
+            cableIdInfo: connection.cableId,
+            notes: connection.description || portMapping?.mapping || ''
+        };
+    }
+    
+    // Populate form fields
+    const statusField = document.getElementById('editPortStatus');
+    if (statusField) statusField.value = existingData.status || 'free';
+    
+    const connectedDeviceField = document.getElementById('editConnectedDevice');
+    if (connectedDeviceField) connectedDeviceField.value = existingData.connectedDevice || '';
+    
+    const deviceIPField = document.getElementById('editDeviceIP');
+    if (deviceIPField) deviceIPField.value = existingData.deviceIP || '';
+    
+    const vlanField = document.getElementById('editVLAN');
+    if (vlanField) vlanField.value = existingData.vlanId || '';
+    
+    const connectedToField = document.getElementById('editConnectedTo');
+    if (connectedToField) connectedToField.value = existingData.connectedTo || '';
+    
+    const cableIDField = document.getElementById('editCableID');
+    if (cableIDField) cableIDField.value = existingData.cableIdInfo || '';
+    
+    const locationField = document.getElementById('editLocation');
+    if (locationField) locationField.value = existingData.locationRoom || '';
+    
+    const notesField = document.getElementById('editNotes');
+    if (notesField) notesField.value = existingData.notes || '';
+    
+    // Show modal
+    modal.style.display = 'flex';
+}
+
+function closePortEditModal() {
+    const modal = document.getElementById('portEditModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+function savePortInfo() {
+    const modal = document.getElementById('portEditModal');
+    const portId = modal.dataset.currentPortId;
+    const deviceId = modal.dataset.currentDeviceId;
+    const portNumber = modal.dataset.currentPortNumber;
+    const unitNumber = modal.dataset.currentUnitNumber;
+    
+    // Collect form data
+    const portInfo = {
+        status: document.getElementById('editPortStatus')?.value || 'free',
+        connectedDevice: document.getElementById('editConnectedDevice')?.value || '',
+        deviceIP: document.getElementById('editDeviceIP')?.value || '',
+        vlanId: document.getElementById('editVLAN')?.value || '',
+        connectedTo: document.getElementById('editConnectedTo')?.value || '',
+        cableIdInfo: document.getElementById('editCableID')?.value || '',
+        locationRoom: document.getElementById('editLocation')?.value || '',
+        notes: document.getElementById('editNotes')?.value || '',
+        lastUpdated: new Date().toISOString()
+    };
+    
+    // Save to portData
+    portData[portId] = portInfo;
+    
+    // Save to localStorage
+    try {
+        localStorage.setItem('rackPortData', JSON.stringify(portData));
+        console.log('Port data saved to localStorage:', portId, portInfo);
+    } catch (e) {
+        console.error('Failed to save to localStorage:', e);
+    }
+    
+    // Update port visual indicator
+    updatePortVisual(portId, portInfo);
+    
+    // Close modal
+    closePortEditModal();
+    
+    // Show success message
+    showNotification('Port information saved successfully!', 'success');
+}
+
+function clearPortInfo() {
+    if (!confirm('Are you sure you want to clear all information for this port?')) {
+        return;
+    }
+    
+    const modal = document.getElementById('portEditModal');
+    const portId = modal.dataset.currentPortId;
+    
+    // Remove from portData
+    delete portData[portId];
+    
+    // Update localStorage
+    try {
+        localStorage.setItem('rackPortData', JSON.stringify(portData));
+        console.log('Port data cleared:', portId);
+    } catch (e) {
+        console.error('Failed to update localStorage:', e);
+    }
+    
+    // Reset port visual
+    const port = document.querySelector(`[data-port-id="${portId}"]`);
+    if (port) {
+        port.classList.remove('port-active', 'port-uplink', 'port-disabled');
+        port.classList.add('port-free');
+    }
+    
+    // Close modal
+    closePortEditModal();
+    
+    // Show success message
+    showNotification('Port information cleared!', 'info');
+}
+
+function updatePortVisual(portId, portInfo) {
+    const port = document.querySelector(`[data-port-id="${portId}"]`);
+    if (!port) return;
+    
+    // Remove all status classes
+    port.classList.remove('port-free', 'port-active', 'port-uplink', 'port-disabled');
+    
+    // Add appropriate status class
+    switch (portInfo.status) {
+        case 'active':
+            port.classList.add('port-active');
+            break;
+        case 'uplink':
+            port.classList.add('port-uplink');
+            break;
+        case 'disabled':
+            port.classList.add('port-disabled');
+            break;
+        default:
+            port.classList.add('port-free');
+    }
+    
+    // Update tooltip with saved information
+    const tooltip = port.querySelector('.port-tooltip');
+    if (tooltip) {
+        let tooltipContent = `<strong>Port ${port.dataset.portNumber}</strong><br>`;
+        tooltipContent += `<strong>Status:</strong> ${portInfo.status.toUpperCase()}<br>`;
+        
+        if (portInfo.connectedDevice) {
+            tooltipContent += `<strong>Device:</strong> ${portInfo.connectedDevice}<br>`;
+        }
+        if (portInfo.deviceIP) {
+            tooltipContent += `<strong>IP:</strong> ${portInfo.deviceIP}<br>`;
+        }
+        if (portInfo.vlanId) {
+            tooltipContent += `<strong>VLAN:</strong> ${portInfo.vlanId}<br>`;
+        }
+        if (portInfo.locationRoom) {
+            tooltipContent += `<strong>Location:</strong> ${portInfo.locationRoom}<br>`;
+        }
+        
+        tooltip.innerHTML = tooltipContent;
+    }
+}
+
+function loadPortDataFromStorage() {
+    try {
+        const savedData = localStorage.getItem('rackPortData');
+        if (savedData) {
+            portData = JSON.parse(savedData);
+            console.log('Loaded port data from localStorage:', portData);
+            
+            // Update all port visuals
+            Object.entries(portData).forEach(([portId, portInfo]) => {
+                updatePortVisual(portId, portInfo);
+            });
+        }
+    } catch (e) {
+        console.error('Failed to load port data from localStorage:', e);
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        background: ${type === 'success' ? '#48bb78' : type === 'error' ? '#f56565' : '#4299e1'};
+        color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideIn 0.3s ease-out;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
 function handlePortClick(e) {
     e.stopPropagation();
     const port = e.target;
     const portId = port.dataset.portId;
+    const deviceId = port.dataset.deviceId;
+    const portNumber = port.dataset.portNumber;
+    const unitNumber = port.dataset.unitNumber;
     
-    if (port.classList.contains('connected')) {
-        // Port is already connected, show connection details
-        showConnectionDetails(portId);
-        return;
-    }
-    
-    if (selectedPorts.includes(portId)) {
-        // Deselect port
-        port.classList.remove('selected');
-        selectedPorts = selectedPorts.filter(p => p !== portId);
-    } else {
-        // Select port
-        if (selectedPorts.length >= 2) {
-            // Clear previous selections
-            clearPortSelections();
-        }
-        
-        port.classList.add('selected');
-        selectedPorts.push(portId);
-    }
-    
-    // Show connection form if two ports are selected
-    if (selectedPorts.length === 2) {
-        showConnectionForm();
-    } else {
-        hideConnectionForm();
-    }
+    // Open port edit modal
+    openPortEditModal(portId, deviceId, portNumber, unitNumber);
 }
 
 function clearPortSelections() {
@@ -1325,6 +1560,35 @@ function downloadConfig(config) {
 document.addEventListener('DOMContentLoaded', function() {
     initializeRack();
     setupDragAndDrop();
+    
+    // Load saved port data
+    loadPortDataFromStorage();
+    
+    // Setup modal close button
+    const closeBtn = document.querySelector('.close-modal');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closePortEditModal);
+    }
+    
+    // Close modal when clicking outside
+    const modal = document.getElementById('portEditModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closePortEditModal();
+            }
+        });
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('portEditModal');
+            if (modal && modal.style.display === 'flex') {
+                closePortEditModal();
+            }
+        }
+    });
     
     // Update cable positions when window resizes
     window.addEventListener('resize', () => {
