@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate 2B Rack Manager - Detailed View</title>
+    <link rel="stylesheet" href="css/rack-manager-v3.css">
+    <style>
+        /* Navigation breadcrumb styles */
+        .navigation-breadcrumb {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-2px);
+        }
+        
+        .breadcrumb-separator {
+            color: rgba(255,255,255,0.6);
+            font-size: 1.2rem;
+        }
+        
+        .current-location {
+            font-weight: 600;
+            color: #90cdf4;
+        }
+        
+        .rack-context {
+            margin-left: auto;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚪 Gate 2B Network Rack - Security Infrastructure</h1>
+        <p>Gate 2B Security Room with access control, CCTV systems, and direct fiber connection to Server Room</p>
+        <div style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
+            <strong>Location:</strong> Gate-2B Security Room • 
+            <strong>Switch:</strong> D-Link DGS-1024D (Unmanaged) • 
+            <strong>Connection:</strong> Direct 4-Core Fiber from Server Room •
+            <strong>Systems:</strong> CCTV NVR, Access Control
+        </div>
+    </div>
+
+    <!-- Navigation Breadcrumb -->
+    <div class="navigation-breadcrumb">
+        <button class="back-button" onclick="navigateBack()">
+            ← Back to Topology
+        </button>
+        <span class="breadcrumb-separator">•</span>
+        <span>Network Topology</span>
+        <span class="breadcrumb-separator">→</span>
+        <span class="current-location">Gate 2B Security Room</span>
+        <div class="rack-context">
+            Access Control & CCTV • Direct Fiber from SR
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Toolbox Panel -->
+        <div class="toolbox" id="toolbox">
+            <div class="toolbox-header">
+                <h3 style="margin: 0;">🧰 Security Equipment</h3>
+                <button class="toolbox-toggle" onclick="toggleToolbox()">
+                    <span id="toolboxToggleIcon">◀</span>
+                </button>
+            </div>
+            
+            <div class="toolbox-content">
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Network Devices</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="switch" data-ports="24">
+                        <div class="tool-icon switch">SW</div>
+                        <div class="tool-info">
+                            <div class="tool-name">24-Port Access Switch</div>
+                            <div class="tool-desc">D-Link DGS-1024D</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="patch-panel" data-ports="12">
+                        <div class="tool-icon patch-panel">PP</div>
+                        <div class="tool-info">
+                            <div class="tool-name">12-Port Patch Panel</div>
+                            <div class="tool-desc">Local connections</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Security Systems</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="1">
+                        <div class="tool-icon server" style="background: #e53e3e;">NVR</div>
+                        <div class="tool-info">
+                            <div class="tool-name">CCTV NVR System</div>
+                            <div class="tool-desc">Network Video Recorder</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="2">
+                        <div class="tool-icon server" style="background: #38b2ac;">AC</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Access Control</div>
+                            <div class="tool-desc">Card Reader System</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="1">
+                        <div class="tool-icon server" style="background: #805ad5;">CAM</div>
+                        <div class="tool-info">
+                            <div class="tool-name">IP Camera</div>
+                            <div class="tool-desc">Security Camera</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Power Infrastructure</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="ups" data-ports="0">
+                        <div class="tool-icon ups">UPS</div>
+                        <div class="tool-info">
+                            <div class="tool-name">UPS Unit</div>
+                            <div class="tool-desc">APC Back-UPS 650VA</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="pdu" data-ports="4">
+                        <div class="tool-icon pdu" style="background: #e53e3e;">PS</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Power Strip</div>
+                            <div class="tool-desc">Local Power Distribution</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Navigation</h4>
+                    
+                    <button class="tool-item" onclick="navigateBack()" style="cursor: pointer; border: 2px solid #4299e1;">
+                        <div class="tool-icon" style="background: #4299e1;">🌐</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Back to Topology</div>
+                            <div class="tool-desc">Return to multi-rack view</div>
+                        </div>
+                    </button>
+                    
+                    <button class="tool-item" onclick="navigateToRack('SR')" style="cursor: pointer; border: 2px solid #48bb78;">
+                        <div class="tool-icon" style="background: #48bb78;">🏢</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Server Room</div>
+                            <div class="tool-desc">View Server Room rack</div>
+                        </div>
+                    </button>
+                    
+                    <button class="tool-item" onclick="navigateToRack('G2C')" style="cursor: pointer; border: 2px solid #ed8936;">
+                        <div class="tool-icon" style="background: #ed8936;">🚪</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Gate 2C</div>
+                            <div class="tool-desc">View Gate 2C rack</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rack View -->
+        <div class="rack-container">
+            <div class="rack-header">
+                <div class="rack-info">
+                    <div class="rack-title" id="rackTitle">Gate 2B Security Operations - Access Control Hub</div>
+                    <div class="rack-details" id="rackDetails">D-Link DGS-1024D Unmanaged Switch • CCTV NVR System • Access Control Interface • Direct Fiber from Server Room</div>
+                </div>
+                <div class="rack-controls">
+                    <button class="btn btn-secondary" onclick="toggleCableVisibility()">Toggle Cables</button>
+                    <button class="btn btn-secondary" onclick="clearRack()">Clear Rack</button>
+                    <button class="btn btn-primary" onclick="saveConfiguration()">Save Config</button>
+                </div>
+            </div>
+
+            <div class="rack-visual">
+                <div class="rack">
+                    <div class="rack-frame">
+                        <div class="rack-units" id="rackUnits">
+                            <!-- Rack units will be generated by JavaScript -->
+                        </div>
+                        <!-- Cable visualization container -->
+                        <svg class="cables-container" id="cablesContainer">
+                            <!-- Cables will be drawn here -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Panel -->
+        <div class="connection-panel">
+            <h3>🔌 Gate 2B Connections</h3>
+            
+            <!-- Port Usage Summary -->
+            <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #4299e1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 0.9rem;">📊 Security System Status</h4>
+                <div id="portSummary" style="font-size: 0.8rem; color: #4a5568;">
+                    <div>📹 CCTV System: <span style="color: #48bb78; font-weight: 600;">Online (4 cameras)</span></div>
+                    <div>🔐 Access Control: <span style="color: #48bb78; font-weight: 600;">Active</span></div>
+                    <div>🌐 Network: <span style="color: #48bb78; font-weight: 600;">Connected to SR</span></div>
+                    <div>🔋 UPS Status: Normal (85% capacity)</div>
+                </div>
+            </div>
+            
+            <!-- Uplink Status -->
+            <div style="background: #fff5f0; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #ed8936;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 0.9rem;">🔗 Direct Fiber Connection</h4>
+                <div style="font-size: 0.8rem; color: #4a5568;">
+                    <div>🏢 Server Room: <span style="color: #ed8936; font-weight: 600;">Direct Fiber (4-Core)</span></div>
+                    <div>📊 Bandwidth: 4 Gbps (4 x 1G fiber)</div>
+                    <div>🔄 Status: Active, Redundant paths</div>
+                    <div>📍 Fiber Ports: SR LIU 2 Ports 17-20</div>
+                </div>
+            </div>
+            
+            <div class="connection-form" id="connectionForm">
+                <div class="form-group">
+                    <label class="form-label">Connection Type</label>
+                    <select class="form-select" id="connectionType">
+                        <option value="ethernet">Ethernet</option>
+                        <option value="fiber">Fiber Optic</option>
+                        <option value="power">Power</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable Length (meters)</label>
+                    <input type="number" class="form-input" id="cableLength" value="1" min="0.1" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable ID</label>
+                    <input type="text" class="form-input" id="cableId" placeholder="Auto-generated">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="createConnection()">Create Connection</button>
+                    <button class="btn btn-secondary" onclick="cancelConnection()">Cancel</button>
+                </div>
+            </div>
+
+            <div class="connections-list" id="connectionsList">
+                <!-- Connections will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Legend -->
+    <button class="legend-toggle" onclick="toggleLegend()" id="legendToggle">
+        📋 Show Legend
+    </button>
+    
+    <div class="port-legend hidden" id="portLegend">
+        <div class="legend-content">
+            <div class="legend-section">
+                <h4>🔌 Port Status</h4>
+                
+                <div class="legend-item">
+                    <div class="legend-port available">1</div>
+                    <div class="legend-text">Available Port</div>
+                </div>
+                <div class="legend-description">Gray - Ready for connection</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port connected">2</div>
+                    <div class="legend-text">Connected Port</div>
+                </div>
+                <div class="legend-description">Green - Active connection</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port uplink">3</div>
+                    <div class="legend-text">Uplink Port</div>
+                </div>
+                <div class="legend-description">Orange - Direct to Server Room</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port uplink-connected">4</div>
+                    <div class="legend-text">Active Uplink</div>
+                </div>
+                <div class="legend-description">Blue - Connected to SR</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port selected">5</div>
+                    <div class="legend-text">Selected Port</div>
+                </div>
+                <div class="legend-description">Orange - Ready to connect</div>
+            </div>
+            
+            <div class="legend-section cable-legend">
+                <h4>🔗 Cable Types</h4>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable ethernet"></div>
+                    <div class="legend-text">Ethernet (Cat6)</div>
+                </div>
+                <div class="legend-description">Blue solid - Network data</div>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable fiber"></div>
+                    <div class="legend-text">Fiber Optic</div>
+                </div>
+                <div class="legend-description">Orange dashed - High-speed data</div>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable power"></div>
+                    <div class="legend-text">Power Cable</div>
+                </div>
+                <div class="legend-description">Red thick - Power supply</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/rack-manager-v3.js"></script>
+    <script>
+        // Navigation functions for seamless rack switching
+        function navigateBack() {
+            // Check if we came from topology view
+            const topologyState = sessionStorage.getItem('topologyView');
+            if (topologyState) {
+                const state = JSON.parse(topologyState);
+                window.location.href = state.returnUrl || 'network-topology-view.html';
+            } else {
+                // Fallback to topology view
+                window.location.href = 'network-topology-view.html';
+            }
+        }
+        
+        function navigateToRack(rackId) {
+            // Store current navigation context
+            sessionStorage.setItem('topologyView', JSON.stringify({
+                selectedRack: rackId,
+                returnUrl: 'network-topology-view.html',
+                timestamp: new Date().toISOString()
+            }));
+            
+            // Navigate to specific rack
+            const rackPages = {
+                'G2C': 'rack-manager-g2c.html',
+                'SR': 'rack-manager-sr.html',
+                'G2B': 'rack-manager-g2b.html'
+            };
+            
+            if (rackPages[rackId]) {
+                window.location.href = rackPages[rackId];
+            }
+        }
+        
+        // Override switchRack function to work with Gate 2B
+        function switchRack(rackId) {
+            const config = rackConfigurations[rackId];
+            
+            if (!config) return;
+            
+            // Update UI
+            document.getElementById('rackTitle').textContent = config.name;
+            document.getElementById('rackDetails').textContent = config.details;
+            
+            // Clear current rack
+            clearRackSilent();
+            
+            // Load new rack configuration
+            loadRackConfiguration(config);
+        }
+        
+        // Override rack configuration for Gate 2B
+        function initializeGate2BRack() {
+            // Gate 2B specific configuration
+            rackConfigurations = {
+                'G2B': {
+                    name: 'Gate 2B Security Operations - Access Control Hub',
+                    details: 'D-Link DGS-1024D Unmanaged Switch • CCTV NVR System • Access Control Interface • Direct Fiber from Server Room',
+                    location: 'Gate-2B Security Room',
+                    devices: {
+                        // Access Switch (Unit 40)
+                        40: {
+                            deviceId: 'SW-G2B-001',
+                            deviceType: 'switch',
+                            portCount: 24,
+                            ports: {},
+                            name: 'D-Link DGS-1024D Access Switch',
+                            details: 'Unmanaged 24-port switch for local connections'
+                        },
+                        
+                        // CCTV NVR (Unit 38)
+                        38: {
+                            deviceId: 'NVR-G2B-001',
+                            deviceType: 'server',
+                            portCount: 1,
+                            ports: {},
+                            name: 'CCTV NVR System',
+                            details: 'Network Video Recorder for Gate 2B cameras'
+                        },
+                        
+                        // Access Control (Unit 36)
+                        36: {
+                            deviceId: 'AC-G2B-001',
+                            deviceType: 'server',
+                            portCount: 2,
+                            ports: {},
+                            name: 'Access Control System',
+                            details: 'Card reader and access control interface'
+                        },
+                        
+                        // Patch Panel (Unit 34)
+                        34: {
+                            deviceId: 'PP-G2B-001',
+                            deviceType: 'patch-panel',
+                            portCount: 12,
+                            ports: {},
+                            name: 'Local Patch Panel',
+                            details: 'Local connections for cameras and access points'
+                        },
+                        
+                        // UPS (Unit 3)
+                        3: {
+                            deviceId: 'UPS-G2B-001',
+                            deviceType: 'ups',
+                            portCount: 0,
+                            ports: {},
+                            name: 'APC Back-UPS 650VA',
+                            details: 'Local UPS for Gate 2B equipment'
+                        },
+                        
+                        // Power Strip (Unit 2)
+                        2: {
+                            deviceId: 'PS-G2B-001',
+                            deviceType: 'pdu',
+                            portCount: 4,
+                            ports: {},
+                            name: 'Local Power Strip',
+                            details: 'Power distribution for Gate 2B equipment'
+                        }
+                    },
+                    connections: [],
+                    portMappings: {
+                        // Switch uplink ports (direct fiber from SR)
+                        'SW-G2B-001-port-1': {
+                            uplink: true,
+                            mapping: 'Direct Fiber from SR LIU 2 Port 17',
+                            endDevice: 'Server Room LIU'
+                        },
+                        'SW-G2B-001-port-2': {
+                            uplink: true,
+                            mapping: 'Direct Fiber from SR LIU 2 Port 18',
+                            endDevice: 'Server Room LIU'
+                        },
+                        'SW-G2B-001-port-3': {
+                            uplink: false,
+                            mapping: 'CCTV NVR Connection',
+                            endDevice: 'CCTV System'
+                        },
+                        'SW-G2B-001-port-4': {
+                            uplink: false,
+                            mapping: 'Access Control Connection',
+                            endDevice: 'Access Control System'
+                        }
+                    }
+                }
+            };
+            
+            // Set current rack to Gate 2B
+            currentRackId = 'G2B';
+            
+            // Update UI immediately
+            document.getElementById('rackTitle').textContent = rackConfigurations['G2B'].name;
+            document.getElementById('rackDetails').textContent = rackConfigurations['G2B'].details;
+            
+            // Load Gate 2B configuration
+            switchRack('G2B');
+        }
+        
+        // Initialize with Gate 2B specific configuration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Gate 2B rack BEFORE calling the main initialization
+            initializeGate2BRack();
+            
+            // Override the main initialization to prevent Gate 2C loading
+            // Don't call initializeRack() as it loads Gate 2C by default
+            
+            console.log('🚪 Gate 2B Rack Manager initialized with navigation support');
+        });
+    </script>
+</body>
+</html>

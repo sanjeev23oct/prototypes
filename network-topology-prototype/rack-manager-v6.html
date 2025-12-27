@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Rack Manager v6 - Professional Edition</title>
+    <link rel="stylesheet" href="css/rack-manager-v6.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🏗️ Network Rack Manager v6 - Professional Edition</h1>
+        <p>Advanced drag-and-drop network infrastructure management built on proven v4 foundation</p>
+        <div style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
+            <strong>Location:</strong> Gate-2C Security Room • 
+            <strong>Switch:</strong> D-Link 1210-28P (PoE, Manageable) • 
+            <strong>Data Source:</strong> rack2c.txt
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Enhanced Toolbox Panel with Drag & Drop -->
+        <div class="toolbox" id="toolbox">
+            <div class="toolbox-header">
+                <h3 style="margin: 0;">🧰 Professional Toolbox</h3>
+                <button class="toolbox-toggle" onclick="toggleToolbox()">
+                    <span id="toolboxToggleIcon">◀</span>
+                </button>
+            </div>
+            
+            <div class="toolbox-content">
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Network Infrastructure</h4>
+                    
+                    <div class="tool-item" draggable="true" data-device-type="liu" data-ports="12">
+                        <div class="tool-icon device-liu">LIU</div>
+                        <div class="tool-info">
+                            <div class="tool-name">12-Port LIU</div>
+                            <div class="tool-desc">Fiber Optic Line Interface Unit</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-device-type="liu" data-ports="24">
+                        <div class="tool-icon device-liu">LIU</div>
+                        <div class="tool-info">
+                            <div class="tool-name">24-Port LIU</div>
+                            <div class="tool-desc">High-Density Fiber LIU</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-device-type="switch" data-ports="24">
+                        <div class="tool-icon device-switch">SW</div>
+                        <div class="tool-info">
+                            <div class="tool-name">24-Port Switch</div>
+                            <div class="tool-desc">Managed Ethernet Switch</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-device-type="switch" data-ports="28">
+                        <div class="tool-icon device-switch">SW</div>
+                        <div class="tool-info">
+                            <div class="tool-name">28-Port PoE Switch</div>
+                            <div class="tool-desc">D-Link 1210-28P or similar</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-device-type="patch-panel" data-ports="24">
+                        <div class="tool-icon device-patch-panel">PP</div>
+                        <div class="tool-info">
+                            <div class="tool-name">24-Port Patch Panel</div>
+                            <div class="tool-desc">Cat6 RJ45 Patch Panel</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">End Devices</h4>
+                    
+                    <div class="tool-item" draggable="true" data-device-type="wifi" data-ports="2">
+                        <div class="tool-icon device-wifi">WiFi</div>
+                        <div class="tool-info">
+                            <div class="tool-name">WiFi Access Point</div>
+                            <div class="tool-desc">D-Link DAP-2230 or similar</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-device-type="cctv" data-ports="1">
+                        <div class="tool-icon device-cctv">CAM</div>
+                        <div class="tool-info">
+                            <div class="tool-name">CCTV Camera</div>
+                            <div class="tool-desc">IP Security Camera</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-device-type="generic" data-ports="4">
+                        <div class="tool-icon device-generic">DEV</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Generic Device</div>
+                            <div class="tool-desc">Custom Network Device</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Power Infrastructure</h4>
+                    
+                    <div class="tool-item" draggable="true" data-device-type="ups" data-ports="0">
+                        <div class="tool-icon device-ups">UPS</div>
+                        <div class="tool-info">
+                            <div class="tool-name">UPS Unit</div>
+                            <div class="tool-desc">Uninterruptible Power Supply</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-device-type="power" data-ports="6">
+                        <div class="tool-icon device-power">PWR</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Power Strip</div>
+                            <div class="tool-desc">Managed Power Distribution</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rack View (Enhanced from v4) -->
+        <div class="rack-container">
+            <div class="rack-header">
+                <div class="rack-info">
+                    <div class="rack-title" id="rackTitle">Gate 2C Network Rack - Security Room</div>
+                    <div class="rack-details" id="rackDetails">D-Link 1210-28P Switch • 12-Core Fiber from SR LIU 2 • PoE Enabled • Manageable</div>
+                </div>
+                <div class="rack-controls">
+                    <button class="btn btn-secondary" onclick="toggleCableVisibility()">Toggle Cables</button>
+                    <button class="btn btn-secondary" onclick="clearRack()">Clear Rack</button>
+                    <div class="file-input-wrapper">
+                        <button class="btn btn-secondary">📁 Load Config</button>
+                        <input type="file" class="file-input" id="loadConfig" accept=".json" onchange="loadConfiguration(event)">
+                    </div>
+                    <button class="btn btn-primary" onclick="saveConfiguration()">💾 Save Config</button>
+                </div>
+            </div>
+
+            <div class="rack-visual">
+                <div class="rack">
+                    <div class="rack-frame">
+                        <div class="rack-units" id="rackUnits">
+                            <!-- Rack units will be generated by JavaScript -->
+                        </div>
+                        <!-- Cable visualization container -->
+                        <svg class="cables-container" id="cablesContainer">
+                            <!-- Cables will be drawn here -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Connection Panel -->
+        <div class="connection-panel">
+            <h3>🔌 Gate 2C Connections</h3>
+            
+            <!-- Port Usage Summary -->
+            <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #4299e1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 0.9rem;">📊 Port Usage Summary</h4>
+                <div id="portSummary" style="font-size: 0.8rem; color: #4a5568;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="connection-form" id="connectionForm">
+                <div class="form-group">
+                    <label class="form-label">Connection Type</label>
+                    <select class="form-select" id="connectionType">
+                        <option value="ethernet">Ethernet</option>
+                        <option value="fiber">Fiber Optic</option>
+                        <option value="power">Power</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable Length (meters)</label>
+                    <input type="number" class="form-input" id="cableLength" value="1" min="0.1" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable ID</label>
+                    <input type="text" class="form-input" id="cableId" placeholder="Auto-generated">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="createConnection()">Create Connection</button>
+                    <button class="btn btn-secondary" onclick="cancelConnection()">Cancel</button>
+                </div>
+            </div>
+
+            <div class="connections-list" id="connectionsList">
+                <!-- Connections will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Toolbox Toggle -->
+    <button class="mobile-toolbox-toggle" id="mobileToggle" onclick="toggleMobileToolbox()" style="display: none;">
+        ➕ Add Device
+    </button>
+
+    <!-- Professional Port Configuration Panel -->
+    <div class="port-config-panel" id="portConfigPanel">
+        <div class="panel-header">
+            <h3 id="panelTitle">Port Configuration</h3>
+            <button class="close-panel" onclick="closePortPanel()">✕</button>
+        </div>
+        
+        <div class="panel-content">
+            <form id="portConfigForm">
+                <div class="form-section">
+                    <h4>Basic Information</h4>
+                    <div class="form-group">
+                        <label class="form-label">Device Type</label>
+                        <input type="text" class="form-input" id="deviceType" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Port Number</label>
+                        <input type="text" class="form-input" id="portNumber" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Port Status</label>
+                        <select class="form-select" id="portStatus">
+                            <option value="free">Free</option>
+                            <option value="active">Active</option>
+                            <option value="uplink">Uplink</option>
+                            <option value="disabled">Disabled</option>
+                            <option value="fault">Fault</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Switch-specific fields -->
+                <div class="form-section" id="switchFields" style="display: none;">
+                    <h4>Switch Configuration</h4>
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="switchRole">
+                            <option value="downlink">Downlink</option>
+                            <option value="uplink">Uplink</option>
+                            <option value="disabled">Disabled</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Connected To</label>
+                        <input type="text" class="form-input" id="connectedTo" placeholder="e.g., Patch Panel Port 15">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">VLAN / Network</label>
+                        <input type="text" class="form-input" id="vlan" placeholder="e.g., VLAN 100, Management">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">IP / Device Name</label>
+                        <input type="text" class="form-input" id="ipDevice" placeholder="e.g., 192.168.1.100, Gate2C-WiFi">
+                    </div>
+                </div>
+
+                <!-- Patch Panel specific fields -->
+                <div class="form-section" id="patchPanelFields" style="display: none;">
+                    <h4>Patch Panel Configuration</h4>
+                    <div class="form-group">
+                        <label class="form-label">Field ID</label>
+                        <input type="text" class="form-input" id="fieldId" placeholder="e.g., Gate 2C WIFI, Attendance, CCTV">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Room / Location</label>
+                        <input type="text" class="form-input" id="location" placeholder="e.g., Security Room, Gate 2C">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cable ID</label>
+                        <input type="text" class="form-input" id="cableId" placeholder="e.g., CAT6-G2C-001">
+                    </div>
+                </div>
+
+                <!-- LIU specific fields -->
+                <div class="form-section" id="liuFields" style="display: none;">
+                    <h4>LIU Configuration</h4>
+                    <div class="form-group">
+                        <label class="form-label">Remote LIU and Port</label>
+                        <input type="text" class="form-input" id="remoteLiu" placeholder="e.g., SR LIU 2 - Port 13">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Core/Trunk Name</label>
+                        <input type="text" class="form-input" id="trunkName" placeholder="e.g., 12-Core Fiber to SR">
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4>Additional Information</h4>
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea" id="notes" placeholder="Additional notes and comments..." rows="3"></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel-actions">
+            <button type="button" class="btn btn-primary" onclick="savePortConfiguration()">
+                💾 Save Port Configuration
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="closePortPanel()">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- Enhanced Legend -->
+    <button class="legend-toggle" onclick="toggleLegend()" id="legendToggle">
+        📋 Show Legend
+    </button>
+    
+    <div class="port-legend hidden" id="portLegend">
+        <div class="legend-content">
+            <div class="legend-section">
+                <h4>🔌 Port Status</h4>
+                
+                <div class="legend-item">
+                    <div class="legend-port available">1</div>
+                    <div class="legend-text">Available Port</div>
+                </div>
+                <div class="legend-description">Gray - Ready for connection</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port connected">2</div>
+                    <div class="legend-text">Connected Port</div>
+                </div>
+                <div class="legend-description">Green - Active connection</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port uplink">3</div>
+                    <div class="legend-text">Uplink Port</div>
+                </div>
+                <div class="legend-description">Purple - Links to Server Room/LIU</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port uplink-connected">4</div>
+                    <div class="legend-text">Active Uplink</div>
+                </div>
+                <div class="legend-description">Blue - Connected uplink to SR</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port selected">5</div>
+                    <div class="legend-text">Selected Port</div>
+                </div>
+                <div class="legend-description">Orange - Ready to connect</div>
+            </div>
+            
+            <div class="legend-section cable-legend">
+                <h4>🔗 Cable Types</h4>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable ethernet"></div>
+                    <div class="legend-text">Ethernet (Cat6)</div>
+                </div>
+                <div class="legend-description">Blue solid - Network data</div>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable fiber"></div>
+                    <div class="legend-text">Fiber Optic</div>
+                </div>
+                <div class="legend-description">Orange dashed - High-speed data</div>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable power"></div>
+                    <div class="legend-text">Power Cable</div>
+                </div>
+                <div class="legend-description">Red thick - Power supply</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/rack-manager-v6.js"></script>
+</body>
+</html>

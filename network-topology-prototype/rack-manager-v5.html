@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Rack Manager v5 - Professional Edition</title>
+    <style>
+        /* CSS Variables for easy theming */
+        :root {
+            --port-free: #718096;
+            --port-active: #48bb78;
+            --port-uplink: #4299e1;
+            --port-disabled: #e53e3e;
+            --port-fault: #ed8936;
+            --primary-color: #4299e1;
+            --secondary-color: #718096;
+            --success-color: #48bb78;
+            --danger-color: #e53e3e;
+            --warning-color: #ed8936;
+            --background: #f7fafc;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text-primary: #2d3748;
+            --text-secondary: #718096;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 50;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            height: calc(100vh - 80px);
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        /* Toolbox Panel */
+        .toolbox {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .toolbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .toolbox h3 {
+            color: var(--text-primary);
+            font-size: 1.1rem;
+        }
+
+        .toolbox-category {
+            margin-bottom: 2rem;
+        }
+
+        .category-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .tool-item:hover {
+            background: #edf2f7;
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.2);
+        }
+
+        .tool-item:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+
+        .tool-item.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .tool-icon {
+            width: 36px;
+            height: 36px;
+            margin-right: 0.75rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .tool-desc {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.2rem;
+        }
+
+        /* Device Type Colors */
+        .device-liu { background: #9f7aea; }
+        .device-switch { background: #4299e1; }
+        .device-patch-panel { background: #48bb78; }
+        .device-wifi { background: #ed8936; }
+        .device-cctv { background: #38b2ac; }
+        .device-generic { background: #718096; }
+        .device-ups { background: #805ad5; }
+        .device-power { background: #e53e3e; }
+
+        /* Rack Container */
+        .rack-container {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .rack-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .rack-info h2 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .rack-info p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .control-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        /* Rack Visual */
+        .rack-frame {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-height: 600px;
+            position: relative;
+        }
+
+        .rack-units {
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 2px;
+        }
+
+        .rack-unit {
+            min-height: 40px;
+            background: #f7fafc;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
+        }
+
+        .rack-unit:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .rack-unit.drop-zone {
+            background: #c6f6d5;
+            border-color: var(--success-color);
+            border-style: dashed;
+            border-width: 2px;
+        }
+
+        .rack-unit.occupied {
+            background: transparent;
+            border: none;
+            min-height: 50px;
+        }
+
+        .unit-number {
+            position: absolute;
+            left: -50px;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            font-weight: 600;
+            width: 40px;
+            text-align: right;
+        }
+
+        .device-in-rack {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            color: white;
+            font-weight: 500;
+            font-size: 0.85rem;
+            cursor: move;
+            position: relative;
+            min-height: 48px;
+        }
+
+        .device-info {
+            flex: 1;
+        }
+
+        .device-name {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .device-model {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        .device-ports {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            max-width: 400px;
+            align-items: center;
+        }
+
+        /* Enhanced Port Styling */
+        .port {
+            width: 24px;
+            height: 24px;
+            background: var(--port-free);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.4);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            min-width: 24px;
+            min-height: 24px;
+        }
+
+        .port:hover {
+            transform: scale(1.2);
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .port.active {
+            background: var(--port-active);
+            border-color: #38a169;
+        }
+
+        .port.uplink {
+            background: var(--port-uplink);
+            border-color: #3182ce;
+        }
+
+        .port.disabled {
+            background: var(--port-disabled);
+            border-color: #c53030;
+        }
+
+        .port.fault {
+            background: var(--port-fault);
+            border-color: #dd6b20;
+        }
+
+        /* Port Data Entry Panel */
+        .data-entry-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: var(--surface);
+            box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .data-entry-panel.open {
+            right: 0;
+        }
+
+        .panel-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: #f8fafc;
+        }
+
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .panel-content {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-input:read-only {
+            background: #f7fafc;
+            color: var(--text-secondary);
+        }
+
+        .panel-actions {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .close-panel {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .close-panel:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Legend */
+        .legend {
+            position: fixed;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-port {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .legend-text {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                height: calc(100vh - 80px);
+            }
+
+            .toolbox {
+                position: fixed;
+                bottom: -300px;
+                left: 0;
+                right: 0;
+                height: 300px;
+                z-index: 200;
+                border-radius: 16px 16px 0 0;
+                transition: bottom 0.3s ease;
+            }
+
+            .toolbox.open {
+                bottom: 0;
+            }
+
+            .mobile-toolbox-toggle {
+                position: fixed;
+                bottom: 1rem;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--primary-color);
+                color: white;
+                border: none;
+                border-radius: 25px;
+                padding: 0.75rem 1.5rem;
+                font-weight: 600;
+                cursor: pointer;
+                z-index: 201;
+                box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+            }
+
+            .data-entry-panel {
+                top: auto;
+                bottom: -100vh;
+                right: 0;
+                left: 0;
+                width: 100%;
+                height: 80vh;
+                border-radius: 16px 16px 0 0;
+                transition: bottom 0.3s ease;
+            }
+
+            .data-entry-panel.open {
+                bottom: 0;
+            }
+
+            .port {
+                width: 32px;
+                height: 32px;
+                font-size: 0.8rem;
+            }
+
+            .legend {
+                display: none;
+            }
+        }
+
+        /* Drag Preview */
+        .drag-preview {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            background: rgba(66, 153, 225, 0.9);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        /* File Input Styling */
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.3s ease;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🏗️ Network Rack Manager v5 - Professional Edition</h1>
+        <p>Drag-and-drop network infrastructure management for Gate 2C and beyond</p>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <!-- Toolbox Panel -->
+        <div class="toolbox" id="toolbox">
+            <div class="toolbox-header">
+                <h3>🧰 Device Toolbox</h3>
+            </div>
+            
+            <div class="toolbox-category">
+                <div class="category-title">Network Infrastructure</div>
+                
+                <div class="tool-item" draggable="true" data-device-type="liu" data-ports="12">
+                    <div class="tool-icon device-liu">LIU</div>
+                    <div class="tool-info">
+                        <div class="tool-name">12-Port LIU</div>
+                        <div class="tool-desc">Fiber Optic Line Interface Unit</div>
+                    </div>
+                </div>
+
+                <div class="tool-item" draggable="true" data-device-type="liu" data-ports="24">
+                    <div class="tool-icon device-liu">LIU</div>
+                    <div class="tool-info">
+                        <div class="tool-name">24-Port LIU</div>
+                        <div class="tool-desc">High-Density Fiber LIU</div>
+                    </div>
+                </div>
+
+                <div class="tool-item" draggable="true" data-device-type="switch" data-ports="24">
+                    <div class="tool-icon device-switch">SW</div>
+                    <div class="tool-info">
+                        <div class="tool-name">24-Port Switch</div>
+                        <div class="tool-desc">Managed Ethernet Switch</div>
+                    </div>
+                </div>
+
+                <div class="tool-item" draggable="true" data-device-type="switch" data-ports="28">
+                    <div class="tool-icon device-switch">SW</div>
+                    <div class="tool-info">
+                        <div class="tool-name">28-Port PoE Switch</div>
+                        <div class="tool-desc">D-Link 1210-28P or similar</div>
+                    </div>
+                </div>
+
+                <div class="tool-item" draggable="true" data-device-type="patch-panel" data-ports="24">
+                    <div class="tool-icon device-patch-panel">PP</div>
+                    <div class="tool-info">
+                        <div class="tool-name">24-Port Patch Panel</div>
+                        <div class="tool-desc">Cat6 RJ45 Patch Panel</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbox-category">
+                <div class="category-title">End Devices</div>
+                
+                <div class="tool-item" draggable="true" data-device-type="wifi" data-ports="2">
+                    <div class="tool-icon device-wifi">WiFi</div>
+                    <div class="tool-info">
+                        <div class="tool-name">WiFi Access Point</div>
+                        <div class="tool-desc">D-Link DAP-2230 or similar</div>
+                    </div>
+                </div>
+
+                <div class="tool-item" draggable="true" data-device-type="cctv" data-ports="1">
+                    <div class="tool-icon device-cctv">CAM</div>
+                    <div class="tool-info">
+                        <div class="tool-name">CCTV Camera</div>
+                        <div class="tool-desc">IP Security Camera</div>
+                    </div>
+                </div>
+
+                <div class="tool-item" draggable="true" data-device-type="generic" data-ports="4">
+                    <div class="tool-icon device-generic">DEV</div>
+                    <div class="tool-info">
+                        <div class="tool-name">Generic Device</div>
+                        <div class="tool-desc">Custom Network Device</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="toolbox-category">
+                <div class="category-title">Power Infrastructure</div>
+                
+                <div class="tool-item" draggable="true" data-device-type="ups" data-ports="0">
+                    <div class="tool-icon device-ups">UPS</div>
+                    <div class="tool-info">
+                        <div class="tool-name">UPS Unit</div>
+                        <div class="tool-desc">Uninterruptible Power Supply</div>
+                    </div>
+                </div>
+
+                <div class="tool-item" draggable="true" data-device-type="power" data-ports="6">
+                    <div class="tool-icon device-power">PWR</div>
+                    <div class="tool-info">
+                        <div class="tool-name">Power Strip</div>
+                        <div class="tool-desc">Managed Power Distribution</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rack Container -->
+        <div class="rack-container">
+            <div class="rack-controls">
+                <div class="rack-info">
+                    <h2 id="rackTitle">Gate 2C Network Rack</h2>
+                    <p id="rackDescription">Professional network infrastructure management</p>
+                </div>
+                <div class="control-buttons">
+                    <button class="btn btn-secondary" onclick="clearRack()">
+                        🗑️ Clear Rack
+                    </button>
+                    <div class="file-input-wrapper">
+                        <button class="btn btn-secondary">
+                            📁 Load Config
+                        </button>
+                        <input type="file" class="file-input" id="loadConfig" accept=".json" onchange="loadConfiguration(event)">
+                    </div>
+                    <button class="btn btn-success" onclick="saveConfiguration()">
+                        💾 Save Config
+                    </button>
+                </div>
+            </div>
+
+            <div class="rack-frame">
+                <div class="rack-units" id="rackUnits">
+                    <!-- Rack units will be generated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Toolbox Toggle -->
+    <button class="mobile-toolbox-toggle" id="mobileToggle" onclick="toggleMobileToolbox()">
+        ➕ Add Device
+    </button>
+
+    <!-- Port Data Entry Panel -->
+    <div class="data-entry-panel" id="dataEntryPanel">
+        <button class="close-panel" onclick="closeDataPanel()">✕</button>
+        
+        <div class="panel-header">
+            <div class="panel-title" id="panelTitle">Port Configuration</div>
+            <div class="panel-subtitle" id="panelSubtitle">Configure port settings and connections</div>
+        </div>
+
+        <div class="panel-content">
+            <form id="portConfigForm">
+                <div class="form-group">
+                    <label class="form-label">Device Type</label>
+                    <input type="text" class="form-input" id="deviceType" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Port Number</label>
+                    <input type="text" class="form-input" id="portNumber" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Port Status</label>
+                    <select class="form-select" id="portStatus">
+                        <option value="free">Free</option>
+                        <option value="active">Active</option>
+                        <option value="uplink">Uplink</option>
+                        <option value="disabled">Disabled</option>
+                        <option value="fault">Fault</option>
+                    </select>
+                </div>
+
+                <!-- Switch-specific fields -->
+                <div id="switchFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="switchRole">
+                            <option value="downlink">Downlink</option>
+                            <option value="uplink">Uplink</option>
+                            <option value="disabled">Disabled</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Connected To</label>
+                        <input type="text" class="form-input" id="connectedTo" placeholder="e.g., Patch Panel Port 15">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">VLAN / Network</label>
+                        <input type="text" class="form-input" id="vlan" placeholder="e.g., VLAN 100, Management">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">IP / Device Name</label>
+                        <input type="text" class="form-input" id="ipDevice" placeholder="e.g., 192.168.1.100, Gate2C-WiFi">
+                    </div>
+                </div>
+
+                <!-- Patch Panel specific fields -->
+                <div id="patchPanelFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Field ID</label>
+                        <input type="text" class="form-input" id="fieldId" placeholder="e.g., Gate 2C WIFI, Attendance, CCTV">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Room / Location</label>
+                        <input type="text" class="form-input" id="location" placeholder="e.g., Security Room, Gate 2C">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cable ID</label>
+                        <input type="text" class="form-input" id="cableId" placeholder="e.g., CAT6-G2C-001">
+                    </div>
+                </div>
+
+                <!-- LIU specific fields -->
+                <div id="liuFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Remote LIU and Port</label>
+                        <input type="text" class="form-input" id="remoteLiu" placeholder="e.g., SR LIU 2 - Port 13">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Core/Trunk Name</label>
+                        <input type="text" class="form-input" id="trunkName" placeholder="e.g., 12-Core Fiber to SR">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-textarea" id="notes" placeholder="Additional notes and comments..."></textarea>
+                </div>
+            </form>
+        </div>
+
+        <div class="panel-actions">
+            <button type="button" class="btn btn-primary" onclick="savePortConfiguration()">
+                💾 Save Port
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeDataPanel()">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+        <div class="legend-title">🎨 Port Status Legend</div>
+        <div class="legend-items">
+            <div class="legend-item">
+                <div class="legend-port" style="background: var(--port-free);"></div>
+                <span class="legend-text">Free</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-port" style="background: var(--port-active);"></div>
+                <span class="legend-text">Active</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-port" style="background: var(--port-uplink);"></div>
+                <span class="legend-text">Uplink</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-port" style="background: var(--port-disabled);"></div>
+                <span class="legend-text">Disabled</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-port" style="background: var(--port-fault);"></div>
+                <span class="legend-text">Fault</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global State Management
+        let rackData = {
+            id: 'G-2C',
+            name: 'Gate 2C Network Rack',
+            description: 'Professional network infrastructure management',
+            units: [],
+            lastModified: new Date().toISOString()
+        };
+
+        let currentPortConfig = null;
+        let dragPreview = null;
+        let deviceCounter = 1;
+
+        // Device Templates
+        const deviceTemplates = {
+            liu: {
+                name: 'LIU',
+                fullName: 'Line Interface Unit',
+                color: 'device-liu',
+                defaultPorts: 12
+            },
+            switch: {
+                name: 'Switch',
+                fullName: 'Network Switch',
+                color: 'device-switch',
+                defaultPorts: 28
+            },
+            'patch-panel': {
+                name: 'Patch Panel',
+                fullName: 'Patch Panel',
+                color: 'device-patch-panel',
+                defaultPorts: 24
+            },
+            wifi: {
+                name: 'WiFi AP',
+                fullName: 'WiFi Access Point',
+                color: 'device-wifi',
+                defaultPorts: 2
+            },
+            cctv: {
+                name: 'CCTV',
+                fullName: 'CCTV Camera',
+                color: 'device-cctv',
+                defaultPorts: 1
+            },
+            generic: {
+                name: 'Device',
+                fullName: 'Generic Device',
+                color: 'device-generic',
+                defaultPorts: 4
+            },
+            ups: {
+                name: 'UPS',
+                fullName: 'UPS Unit',
+                color: 'device-ups',
+                defaultPorts: 0
+            },
+            power: {
+                name: 'Power',
+                fullName: 'Power Strip',
+                color: 'device-power',
+                defaultPorts: 6
+            }
+        };
+
+        // Initialize Application
+        function initializeApp() {
+            console.log('🚀 Initializing Network Rack Manager v5');
+            
+            try {
+                // Initialize with sample Gate 2C configuration
+                initializeSampleRack();
+                console.log('📊 Rack data after initialization:', rackData);
+                
+                // Setup drag and drop
+                setupDragAndDrop();
+                
+                // Setup mobile responsiveness
+                setupMobileHandlers();
+                
+                // Render initial rack
+                renderRack();
+                
+                console.log('✅ Application initialized successfully');
+                
+                // Debug: Log rendered units
+                setTimeout(() => {
+                    const renderedUnits = document.querySelectorAll('.rack-unit.occupied');
+                    console.log('🔍 Rendered occupied units:', renderedUnits.length);
+                }, 100);
+                
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+            }
+        }
+
+        // Initialize Sample Rack Configuration
+        function initializeSampleRack() {
+            console.log('🔧 Initializing sample rack configuration...');
+            
+            rackData.units = [
+                {
+                    unit: 42,
+                    deviceType: 'liu',
+                    deviceId: 'LIU-G2C-001',
+                    name: '12-Core Fiber LIU',
+                    model: 'From SR LIU 2',
+                    ports: Array.from({length: 12}, (_, i) => ({
+                        number: i + 1,
+                        status: i < 4 ? 'uplink' : 'free',
+                        connectedTo: i < 4 ? `SR LIU 2 Port ${13 + i}` : null,
+                        fieldId: null,
+                        notes: i < 4 ? 'Uplink to Server Room' : ''
+                    }))
+                },
+                {
+                    unit: 40,
+                    deviceType: 'switch',
+                    deviceId: 'SW-G2C-001',
+                    name: 'D-Link 1210-28P',
+                    model: 'PoE Switch',
+                    ports: Array.from({length: 28}, (_, i) => ({
+                        number: i + 1,
+                        status: i < 3 ? 'active' : 'free',
+                        connectedTo: null,
+                        fieldId: null,
+                        vlan: null,
+                        ipDevice: null,
+                        notes: ''
+                    }))
+                },
+                {
+                    unit: 38,
+                    deviceType: 'patch-panel',
+                    deviceId: 'PP-G2C-001',
+                    name: 'Patch Panel 1',
+                    model: 'Cat6 24-Port',
+                    ports: Array.from({length: 24}, (_, i) => ({
+                        number: i + 1,
+                        status: i < 5 ? 'active' : 'free',
+                        fieldId: i < 5 ? `Field Device ${i + 1}` : null,
+                        location: i < 5 ? 'Gate 2C Area' : null,
+                        cableId: i < 5 ? `CAT6-G2C-${String(i + 1).padStart(3, '0')}` : null,
+                        notes: ''
+                    }))
+                },
+                {
+                    unit: 36,
+                    deviceType: 'wifi',
+                    deviceId: 'WIFI-G2C-001',
+                    name: 'D-Link DAP-2230',
+                    model: 'WiFi Access Point',
+                    ports: Array.from({length: 2}, (_, i) => ({
+                        number: i + 1,
+                        status: i === 0 ? 'active' : 'free',
+                        fieldId: i === 0 ? 'Gate 2C WiFi' : null,
+                        notes: i === 0 ? 'Primary WiFi connection' : ''
+                    }))
+                },
+                {
+                    unit: 3,
+                    deviceType: 'ups',
+                    deviceId: 'UPS-G2C-001',
+                    name: 'BPE 650VA UPS',
+                    model: 'Uninterruptible Power Supply',
+                    ports: []
+                },
+                {
+                    unit: 2,
+                    deviceType: 'power',
+                    deviceId: 'PWR-G2C-001',
+                    name: 'Wago Power Strip',
+                    model: 'With MCB & Switch',
+                    ports: Array.from({length: 6}, (_, i) => ({
+                        number: i + 1,
+                        status: i < 3 ? 'active' : 'free',
+                        fieldId: i < 3 ? `Power Feed ${i + 1}` : null,
+                        notes: ''
+                    }))
+                }
+            ];
+            
+            console.log('✅ Sample rack initialized with', rackData.units.length, 'devices');
+        }
+
+        // Render Rack Function
+        function renderRack() {
+            const rackUnits = document.getElementById('rackUnits');
+            rackUnits.innerHTML = '';
+
+            // Create 42 rack units (standard rack height)
+            for (let unit = 42; unit >= 1; unit--) {
+                const unitElement = document.createElement('div');
+                unitElement.className = 'rack-unit';
+                unitElement.dataset.unit = unit;
+
+                // Add unit number
+                const unitNumber = document.createElement('div');
+                unitNumber.className = 'unit-number';
+                unitNumber.textContent = unit;
+                unitElement.appendChild(unitNumber);
+
+                // Check if this unit has a device
+                const deviceData = rackData.units.find(d => d.unit === unit);
+                if (deviceData) {
+                    unitElement.classList.add('occupied');
+                    const deviceElement = renderDevice(deviceData);
+                    unitElement.appendChild(deviceElement);
+                } else {
+                    // Add drop zone functionality for empty units
+                    setupDropZone(unitElement);
+                }
+
+                rackUnits.appendChild(unitElement);
+            }
+
+            console.log('🔄 Rack rendered with', rackData.units.length, 'devices');
+        }
+
+        // Render Device Function
+        function renderDevice(deviceData) {
+            const template = deviceTemplates[deviceData.deviceType];
+            const deviceElement = document.createElement('div');
+            
+            deviceElement.className = `device-in-rack ${template.color}`;
+            deviceElement.dataset.deviceId = deviceData.deviceId;
+            deviceElement.dataset.deviceType = deviceData.deviceType;
+            deviceElement.draggable = true;
+
+            deviceElement.innerHTML = `
+                <div class="device-info">
+                    <div class="device-name">${deviceData.name}</div>
+                    <div class="device-model">${deviceData.model}</div>
+                </div>
+                <div class="device-ports" id="ports-${deviceData.deviceId}">
+                    ${renderPorts(deviceData)}
+                </div>
+            `;
+
+            // Add device drag handlers
+            deviceElement.addEventListener('dragstart', handleDeviceDragStart);
+            deviceElement.addEventListener('dragend', handleDeviceDragEnd);
+
+            return deviceElement;
+        }
+
+        // Render Ports Function
+        function renderPorts(deviceData) {
+            if (!deviceData.ports || deviceData.ports.length === 0) {
+                return '<span style="font-size: 0.75rem; opacity: 0.7;">No ports</span>';
+            }
+
+            return deviceData.ports.map(port => {
+                const portElement = `
+                    <div class="port ${port.status}" 
+                         data-device-id="${deviceData.deviceId}"
+                         data-port-number="${port.number}"
+                         onclick="openPortConfig('${deviceData.deviceId}', ${port.number})"
+                         title="${getPortTooltip(deviceData, port)}">
+                        ${port.number}
+                    </div>
+                `;
+                return portElement;
+            }).join('');
+        }
+
+        // Get Port Tooltip
+        function getPortTooltip(deviceData, port) {
+            let tooltip = `${deviceData.name} - Port ${port.number}\nStatus: ${port.status}`;
+            
+            if (port.fieldId) tooltip += `\nField: ${port.fieldId}`;
+            if (port.connectedTo) tooltip += `\nConnected: ${port.connectedTo}`;
+            if (port.ipDevice) tooltip += `\nIP/Device: ${port.ipDevice}`;
+            if (port.notes) tooltip += `\nNotes: ${port.notes}`;
+            
+            return tooltip;
+        }
+
+        // Setup Drag and Drop
+        function setupDragAndDrop() {
+            const toolItems = document.querySelectorAll('.tool-item');
+            
+            toolItems.forEach(item => {
+                item.addEventListener('dragstart', handleToolDragStart);
+                item.addEventListener('dragend', handleToolDragEnd);
+            });
+
+            console.log('🎯 Drag and drop initialized');
+        }
+
+        // Handle Tool Drag Start
+        function handleToolDragStart(e) {
+            e.target.classList.add('dragging');
+            
+            const deviceType = e.target.dataset.deviceType;
+            const ports = parseInt(e.target.dataset.ports);
+            
+            e.dataTransfer.setData('application/json', JSON.stringify({
+                type: 'new-device',
+                deviceType,
+                ports
+            }));
+
+            createDragPreview(e, `Add ${deviceTemplates[deviceType].fullName}`);
+        }
+
+        // Handle Tool Drag End
+        function handleToolDragEnd(e) {
+            e.target.classList.remove('dragging');
+            removeDragPreview();
+        }
+
+        // Handle Device Drag Start (for reordering)
+        function handleDeviceDragStart(e) {
+            e.target.style.opacity = '0.5';
+            
+            const deviceId = e.target.dataset.deviceId;
+            e.dataTransfer.setData('application/json', JSON.stringify({
+                type: 'move-device',
+                deviceId
+            }));
+
+            createDragPreview(e, 'Move Device');
+        }
+
+        // Handle Device Drag End
+        function handleDeviceDragEnd(e) {
+            e.target.style.opacity = '1';
+            removeDragPreview();
+        }
+
+        // Setup Drop Zone
+        function setupDropZone(unitElement) {
+            unitElement.addEventListener('dragover', handleDragOver);
+            unitElement.addEventListener('drop', handleDrop);
+            unitElement.addEventListener('dragleave', handleDragLeave);
+        }
+
+        // Handle Drag Over
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drop-zone');
+        }
+
+        // Handle Drag Leave
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drop-zone');
+        }
+
+        // Handle Drop
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drop-zone');
+
+            try {
+                const dragData = JSON.parse(e.dataTransfer.getData('application/json'));
+                const targetUnit = parseInt(e.currentTarget.dataset.unit);
+
+                if (dragData.type === 'new-device') {
+                    addNewDevice(targetUnit, dragData.deviceType, dragData.ports);
+                } else if (dragData.type === 'move-device') {
+                    moveDevice(dragData.deviceId, targetUnit);
+                }
+            } catch (error) {
+                console.error('❌ Drop handling error:', error);
+            }
+        }
+
+        // Add New Device
+        function addNewDevice(unit, deviceType, ports) {
+            // Check if unit is already occupied
+            if (rackData.units.find(d => d.unit === unit)) {
+                alert('⚠️ This rack unit is already occupied!');
+                return;
+            }
+
+            const template = deviceTemplates[deviceType];
+            const deviceId = `${deviceType.toUpperCase()}-G2C-${String(deviceCounter++).padStart(3, '0')}`;
+
+            const newDevice = {
+                unit,
+                deviceType,
+                deviceId,
+                name: `${template.name} ${deviceCounter - 1}`,
+                model: `${template.fullName}`,
+                ports: Array.from({length: ports}, (_, i) => ({
+                    number: i + 1,
+                    status: 'free',
+                    connectedTo: null,
+                    fieldId: null,
+                    notes: ''
+                }))
+            };
+
+            rackData.units.push(newDevice);
+            rackData.lastModified = new Date().toISOString();
+
+            renderRack();
+            
+            console.log('✅ Added new device:', newDevice);
+        }
+
+        // Move Device
+        function moveDevice(deviceId, targetUnit) {
+            // Check if target unit is occupied
+            if (rackData.units.find(d => d.unit === targetUnit && d.deviceId !== deviceId)) {
+                alert('⚠️ Target rack unit is already occupied!');
+                return;
+            }
+
+            const device = rackData.units.find(d => d.deviceId === deviceId);
+            if (device) {
+                device.unit = targetUnit;
+                rackData.lastModified = new Date().toISOString();
+                renderRack();
+                
+                console.log('✅ Moved device to unit', targetUnit);
+            }
+        }
+
+        // Create Drag Preview
+        function createDragPreview(e, text) {
+            const preview = document.createElement('div');
+            preview.className = 'drag-preview';
+            preview.textContent = text;
+            document.body.appendChild(preview);
+            dragPreview = preview;
+
+            document.addEventListener('mousemove', updateDragPreview);
+        }
+
+        // Update Drag Preview
+        function updateDragPreview(e) {
+            if (dragPreview) {
+                dragPreview.style.left = (e.clientX + 10) + 'px';
+                dragPreview.style.top = (e.clientY + 10) + 'px';
+            }
+        }
+
+        // Remove Drag Preview
+        function removeDragPreview() {
+            if (dragPreview) {
+                document.body.removeChild(dragPreview);
+                dragPreview = null;
+                document.removeEventListener('mousemove', updateDragPreview);
+            }
+        }
+
+        // Open Port Configuration
+        function openPortConfig(deviceId, portNumber) {
+            const device = rackData.units.find(d => d.deviceId === deviceId);
+            if (!device) return;
+
+            const port = device.ports.find(p => p.number === portNumber);
+            if (!port) return;
+
+            currentPortConfig = { deviceId, portNumber, device, port };
+
+            // Update panel title
+            document.getElementById('panelTitle').textContent = `${device.name} - Port ${portNumber}`;
+            document.getElementById('panelSubtitle').textContent = `Configure port settings and connections`;
+
+            // Fill form fields
+            document.getElementById('deviceType').value = deviceTemplates[device.deviceType].fullName;
+            document.getElementById('portNumber').value = portNumber;
+            document.getElementById('portStatus').value = port.status || 'free';
+
+            // Show/hide device-specific fields
+            showDeviceSpecificFields(device.deviceType);
+
+            // Fill device-specific fields
+            fillDeviceSpecificFields(device.deviceType, port);
+
+            document.getElementById('notes').value = port.notes || '';
+
+            // Show panel
+            document.getElementById('dataEntryPanel').classList.add('open');
+
+            console.log('🔧 Opened port config for', deviceId, 'port', portNumber);
+        }
+
+        // Show Device Specific Fields
+        function showDeviceSpecificFields(deviceType) {
+            // Hide all specific fields first
+            document.getElementById('switchFields').style.display = 'none';
+            document.getElementById('patchPanelFields').style.display = 'none';
+            document.getElementById('liuFields').style.display = 'none';
+
+            // Show relevant fields
+            if (deviceType === 'switch') {
+                document.getElementById('switchFields').style.display = 'block';
+            } else if (deviceType === 'patch-panel') {
+                document.getElementById('patchPanelFields').style.display = 'block';
+            } else if (deviceType === 'liu') {
+                document.getElementById('liuFields').style.display = 'block';
+            }
+        }
+
+        // Fill Device Specific Fields
+        function fillDeviceSpecificFields(deviceType, port) {
+            if (deviceType === 'switch') {
+                document.getElementById('switchRole').value = port.status === 'uplink' ? 'uplink' : 'downlink';
+                document.getElementById('connectedTo').value = port.connectedTo || '';
+                document.getElementById('vlan').value = port.vlan || '';
+                document.getElementById('ipDevice').value = port.ipDevice || '';
+            } else if (deviceType === 'patch-panel') {
+                document.getElementById('fieldId').value = port.fieldId || '';
+                document.getElementById('location').value = port.location || '';
+                document.getElementById('cableId').value = port.cableId || '';
+            } else if (deviceType === 'liu') {
+                document.getElementById('remoteLiu').value = port.connectedTo || '';
+                document.getElementById('trunkName').value = port.trunkName || '';
+            }
+        }
+
+        // Save Port Configuration
+        function savePortConfiguration() {
+            if (!currentPortConfig) return;
+
+            const { device, port } = currentPortConfig;
+
+            // Update basic fields
+            port.status = document.getElementById('portStatus').value;
+            port.notes = document.getElementById('notes').value;
+
+            // Update device-specific fields
+            if (device.deviceType === 'switch') {
+                const role = document.getElementById('switchRole').value;
+                if (role === 'uplink') port.status = 'uplink';
+                
+                port.connectedTo = document.getElementById('connectedTo').value;
+                port.vlan = document.getElementById('vlan').value;
+                port.ipDevice = document.getElementById('ipDevice').value;
+            } else if (device.deviceType === 'patch-panel') {
+                port.fieldId = document.getElementById('fieldId').value;
+                port.location = document.getElementById('location').value;
+                port.cableId = document.getElementById('cableId').value;
+            } else if (device.deviceType === 'liu') {
+                port.connectedTo = document.getElementById('remoteLiu').value;
+                port.trunkName = document.getElementById('trunkName').value;
+            }
+
+            // Update last modified
+            rackData.lastModified = new Date().toISOString();
+
+            // Re-render rack to show changes
+            renderRack();
+
+            // Close panel
+            closeDataPanel();
+
+            console.log('💾 Saved port configuration:', currentPortConfig);
+        }
+
+        // Close Data Panel
+        function closeDataPanel() {
+            document.getElementById('dataEntryPanel').classList.remove('open');
+            currentPortConfig = null;
+        }
+
+        // Mobile Handlers
+        function setupMobileHandlers() {
+            // Handle mobile toolbox toggle
+            if (window.innerWidth <= 768) {
+                document.getElementById('mobileToggle').style.display = 'block';
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const isMobile = window.innerWidth <= 768;
+                document.getElementById('mobileToggle').style.display = isMobile ? 'block' : 'none';
+                
+                if (!isMobile) {
+                    document.getElementById('toolbox').classList.remove('open');
+                }
+            });
+        }
+
+        // Toggle Mobile Toolbox
+        function toggleMobileToolbox() {
+            const toolbox = document.getElementById('toolbox');
+            const toggle = document.getElementById('mobileToggle');
+            
+            toolbox.classList.toggle('open');
+            toggle.textContent = toolbox.classList.contains('open') ? '✕ Close' : '➕ Add Device';
+        }
+
+        // Clear Rack
+        function clearRack() {
+            if (!confirm('⚠️ Are you sure you want to clear the entire rack? This will remove all devices and configurations.')) {
+                return;
+            }
+
+            rackData.units = [];
+            rackData.lastModified = new Date().toISOString();
+            deviceCounter = 1;
+
+            renderRack();
+            
+            console.log('🗑️ Rack cleared');
+        }
+
+        // Save Configuration
+        function saveConfiguration() {
+            const config = {
+                ...rackData,
+                exportedAt: new Date().toISOString(),
+                version: '5.0'
+            };
+
+            const dataStr = JSON.stringify(config, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `rack-config-${rackData.id}-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+
+            URL.revokeObjectURL(url);
+
+            console.log('💾 Configuration saved and downloaded');
+        }
+
+        // Load Configuration
+        function loadConfiguration(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const config = JSON.parse(e.target.result);
+                    
+                    // Validate configuration structure
+                    if (!config.id || !config.units || !Array.isArray(config.units)) {
+                        throw new Error('Invalid configuration format');
+                    }
+
+                    // Load configuration
+                    rackData = {
+                        ...config,
+                        lastModified: new Date().toISOString()
+                    };
+
+                    // Update device counter
+                    deviceCounter = Math.max(...rackData.units.map(d => {
+                        const match = d.deviceId.match(/(\d+)$/);
+                        return match ? parseInt(match[1]) : 0;
+                    }), 0) + 1;
+
+                    // Update UI
+                    document.getElementById('rackTitle').textContent = rackData.name;
+                    document.getElementById('rackDescription').textContent = rackData.description;
+
+                    renderRack();
+
+                    console.log('📁 Configuration loaded successfully');
+                    alert('✅ Configuration loaded successfully!');
+
+                } catch (error) {
+                    console.error('❌ Error loading configuration:', error);
+                    alert('❌ Error loading configuration. Please check the file format.');
+                }
+            };
+
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Initialize application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
+
+        // Export functions for debugging (remove in production)
+        window.rackManager = {
+            getRackData: () => rackData,
+            renderRack,
+            saveConfiguration,
+            clearRack
+        };
+
+        console.log('🏗️ Network Rack Manager v5 - Professional Edition loaded');
+    </script>
+</body>
+</html>

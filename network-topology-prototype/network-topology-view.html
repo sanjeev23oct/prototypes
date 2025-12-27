@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Topology View - Multi-Rack Infrastructure</title>
+    <link rel="stylesheet" href="css/network-topology-view.css">
+</head>
+<body>
+    <div class="header">
+        <h1>🌐 Network Topology View - Multi-Rack Infrastructure</h1>
+        <p>Comprehensive view of interconnected network racks with drill-down capabilities</p>
+        <div style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
+            <strong>Locations:</strong> Server Room • Gate-2C Security Room • 
+            <strong>Data Source:</strong> rack2c.txt • 
+            <strong>Fiber Backbone:</strong> 12-Core Fiber Infrastructure
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Topology Controls -->
+        <div class="topology-controls">
+            <div class="control-section">
+                <h3>🎛️ Topology Controls</h3>
+                <div class="control-buttons">
+                    <button class="btn btn-primary" onclick="showAllConnections()">
+                        🔗 Show All Connections
+                    </button>
+                    <button class="btn btn-secondary" onclick="hideAllConnections()">
+                        👁️ Hide Connections
+                    </button>
+                    <button class="btn btn-secondary" onclick="toggleRackLabels()">
+                        🏷️ Toggle Labels
+                    </button>
+                    <button class="btn btn-success" onclick="exportTopology()">
+                        💾 Export Topology
+                    </button>
+                </div>
+            </div>
+            
+            <div class="rack-selector">
+                <h4>📍 Rack Locations</h4>
+                <div class="rack-list" id="rackList">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="connection-summary">
+                <h4>📊 Connection Summary</h4>
+                <div id="connectionSummary">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Topology View -->
+        <div class="topology-container">
+            <div class="topology-canvas" id="topologyCanvas">
+                <!-- Racks will be positioned here -->
+                <div class="rack-node" id="rack-SR" data-rack-id="SR" onclick="selectRack('SR')">
+                    <div class="rack-header">
+                        <h3>🏢 Server Room</h3>
+                        <div class="rack-location">Main Data Center</div>
+                    </div>
+                    <div class="rack-preview">
+                        <div class="device-preview liu">LIU 2 (24-Port)</div>
+                        <div class="device-preview switch">Core Switch</div>
+                        <div class="device-preview server">Servers (5)</div>
+                        <div class="device-preview ups">UPS Systems</div>
+                    </div>
+                    <div class="rack-stats">
+                        <span class="stat">📊 85% Utilized</span>
+                        <span class="stat">🔗 12 Connections</span>
+                    </div>
+                </div>
+
+                <div class="rack-node" id="rack-G2C" data-rack-id="G2C" onclick="selectRack('G2C')">
+                    <div class="rack-header">
+                        <h3>🚪 Gate 2C</h3>
+                        <div class="rack-location">Security Room</div>
+                    </div>
+                    <div class="rack-preview">
+                        <div class="device-preview liu">LIU (12-Port)</div>
+                        <div class="device-preview switch">D-Link 1210-28P</div>
+                        <div class="device-preview patch-panel">Patch Panel</div>
+                        <div class="device-preview wifi">WiFi AP</div>
+                    </div>
+                    <div class="rack-stats">
+                        <span class="stat">📊 65% Utilized</span>
+                        <span class="stat">🔗 8 Connections</span>
+                    </div>
+                </div>
+
+                <div class="rack-node" id="rack-G2B" data-rack-id="G2B" onclick="selectRack('G2B')">
+                    <div class="rack-header">
+                        <h3>🚪 Gate 2B</h3>
+                        <div class="rack-location">Security Room</div>
+                    </div>
+                    <div class="rack-preview">
+                        <div class="device-preview liu">Direct Fiber</div>
+                        <div class="device-preview switch">Access Switch</div>
+                        <div class="device-preview cctv">CCTV System</div>
+                        <div class="device-preview generic">Access Control</div>
+                    </div>
+                    <div class="rack-stats">
+                        <span class="stat">📊 45% Utilized</span>
+                        <span class="stat">🔗 4 Connections</span>
+                    </div>
+                </div>
+
+                <!-- Inter-rack connections will be drawn here -->
+                <svg class="topology-connections" id="topologyConnections">
+                    <!-- Connection lines will be drawn by JavaScript -->
+                </svg>
+            </div>
+        </div>
+
+        <!-- Rack Detail Panel -->
+        <div class="rack-detail-panel" id="rackDetailPanel">
+            <div class="panel-header">
+                <h3 id="detailPanelTitle">Rack Details</h3>
+                <button class="close-panel" onclick="closeDetailPanel()">✕</button>
+            </div>
+            
+            <div class="panel-content" id="detailPanelContent">
+                <div class="detail-section">
+                    <h4>📍 Location Information</h4>
+                    <div id="locationInfo">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h4>🔧 Equipment Summary</h4>
+                    <div id="equipmentSummary">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h4>🔗 Connections</h4>
+                    <div id="connectionDetails">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="detail-actions">
+                    <button class="btn btn-primary" onclick="drillDownToRack()">
+                        🔍 Drill Down to Rack View
+                    </button>
+                    <button class="btn btn-secondary" onclick="showRackConnections()">
+                        🔗 Highlight Connections
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Legend -->
+    <div class="connection-legend">
+        <h4>🔗 Connection Types</h4>
+        <div class="legend-items">
+            <div class="legend-item">
+                <div class="legend-line fiber"></div>
+                <span>Fiber Optic (12-Core)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line ethernet"></div>
+                <span>Ethernet</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line power"></div>
+                <span>Power Feed</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line management"></div>
+                <span>Management</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/network-topology-view.js"></script>
+</body>
+</html>

@@ -1,0 +1,629 @@
+/* Network Topology View CSS - Multi-Rack Infrastructure */
+/* Built on v4 foundation with topology-specific enhancements */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #333;
+    overflow-x: hidden;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.header p {
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+.main-container {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    height: calc(100vh - 80px);
+    gap: 1rem;
+    padding: 1rem;
+}
+
+/* Topology Controls Panel */
+.topology-controls {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.control-section h3 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.control-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.btn {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.btn-primary {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #3182ce;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+}
+
+.btn-success {
+    background: #48bb78;
+    color: white;
+}
+
+.btn-success:hover {
+    background: #38a169;
+}
+
+/* Rack Selector */
+.rack-selector h4,
+.connection-summary h4 {
+    color: #4a5568;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.rack-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.rack-list-item {
+    padding: 0.75rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rack-list-item:hover {
+    background: #edf2f7;
+    border-color: #4299e1;
+}
+
+.rack-list-item.selected {
+    background: #bee3f8;
+    border-color: #4299e1;
+}
+
+.rack-name {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.9rem;
+}
+
+.rack-location {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 0.2rem;
+}
+
+/* Main Topology Container */
+.topology-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.topology-canvas {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: 
+        radial-gradient(circle at 25% 25%, #f0f9ff 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, #fef7ff 0%, transparent 50%),
+        linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Rack Nodes */
+.rack-node {
+    position: absolute;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid #e2e8f0;
+    overflow: hidden;
+    z-index: 10;
+    pointer-events: auto;
+}
+
+.rack-node:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+    border-color: #4299e1;
+    z-index: 15;
+}
+
+.rack-node.selected {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    z-index: 20;
+}
+
+/* Position racks in topology */
+#rack-SR {
+    top: 50px;
+    left: 50px;
+}
+
+#rack-G2C {
+    top: 200px;
+    right: 100px;
+}
+
+#rack-G2B {
+    bottom: 100px;
+    right: 50px;
+}
+
+.rack-header {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+    padding: 1rem;
+}
+
+.rack-header h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.rack-header .rack-location {
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.rack-preview {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.device-preview {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.device-preview::before {
+    content: '●';
+    font-size: 0.6rem;
+}
+
+.device-preview.liu {
+    background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+}
+
+.device-preview.switch {
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+}
+
+.device-preview.patch-panel {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+.device-preview.wifi {
+    background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+}
+
+.device-preview.server {
+    background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+}
+
+.device-preview.ups {
+    background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+}
+
+.device-preview.cctv {
+    background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+}
+
+.device-preview.generic {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+}
+
+.rack-stats {
+    padding: 0.75rem 1rem;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+}
+
+.stat {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* Topology Connections */
+.topology-connections {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.connection-line {
+    stroke-width: 3;
+    fill: none;
+    opacity: 0.8;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    transition: all 0.3s ease;
+    pointer-events: auto;
+}
+
+.connection-line:hover {
+    stroke-width: 5;
+    opacity: 1;
+}
+
+.connection-line.fiber {
+    stroke: #f6ad55;
+    stroke-dasharray: 8,4;
+    stroke-linecap: round;
+}
+
+.connection-line.ethernet {
+    stroke: #4299e1;
+    stroke-dasharray: none;
+}
+
+.connection-line.power {
+    stroke: #e53e3e;
+    stroke-width: 4;
+}
+
+.connection-line.management {
+    stroke: #9f7aea;
+    stroke-dasharray: 2,2;
+}
+
+/* Connection Labels */
+.connection-label {
+    font-size: 0.7rem;
+    fill: #2d3748;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+.connection-label-bg {
+    fill: rgba(255,255,255,0.9);
+    stroke: rgba(0,0,0,0.1);
+    stroke-width: 1;
+    rx: 3;
+    ry: 3;
+}
+
+/* Rack Detail Panel */
+.rack-detail-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100vh;
+    background: white;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+}
+
+.rack-detail-panel.open {
+    right: 0;
+}
+
+.panel-header {
+    padding: 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+    background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.panel-header h3 {
+    margin: 0;
+    color: #2d3748;
+    font-size: 1.2rem;
+}
+
+.close-panel {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #718096;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.close-panel:hover {
+    background: #e2e8f0;
+    color: #2d3748;
+}
+
+.panel-content {
+    padding: 1.5rem;
+}
+
+.detail-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 4px solid #4299e1;
+}
+
+.detail-section h4 {
+    margin: 0 0 1rem 0;
+    color: #2d3748;
+    font-size: 1rem;
+}
+
+.detail-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+/* Connection Summary */
+#connectionSummary {
+    font-size: 0.8rem;
+    color: #4a5568;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+/* Connection Legend */
+.connection-legend {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+}
+
+.connection-legend h4 {
+    margin: 0 0 0.75rem 0;
+    color: #2d3748;
+    font-size: 0.9rem;
+}
+
+.legend-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #4a5568;
+}
+
+.legend-line {
+    width: 30px;
+    height: 3px;
+    border-radius: 2px;
+}
+
+.legend-line.fiber {
+    background: #f6ad55;
+    background-image: repeating-linear-gradient(
+        90deg,
+        #f6ad55,
+        #f6ad55 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
+.legend-line.ethernet {
+    background: #4299e1;
+}
+
+.legend-line.power {
+    background: #e53e3e;
+    height: 4px;
+}
+
+.legend-line.management {
+    background: #9f7aea;
+    background-image: repeating-linear-gradient(
+        90deg,
+        #9f7aea,
+        #9f7aea 2px,
+        transparent 2px,
+        transparent 4px
+    );
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .main-container {
+        grid-template-columns: 250px 1fr;
+    }
+    
+    .rack-node {
+        width: 240px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+    
+    .topology-controls {
+        max-height: 200px;
+    }
+    
+    .rack-node {
+        width: 200px;
+        position: relative !important;
+        margin: 1rem;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+    }
+    
+    .topology-canvas {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    
+    .rack-detail-panel {
+        top: auto;
+        bottom: -100vh;
+        right: 0;
+        left: 0;
+        width: 100%;
+        height: 80vh;
+        border-radius: 16px 16px 0 0;
+        transition: bottom 0.3s ease;
+    }
+    
+    .rack-detail-panel.open {
+        bottom: 0;
+    }
+    
+    .connection-legend {
+        display: none;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+/* Connection Highlighting */
+.rack-node.connected {
+    border-color: #48bb78;
+    box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.3);
+}
+
+.connection-line.highlighted {
+    stroke-width: 6;
+    opacity: 1;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}

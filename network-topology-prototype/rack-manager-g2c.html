@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate 2C Rack Manager - Detailed View</title>
+    <link rel="stylesheet" href="css/rack-manager-v3.css">
+    <style>
+        /* Navigation breadcrumb styles */
+        .navigation-breadcrumb {
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .back-button {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-2px);
+        }
+        
+        .breadcrumb-separator {
+            color: rgba(255,255,255,0.6);
+            font-size: 1.2rem;
+        }
+        
+        .current-location {
+            font-weight: 600;
+            color: #90cdf4;
+        }
+        
+        .rack-context {
+            margin-left: auto;
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚪 Gate 2C Network Rack - Detailed View</h1>
+        <p>Real-time view of Gate 2C Security Room network infrastructure with drill-down capabilities</p>
+        <div style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
+            <strong>Location:</strong> Gate-2C Security Room • 
+            <strong>Switch:</strong> D-Link 1210-28P (PoE, Manageable) • 
+            <strong>Data Source:</strong> rack2c.txt •
+            <strong>Uplink:</strong> 12-Core Fiber to Server Room
+        </div>
+    </div>
+
+    <!-- Navigation Breadcrumb -->
+    <div class="navigation-breadcrumb">
+        <button class="back-button" onclick="navigateBack()">
+            ← Back to Topology
+        </button>
+        <span class="breadcrumb-separator">•</span>
+        <span>Network Topology</span>
+        <span class="breadcrumb-separator">→</span>
+        <span class="current-location">Gate 2C Security Room</span>
+        <div class="rack-context">
+            Detailed Rack View • Click ports for configuration
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Toolbox Panel -->
+        <div class="toolbox" id="toolbox">
+            <div class="toolbox-header">
+                <h3 style="margin: 0;">🧰 Device Toolbox</h3>
+                <button class="toolbox-toggle" onclick="toggleToolbox()">
+                    <span id="toolboxToggleIcon">◀</span>
+                </button>
+            </div>
+            
+            <div class="toolbox-content">
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Network Devices</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="switch" data-ports="28">
+                        <div class="tool-icon switch">SW</div>
+                        <div class="tool-info">
+                            <div class="tool-name">28-Port Switch</div>
+                            <div class="tool-desc">D-Link 1210-28P PoE</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="patch-panel" data-ports="24">
+                        <div class="tool-icon patch-panel">PP</div>
+                        <div class="tool-info">
+                            <div class="tool-name">24-Port Patch Panel</div>
+                            <div class="tool-desc">Cat6 RJ45 Patch Panel</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="patch-panel" data-ports="12">
+                        <div class="tool-icon patch-panel" style="background: #d69e2e;">LIU</div>
+                        <div class="tool-info">
+                            <div class="tool-name">12-Port LIU Panel</div>
+                            <div class="tool-desc">Fiber Optic LIU</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="2">
+                        <div class="tool-icon server" style="background: #805ad5;">WiFi</div>
+                        <div class="tool-info">
+                            <div class="tool-name">WiFi Access Point</div>
+                            <div class="tool-desc">D-Link DAP-2230</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Power Infrastructure</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="ups" data-ports="0">
+                        <div class="tool-icon ups">UPS</div>
+                        <div class="tool-info">
+                            <div class="tool-name">UPS Unit</div>
+                            <div class="tool-desc">BPE 650VA</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="pdu" data-ports="6">
+                        <div class="tool-icon pdu" style="background: #e53e3e;">PS</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Power Strip</div>
+                            <div class="tool-desc">Wago with MCB & Switch</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="2">
+                        <div class="tool-icon server" style="background: #38b2ac;">IOT</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Power IOT Device</div>
+                            <div class="tool-desc">RSSB PM 201</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Navigation</h4>
+                    
+                    <button class="tool-item" onclick="navigateBack()" style="cursor: pointer; border: 2px solid #4299e1;">
+                        <div class="tool-icon" style="background: #4299e1;">🌐</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Back to Topology</div>
+                            <div class="tool-desc">Return to multi-rack view</div>
+                        </div>
+                    </button>
+                    
+                    <button class="tool-item" onclick="navigateToRack('SR')" style="cursor: pointer; border: 2px solid #48bb78;">
+                        <div class="tool-icon" style="background: #48bb78;">🏢</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Server Room</div>
+                            <div class="tool-desc">View Server Room rack</div>
+                        </div>
+                    </button>
+                    
+                    <button class="tool-item" onclick="navigateToRack('G2B')" style="cursor: pointer; border: 2px solid #ed8936;">
+                        <div class="tool-icon" style="background: #ed8936;">🚪</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Gate 2B</div>
+                            <div class="tool-desc">View Gate 2B rack</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rack View -->
+        <div class="rack-container">
+            <div class="rack-header">
+                <div class="rack-info">
+                    <div class="rack-title" id="rackTitle">Gate 2C Network Rack - Security Room</div>
+                    <div class="rack-details" id="rackDetails">D-Link 1210-28P Switch • 12-Core Fiber from SR LIU 2 • PoE Enabled • Manageable</div>
+                </div>
+                <div class="rack-controls">
+                    <button class="btn btn-secondary" onclick="toggleCableVisibility()">Toggle Cables</button>
+                    <button class="btn btn-secondary" onclick="clearRack()">Clear Rack</button>
+                    <button class="btn btn-primary" onclick="saveConfiguration()">Save Config</button>
+                </div>
+            </div>
+
+            <div class="rack-visual">
+                <div class="rack">
+                    <div class="rack-frame">
+                        <div class="rack-units" id="rackUnits">
+                            <!-- Rack units will be generated by JavaScript -->
+                        </div>
+                        <!-- Cable visualization container -->
+                        <svg class="cables-container" id="cablesContainer">
+                            <!-- Cables will be drawn here -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Panel -->
+        <div class="connection-panel">
+            <h3>🔌 Gate 2C Connections</h3>
+            
+            <!-- Port Usage Summary -->
+            <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #4299e1;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 0.9rem;">📊 Port Usage Summary</h4>
+                <div id="portSummary" style="font-size: 0.8rem; color: #4a5568;">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <!-- Uplink Status -->
+            <div style="background: #f0fff4; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border-left: 4px solid #48bb78;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #2d3748; font-size: 0.9rem;">🔗 Uplink Status</h4>
+                <div style="font-size: 0.8rem; color: #4a5568;">
+                    <div>🏢 Server Room LIU 2: <span style="color: #48bb78; font-weight: 600;">Connected</span></div>
+                    <div>📊 Bandwidth: 40 Gbps (4 x 10G fiber)</div>
+                    <div>🔄 Status: Active, Load Balanced</div>
+                </div>
+            </div>
+            
+            <div class="connection-form" id="connectionForm">
+                <div class="form-group">
+                    <label class="form-label">Connection Type</label>
+                    <select class="form-select" id="connectionType">
+                        <option value="ethernet">Ethernet</option>
+                        <option value="fiber">Fiber Optic</option>
+                        <option value="power">Power</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable Length (meters)</label>
+                    <input type="number" class="form-input" id="cableLength" value="1" min="0.1" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable ID</label>
+                    <input type="text" class="form-input" id="cableId" placeholder="Auto-generated">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="createConnection()">Create Connection</button>
+                    <button class="btn btn-secondary" onclick="cancelConnection()">Cancel</button>
+                </div>
+            </div>
+
+            <div class="connections-list" id="connectionsList">
+                <!-- Connections will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Legend -->
+    <button class="legend-toggle" onclick="toggleLegend()" id="legendToggle">
+        📋 Show Legend
+    </button>
+    
+    <div class="port-legend hidden" id="portLegend">
+        <div class="legend-content">
+            <div class="legend-section">
+                <h4>🔌 Port Status</h4>
+                
+                <div class="legend-item">
+                    <div class="legend-port available">1</div>
+                    <div class="legend-text">Available Port</div>
+                </div>
+                <div class="legend-description">Gray - Ready for connection</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port connected">2</div>
+                    <div class="legend-text">Connected Port</div>
+                </div>
+                <div class="legend-description">Green - Active connection</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port uplink">3</div>
+                    <div class="legend-text">Uplink Port</div>
+                </div>
+                <div class="legend-description">Purple - Links to Server Room/LIU</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port uplink-connected">4</div>
+                    <div class="legend-text">Active Uplink</div>
+                </div>
+                <div class="legend-description">Blue - Connected uplink to SR</div>
+                
+                <div class="legend-item">
+                    <div class="legend-port selected">5</div>
+                    <div class="legend-text">Selected Port</div>
+                </div>
+                <div class="legend-description">Orange - Ready to connect</div>
+            </div>
+            
+            <div class="legend-section cable-legend">
+                <h4>🔗 Cable Types</h4>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable ethernet"></div>
+                    <div class="legend-text">Ethernet (Cat6)</div>
+                </div>
+                <div class="legend-description">Blue solid - Network data</div>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable fiber"></div>
+                    <div class="legend-text">Fiber Optic</div>
+                </div>
+                <div class="legend-description">Orange dashed - High-speed data</div>
+                
+                <div class="cable-legend-item">
+                    <div class="legend-cable power"></div>
+                    <div class="legend-text">Power Cable</div>
+                </div>
+                <div class="legend-description">Red thick - Power supply</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/rack-manager-v3.js"></script>
+    <script>
+        // Navigation functions for seamless rack switching
+        function navigateBack() {
+            // Check if we came from topology view
+            const topologyState = sessionStorage.getItem('topologyView');
+            if (topologyState) {
+                const state = JSON.parse(topologyState);
+                window.location.href = state.returnUrl || 'network-topology-view.html';
+            } else {
+                // Fallback to topology view
+                window.location.href = 'network-topology-view.html';
+            }
+        }
+        
+        function navigateToRack(rackId) {
+            // Store current navigation context
+            sessionStorage.setItem('topologyView', JSON.stringify({
+                selectedRack: rackId,
+                returnUrl: 'network-topology-view.html',
+                timestamp: new Date().toISOString()
+            }));
+            
+            // Navigate to specific rack
+            const rackPages = {
+                'SR': 'rack-manager-sr.html',
+                'G2B': 'rack-manager-g2b.html',
+                'G2C': 'rack-manager-g2c.html'
+            };
+            
+            if (rackPages[rackId]) {
+                window.location.href = rackPages[rackId];
+            }
+        }
+        
+        // Initialize with Gate 2C specific configuration
+        document.addEventListener('DOMContentLoaded', function() {
+            // Force Gate 2C configuration
+            currentRackId = 'G2C';
+            
+            // Initialize rack with Gate 2C data
+            initializeRack();
+            
+            console.log('🚪 Gate 2C Rack Manager initialized with navigation support');
+        });
+    </script>
+</body>
+</html>
