@@ -181,13 +181,14 @@ body {
     background: white;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    cursor: pointer;
+    cursor: grab;
     transition: all 0.3s ease;
     border: 2px solid #e2e8f0;
     overflow: hidden;
     z-index: 10;
     pointer-events: auto;
     min-height: 200px;
+    user-select: none;
 }
 
 .rack-node:hover {
@@ -203,6 +204,19 @@ body {
     z-index: 20;
 }
 
+.rack-node.dragging {
+    cursor: grabbing !important;
+    transform: rotate(2deg) scale(1.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+    border-color: #48bb78;
+    z-index: 1000 !important;
+    transition: none;
+}
+
+.rack-node.dragging:hover {
+    transform: rotate(2deg) scale(1.05);
+}
+
 /* Position racks in topology - Improved positioning to prevent overlaps */
 #rack-SR {
     top: 60px;
@@ -215,9 +229,8 @@ body {
 }
 
 #rack-G2B {
-    bottom: 120px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 380px;
+    right: 60px;
 }
 
 .rack-header {
@@ -305,6 +318,41 @@ body {
     font-weight: 500;
 }
 
+.rack-actions {
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-view-details {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-view-details:hover {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+}
+
+.btn-view-details:active {
+    transform: translateY(0);
+}
+
 /* Topology Connections */
 .topology-connections {
     position: absolute;
@@ -323,6 +371,7 @@ body {
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     transition: all 0.3s ease;
     pointer-events: auto;
+    stroke-linecap: round;
 }
 
 .connection-line:hover {
@@ -332,7 +381,13 @@ body {
 
 .connection-line.fiber {
     stroke: #f6ad55;
-    stroke-dasharray: 8,4;
+    stroke-dasharray: none;
+    stroke-linecap: round;
+}
+
+.connection-line.fiber-core {
+    stroke-width: 2;
+    opacity: 0.7;
     stroke-linecap: round;
 }
 
@@ -349,6 +404,102 @@ body {
 .connection-line.management {
     stroke: #9f7aea;
     stroke-dasharray: 2,2;
+}
+
+/* Arrow markers for connection direction */
+.connection-arrow {
+    fill: #f6ad55;
+    stroke: none;
+}
+
+.connection-arrow.ethernet {
+    fill: #4299e1;
+}
+
+.connection-arrow.power {
+    fill: #e53e3e;
+}
+
+.connection-arrow.management {
+    fill: #9f7aea;
+}
+
+/* Main cable bundle styling */
+.main-cable-bundle {
+    stroke-linecap: round;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+    transition: all 0.3s ease;
+}
+
+.main-cable-bundle:hover {
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+}
+
+/* Fiber core fanout styling */
+.fiber-core-fanout {
+    transition: all 0.2s ease;
+    pointer-events: auto;
+}
+
+.fiber-core-fanout:hover {
+    stroke-width: 4;
+    opacity: 1;
+}
+
+.fiber-core-end {
+    transition: all 0.2s ease;
+    pointer-events: auto;
+}
+
+.fiber-core-end:hover {
+    r: 4;
+    opacity: 1;
+}
+
+.fiber-core-label {
+    pointer-events: none;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.fiber-fanout-group {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Cable bundle group hover effects */
+.cable-bundle-group:hover .fiber-core-fanout {
+    stroke-width: 4;
+    opacity: 1;
+}
+
+.cable-bundle-group:hover .fiber-core-end {
+    r: 5;
+    opacity: 1;
+}
+
+.cable-bundle-group:hover .fiber-core-label {
+    font-weight: 800;
+    font-size: 0.75rem;
+}
+
+/* Arrow markers for cable bundles */
+.connection-arrow.cable-bundle {
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* Draggable connection endpoints */
+.connection-endpoint {
+    cursor: move !important;
+    pointer-events: all !important;
+    transition: all 0.2s ease;
+}
+
+.connection-endpoint:hover {
+    r: 12 !important;
+    opacity: 1 !important;
+    filter: drop-shadow(0 3px 8px rgba(66, 153, 225, 0.8));
+    stroke-width: 4;
 }
 
 /* Connection Labels */
@@ -476,6 +627,56 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
     z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.legend-close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #718096;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.legend-close-btn:hover {
+    background: #e2e8f0;
+    color: #2d3748;
+}
+
+.legend-toggle-btn {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+    z-index: 99;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-toggle-btn:hover {
+    background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(66, 153, 225, 0.4);
+}
+
+.legend-toggle-btn:active {
+    transform: translateY(0);
 }
 
 .connection-legend h4 {
@@ -506,22 +707,48 @@ body {
 
 .legend-line.fiber {
     background: #f6ad55;
-    background-image: repeating-linear-gradient(
-        90deg,
-        #f6ad55,
-        #f6ad55 4px,
-        transparent 4px,
-        transparent 8px
-    );
+    position: relative;
+}
+
+.legend-line.fiber::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: -2px;
+    color: #f6ad55;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 .legend-line.ethernet {
     background: #4299e1;
+    position: relative;
+}
+
+.legend-line.ethernet::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: -2px;
+    color: #4299e1;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 .legend-line.power {
     background: #e53e3e;
     height: 4px;
+    position: relative;
+}
+
+.legend-line.power::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: -4px;
+    color: #e53e3e;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 .legend-line.management {
@@ -533,6 +760,17 @@ body {
         transparent 2px,
         transparent 4px
     );
+    position: relative;
+}
+
+.legend-line.management::after {
+    content: '→';
+    position: absolute;
+    right: -8px;
+    top: -2px;
+    color: #9f7aea;
+    font-weight: bold;
+    font-size: 12px;
 }
 
 /* Responsive Design */

@@ -29,8 +29,14 @@
                     <button class="btn btn-secondary" onclick="hideAllConnections()">
                         👁️ Hide Connections
                     </button>
+                    <button class="btn btn-secondary" onclick="drawInterRackConnections()">
+                        🔄 Redraw Connections
+                    </button>
                     <button class="btn btn-secondary" onclick="toggleRackLabels()">
                         🏷️ Toggle Labels
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetRackPositions()">
+                        ↺ Reset Positions
                     </button>
                     <button class="btn btn-success" onclick="exportTopology()">
                         💾 Export Topology
@@ -57,7 +63,7 @@
         <div class="topology-container">
             <div class="topology-canvas" id="topologyCanvas">
                 <!-- Racks will be positioned here -->
-                <div class="rack-node" id="rack-SR" data-rack-id="SR" onclick="selectRack('SR')">
+                <div class="rack-node" id="rack-SR" data-rack-id="SR">
                     <div class="rack-header">
                         <h3>🏢 Server Room</h3>
                         <div class="rack-location">Main Data Center</div>
@@ -72,9 +78,14 @@
                         <span class="stat">📊 85% Utilized</span>
                         <span class="stat">🔗 12 Connections</span>
                     </div>
+                    <div class="rack-actions">
+                        <button class="btn-view-details" onclick="selectRack('SR')">
+                            🔍 View Details
+                        </button>
+                    </div>
                 </div>
 
-                <div class="rack-node" id="rack-G2C" data-rack-id="G2C" onclick="selectRack('G2C')">
+                <div class="rack-node" id="rack-G2C" data-rack-id="G2C">
                     <div class="rack-header">
                         <h3>🚪 Gate 2C</h3>
                         <div class="rack-location">Security Room</div>
@@ -89,9 +100,14 @@
                         <span class="stat">📊 65% Utilized</span>
                         <span class="stat">🔗 8 Connections</span>
                     </div>
+                    <div class="rack-actions">
+                        <button class="btn-view-details" onclick="selectRack('G2C')">
+                            🔍 View Details
+                        </button>
+                    </div>
                 </div>
 
-                <div class="rack-node" id="rack-G2B" data-rack-id="G2B" onclick="selectRack('G2B')">
+                <div class="rack-node" id="rack-G2B" data-rack-id="G2B">
                     <div class="rack-header">
                         <h3>🚪 Gate 2B</h3>
                         <div class="rack-location">Security Checkpoint</div>
@@ -105,6 +121,11 @@
                     <div class="rack-stats">
                         <span class="stat">📊 45% Utilized</span>
                         <span class="stat">🔗 6 Connections</span>
+                    </div>
+                    <div class="rack-actions">
+                        <button class="btn-view-details" onclick="selectRack('G2B')">
+                            🔍 View Details
+                        </button>
                     </div>
                 </div>
 
@@ -157,27 +178,36 @@
     </div>
 
     <!-- Connection Legend -->
-    <div class="connection-legend">
+    <div class="connection-legend" id="connectionLegend" style="display: none;">
+        <button class="legend-close-btn" onclick="toggleLegend()">✕</button>
         <h4>🔗 Connection Types</h4>
         <div class="legend-items">
             <div class="legend-item">
                 <div class="legend-line fiber"></div>
-                <span>Fiber Optic (12-Core)</span>
+                <span>Fiber Cable Bundle</span>
             </div>
             <div class="legend-item">
                 <div class="legend-line ethernet"></div>
-                <span>Ethernet</span>
+                <span>Ethernet Links</span>
             </div>
             <div class="legend-item">
                 <div class="legend-line power"></div>
-                <span>Power Feed</span>
+                <span>Power Feeds</span>
             </div>
             <div class="legend-item">
                 <div class="legend-line management"></div>
-                <span>Management</span>
+                <span>Management Links</span>
             </div>
         </div>
+        <div style="margin-top: 0.75rem; font-size: 0.7rem; color: #718096; text-align: center;">
+            Thick cables with arrows show direction • Individual cores fan out at termination points
+        </div>
     </div>
+
+    <!-- Legend Toggle Button -->
+    <button class="legend-toggle-btn" id="legendToggleBtn" onclick="toggleLegend()">
+        📖 Legend
+    </button>
 
     <script src="js/network-topology-view.js"></script>
 </body>

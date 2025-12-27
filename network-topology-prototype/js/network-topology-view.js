@@ -5,6 +5,66 @@
 let selectedRack = null;
 let connectionsVisible = true;
 let rackLabelsVisible = true;
+let rackPositions = {}; // Store rack positions
+let connectionEndpoints = {}; // Store custom connection endpoints
+
+// Load saved rack positions from localStorage
+function loadRackPositions() {
+    const saved = localStorage.getItem('topologyRackPositions');
+    if (saved) {
+        try {
+            rackPositions = JSON.parse(saved);
+            console.log('Loaded saved rack positions:', rackPositions);
+            return true;
+        } catch (e) {
+            console.error('Error loading rack positions:', e);
+        }
+    }
+    return false;
+}
+
+// Load saved connection endpoints from localStorage
+function loadConnectionEndpoints() {
+    const saved = localStorage.getItem('topologyConnectionEndpoints');
+    if (saved) {
+        try {
+            connectionEndpoints = JSON.parse(saved);
+            console.log('Loaded saved connection endpoints:', connectionEndpoints);
+            return true;
+        } catch (e) {
+            console.error('Error loading connection endpoints:', e);
+        }
+    }
+    return false;
+}
+
+// Save rack positions to localStorage
+function saveRackPositions() {
+    localStorage.setItem('topologyRackPositions', JSON.stringify(rackPositions));
+    console.log('Saved rack positions:', rackPositions);
+}
+
+// Save connection endpoints to localStorage
+function saveConnectionEndpoints() {
+    localStorage.setItem('topologyConnectionEndpoints', JSON.stringify(connectionEndpoints));
+    console.log('Saved connection endpoints:', connectionEndpoints);
+}
+
+// Apply saved positions to racks
+function applySavedPositions() {
+    Object.keys(rackPositions).forEach(rackId => {
+        const rack = document.getElementById(`rack-${rackId}`);
+        if (rack && rackPositions[rackId]) {
+            const pos = rackPositions[rackId];
+            rack.style.left = pos.left;
+            rack.style.top = pos.top;
+            rack.style.right = 'auto';
+            rack.style.bottom = 'auto';
+            rack.style.transform = 'none';
+            console.log(`Applied position to ${rackId}:`, pos);
+        }
+    });
+}
 
 // Rack configurations based on rack2c.txt data
 const rackConfigurations = {
@@ -265,11 +325,26 @@ const interRackConnections = [
 function initializeTopology() {
     console.log('🌐 Initializing Network Topology View...');
     
+    // Load saved rack positions and connection endpoints
+    const hasSavedPositions = loadRackPositions();
+    const hasSavedEndpoints = loadConnectionEndpoints();
+    
     // Populate rack list
     populateRackList();
     
-    // Draw inter-rack connections
+    // Initialize drag functionality for racks
+    initializeDragFunctionality();
+    
+    // Apply saved positions if they exist
+    if (hasSavedPositions) {
+        applySavedPositions();
+    }
+    
+    // Draw inter-rack connections (only once, not on drag)
     drawInterRackConnections();
+    
+    // Initialize draggable connection endpoints
+    initializeConnectionDragging();
     
     // Update connection summary
     updateConnectionSummary();
@@ -277,19 +352,101 @@ function initializeTopology() {
     // Setup event listeners
     setupEventListeners();
     
-    // Add click event listeners to rack nodes (backup to onclick)
-    document.querySelectorAll('.rack-node').forEach(node => {
-        const rackId = node.dataset.rackId;
-        console.log('Setting up click listener for rack:', rackId);
-        
-        node.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Rack clicked via event listener:', rackId);
-            selectRack(rackId);
-        });
-    });
-    
     console.log('✅ Network Topology View initialized');
+}
+
+// Initialize drag functionality for rack nodes
+function initializeDragFunctionality() {
+    const rackNodes = document.querySelectorAll('.rack-node');
+    
+    rackNodes.forEach(rackNode => {
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+        const rackId = rackNode.dataset.rackId;
+        
+        // Mouse down event
+        rackNode.addEventListener('mousedown', (e) => {
+            // Prevent dragging if clicking on interactive elements
+            if (e.target.closest('button') || e.target.closest('.rack-stats') || e.target.closest('.btn-view-details')) {
+                return;
+            }
+            
+            isDragging = true;
+            rackNode.classList.add('dragging');
+            
+            startX = e.clientX;
+            startY = e.clientY;
+            
+            const rect = rackNode.getBoundingClientRect();
+            const canvasRect = rackNode.parentElement.getBoundingClientRect();
+            
+            initialLeft = rect.left - canvasRect.left;
+            initialTop = rect.top - canvasRect.top;
+            
+            rackNode.style.cursor = 'grabbing';
+            rackNode.style.zIndex = '1000';
+            
+            e.preventDefault();
+        });
+        
+        // Mouse move event (attached to document for better tracking)
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || !rackNode.classList.contains('dragging')) return;
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            const newLeft = initialLeft + deltaX;
+            const newTop = initialTop + deltaY;
+            
+            // Constrain to canvas bounds
+            const canvas = document.getElementById('topologyCanvas');
+            const canvasRect = canvas.getBoundingClientRect();
+            const rackRect = rackNode.getBoundingClientRect();
+            
+            const maxLeft = canvasRect.width - rackRect.width;
+            const maxTop = canvasRect.height - rackRect.height;
+            
+            const constrainedLeft = Math.max(0, Math.min(newLeft, maxLeft));
+            const constrainedTop = Math.max(0, Math.min(newTop, maxTop));
+            
+            rackNode.style.left = constrainedLeft + 'px';
+            rackNode.style.top = constrainedTop + 'px';
+            rackNode.style.right = 'auto';
+            rackNode.style.bottom = 'auto';
+            rackNode.style.transform = 'none';
+            
+            // DO NOT redraw connections during drag - keep them separate
+        });
+        
+        // Mouse up event (attached to document)
+        document.addEventListener('mouseup', (e) => {
+            if (isDragging && rackNode.classList.contains('dragging')) {
+                isDragging = false;
+                
+                // Save the new position
+                rackPositions[rackId] = {
+                    left: rackNode.style.left,
+                    top: rackNode.style.top
+                };
+                saveRackPositions();
+                
+                // Small delay to prevent click event from firing
+                setTimeout(() => {
+                    rackNode.classList.remove('dragging');
+                }, 100);
+                
+                rackNode.style.cursor = 'grab';
+                rackNode.style.zIndex = '10';
+                
+                console.log(`Rack ${rackId} moved and saved to position:`, rackPositions[rackId]);
+            }
+        });
+        
+        // Add visual feedback for draggable elements
+        rackNode.style.cursor = 'grab';
+        rackNode.title = 'Click to view details • Drag to reposition';
+    });
 }
 
 // Populate rack list in control panel
@@ -418,150 +575,503 @@ function closeDetailPanel() {
     clearConnectionHighlighting();
 }
 
-// Draw inter-rack connections
+// Draw inter-rack connections with cable bundles and fiber fanouts
 function drawInterRackConnections() {
     if (!connectionsVisible) return;
     
     const svg = document.getElementById('topologyConnections');
     svg.innerHTML = '';
     
-    interRackConnections.forEach(connection => {
-        drawConnection(connection);
+    // Create arrow markers for cable bundles
+    createArrowMarkers(svg);
+    
+    // Group connections by cable bundle
+    const cableBundles = groupConnectionsByBundle();
+    
+    // Draw each cable bundle with fiber fanouts
+    Object.values(cableBundles).forEach(bundle => {
+        drawSimpleCableBundle(bundle);
     });
 }
 
-// Draw individual connection with improved positioning
-function drawConnection(connection) {
+// Draw simple cable bundle with better arrow positioning
+function drawSimpleCableBundle(bundle) {
     const svg = document.getElementById('topologyConnections');
     
     // Get rack positions
-    const fromRack = document.getElementById(`rack-${connection.from.rack}`);
-    const toRack = document.getElementById(`rack-${connection.to.rack}`);
+    const fromRack = document.getElementById(`rack-${bundle.from}`);
+    const toRack = document.getElementById(`rack-${bundle.to}`);
     
-    if (!fromRack || !toRack) return;
+    if (!fromRack || !toRack) {
+        console.log('Racks not found:', bundle.from, bundle.to);
+        return;
+    }
     
     const fromRect = fromRack.getBoundingClientRect();
     const toRect = toRack.getBoundingClientRect();
     const canvasRect = document.getElementById('topologyCanvas').getBoundingClientRect();
     
-    // Calculate connection points with better logic
+    // Check if we have custom endpoints saved
+    const bundleKey = `${bundle.from}-${bundle.to}`;
     let fromX, fromY, toX, toY;
     
-    // Determine optimal connection points based on rack positions
-    if (connection.from.rack === 'SR' && connection.to.rack === 'G2C') {
-        // Server Room to Gate 2C - connect right side of SR to left side of G2C
-        fromX = (fromRect.right - canvasRect.left) - 10;
-        fromY = (fromRect.top - canvasRect.top) + fromRect.height / 2;
-        toX = (toRect.left - canvasRect.left) + 10;
-        toY = (toRect.top - canvasRect.top) + toRect.height / 2;
-    } else if (connection.from.rack === 'SR' && connection.to.rack === 'G2B') {
-        // Server Room to Gate 2B - connect bottom of SR to top of G2B
-        fromX = (fromRect.left - canvasRect.left) + fromRect.width / 2;
-        fromY = (fromRect.bottom - canvasRect.top) - 10;
-        toX = (toRect.left - canvasRect.left) + toRect.width / 2;
-        toY = (toRect.top - canvasRect.top) + 10;
-    } else if (connection.from.rack === 'G2C' && connection.to.rack === 'G2B') {
-        // Gate 2C to Gate 2B - connect bottom-left of G2C to top-right of G2B
-        fromX = (fromRect.left - canvasRect.left) + fromRect.width * 0.3;
-        fromY = (fromRect.bottom - canvasRect.top) - 10;
-        toX = (toRect.right - canvasRect.left) - fromRect.width * 0.3;
-        toY = (toRect.top - canvasRect.top) + 10;
+    if (connectionEndpoints[bundleKey]) {
+        // Use saved custom endpoints
+        fromX = connectionEndpoints[bundleKey].fromX;
+        fromY = connectionEndpoints[bundleKey].fromY;
+        toX = connectionEndpoints[bundleKey].toX;
+        toY = connectionEndpoints[bundleKey].toY;
     } else {
-        // Default center-to-center for any other connections
-        fromX = (fromRect.left - canvasRect.left) + fromRect.width / 2;
-        fromY = (fromRect.top - canvasRect.top) + fromRect.height / 2;
-        toX = (toRect.left - canvasRect.left) + toRect.width / 2;
-        toY = (toRect.top - canvasRect.top) + toRect.height / 2;
+        // Calculate default connection points
+        if (bundle.from === 'SR' && bundle.to === 'G2C') {
+            fromX = (fromRect.right - canvasRect.left) - 16;
+            fromY = (fromRect.top - canvasRect.top) + fromRect.height / 2;
+            toX = (toRect.left - canvasRect.left) + 16;
+            toY = (toRect.top - canvasRect.top) + toRect.height / 2;
+        } else if (bundle.from === 'SR' && bundle.to === 'G2B') {
+            fromX = (fromRect.right - canvasRect.left) - 20;
+            fromY = (fromRect.bottom - canvasRect.top) - 20;
+            toX = (toRect.right - canvasRect.left) - 20;
+            toY = (toRect.top - canvasRect.top) - 20;
+        } else {
+            console.log('Unknown bundle combination:', bundle.from, bundle.to);
+            return;
+        }
+        
+        // Save default endpoints
+        connectionEndpoints[bundleKey] = { fromX, fromY, toX, toY };
     }
     
-    // Create smooth curved path with better control points
+    console.log(`Drawing bundle from (${fromX}, ${fromY}) to (${toX}, ${toY})`);
+    
+    // Create main cable path with better curve control
     const deltaX = toX - fromX;
     const deltaY = toY - fromY;
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
-    let pathData;
-    
+    let mainPathData;
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // Horizontal-dominant connection - use horizontal curve
-        const controlOffset = Math.min(Math.abs(deltaX) * 0.4, 100);
+        const controlOffset = Math.min(Math.abs(deltaX) * 0.3, 80);
         const control1X = fromX + (deltaX > 0 ? controlOffset : -controlOffset);
         const control1Y = fromY;
         const control2X = toX - (deltaX > 0 ? controlOffset : -controlOffset);
         const control2Y = toY;
-        
-        pathData = `M ${fromX} ${fromY} C ${control1X} ${control1Y} ${control2X} ${control2Y} ${toX} ${toY}`;
+        mainPathData = `M ${fromX} ${fromY} C ${control1X} ${control1Y} ${control2X} ${control2Y} ${toX} ${toY}`;
     } else {
-        // Vertical-dominant connection - use vertical curve
         const controlOffset = Math.min(Math.abs(deltaY) * 0.4, 80);
         const control1X = fromX;
         const control1Y = fromY + (deltaY > 0 ? controlOffset : -controlOffset);
         const control2X = toX;
-        const control2Y = toY - (deltaY > 0 ? controlOffset : -controlOffset);
-        
-        pathData = `M ${fromX} ${fromY} C ${control1X} ${control1Y} ${control2X} ${control2Y} ${toX} ${toY}`;
+        const control2Y = toY - (deltaY > 0 ? controlOffset + 15 : -controlOffset);
+        mainPathData = `M ${fromX} ${fromY} C ${control1X} ${control1Y} ${control2X} ${control2Y} ${toX} ${toY}`;
     }
     
-    // Create connection group
-    const connectionGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    connectionGroup.setAttribute('class', 'connection-group');
-    connectionGroup.setAttribute('data-connection-id', connection.id);
+    // Create bundle group
+    const bundleGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    bundleGroup.setAttribute('class', 'cable-bundle-group');
+    bundleGroup.setAttribute('data-bundle-id', bundle.id);
     
-    // Create connection path with better styling
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', pathData);
-    path.setAttribute('class', `connection-line ${connection.type}`);
+    // Main cable bundle path
+    const mainCable = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    mainCable.setAttribute('d', mainPathData);
+    mainCable.setAttribute('class', 'main-cable-bundle');
+    mainCable.setAttribute('stroke', '#2d3748');
+    mainCable.setAttribute('stroke-width', Math.min(bundle.coreCount + 4, 12));
+    mainCable.setAttribute('fill', 'none');
+    mainCable.setAttribute('opacity', '0.8');
+    mainCable.setAttribute('stroke-linecap', 'round');
+    mainCable.setAttribute('marker-end', 'url(#arrow-cable-bundle)');
     
-    // Create connection label with better positioning
+    bundleGroup.appendChild(mainCable);
+    
+    // Draw visible fiber fanouts
+    drawVisibleFiberFanouts(bundleGroup, fromX, fromY, toX, toY, bundle.coreCount, bundle.from, bundle.to);
+    
+    // Add draggable control points at both ends
+    addDraggableEndpoint(bundleGroup, fromX, fromY, bundleKey, 'from');
+    addDraggableEndpoint(bundleGroup, toX, toY, bundleKey, 'to');
+    
+    // Add bundle label
     const midX = (fromX + toX) / 2;
     const midY = (fromY + toY) / 2;
     
-    // Adjust label position to avoid overlapping with the line
-    const labelOffsetY = deltaY > 0 ? -20 : 20;
-    const labelX = midX;
-    const labelY = midY + labelOffsetY;
+    const bundleLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    bundleLabel.setAttribute('x', midX);
+    bundleLabel.setAttribute('y', midY - 20);
+    bundleLabel.setAttribute('class', 'connection-label');
+    bundleLabel.setAttribute('style', 'font-weight: bold; font-size: 0.85rem; fill: #2d3748;');
+    bundleLabel.textContent = `${bundle.coreCount}-Core Fiber`;
     
-    // Simplified and cleaner label text
-    let labelText = connection.description;
-    if (labelText.includes('12-Core Fiber - Core')) {
-        labelText = `Core ${labelText.split('Core ')[1]}`;
-    } else if (labelText.includes('Direct Fiber to Gate 2B - Core')) {
-        labelText = `G2B Core ${labelText.split('Core ')[1]}`;
+    const bundleLabelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    const labelWidth = bundleLabel.textContent.length * 7 + 12;
+    bundleLabelBg.setAttribute('x', midX - labelWidth / 2);
+    bundleLabelBg.setAttribute('y', midY - 30);
+    bundleLabelBg.setAttribute('width', labelWidth);
+    bundleLabelBg.setAttribute('height', 16);
+    bundleLabelBg.setAttribute('fill', 'rgba(255, 255, 255, 0.95)');
+    bundleLabelBg.setAttribute('stroke', '#2d3748');
+    bundleLabelBg.setAttribute('stroke-width', '1');
+    bundleLabelBg.setAttribute('rx', '3');
+    
+    bundleGroup.appendChild(bundleLabelBg);
+    bundleGroup.appendChild(bundleLabel);
+    
+    // Add hover effects
+    bundleGroup.addEventListener('mouseenter', () => {
+        mainCable.setAttribute('opacity', '1');
+        mainCable.setAttribute('stroke-width', Math.min(bundle.coreCount + 6, 14));
+        showBundleTooltip(bundle, midX, midY + 15);
+    });
+    
+    bundleGroup.addEventListener('mouseleave', () => {
+        mainCable.setAttribute('opacity', '0.8');
+        mainCable.setAttribute('stroke-width', Math.min(bundle.coreCount + 4, 12));
+        hideBundleTooltip();
+    });
+    
+    svg.appendChild(bundleGroup);
+    console.log('Bundle group added to SVG');
+}
+
+// Add draggable endpoint control point
+function addDraggableEndpoint(parentGroup, x, y, bundleKey, endType) {
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('cx', x);
+    circle.setAttribute('cy', y);
+    circle.setAttribute('r', '10');
+    circle.setAttribute('fill', '#4299e1');
+    circle.setAttribute('stroke', 'white');
+    circle.setAttribute('stroke-width', '3');
+    circle.setAttribute('opacity', '0.8');
+    circle.setAttribute('class', 'connection-endpoint');
+    circle.setAttribute('data-bundle-key', bundleKey);
+    circle.setAttribute('data-end-type', endType);
+    circle.style.cursor = 'move';
+    circle.style.pointerEvents = 'all';
+    
+    // Add title for better UX
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+    title.textContent = `Drag to adjust ${endType} endpoint`;
+    circle.appendChild(title);
+    
+    parentGroup.appendChild(circle);
+}
+
+// Initialize connection endpoint dragging
+function initializeConnectionDragging() {
+    const svg = document.getElementById('topologyConnections');
+    let draggedEndpoint = null;
+    let isDraggingEndpoint = false;
+    
+    // Use event delegation on the SVG
+    svg.addEventListener('mousedown', (e) => {
+        const target = e.target;
+        if (target.classList.contains('connection-endpoint')) {
+            draggedEndpoint = target;
+            isDraggingEndpoint = true;
+            draggedEndpoint.setAttribute('opacity', '1');
+            draggedEndpoint.setAttribute('r', '12');
+            draggedEndpoint.setAttribute('fill', '#3182ce');
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('Started dragging endpoint');
+        }
+    });
+    
+    document.addEventListener('mousemove', (e) => {
+        if (!isDraggingEndpoint || !draggedEndpoint) return;
+        
+        const svgRect = svg.getBoundingClientRect();
+        const newX = e.clientX - svgRect.left;
+        const newY = e.clientY - svgRect.top;
+        
+        // Update circle position
+        draggedEndpoint.setAttribute('cx', newX);
+        draggedEndpoint.setAttribute('cy', newY);
+        
+        // Update saved endpoint position
+        const bundleKey = draggedEndpoint.getAttribute('data-bundle-key');
+        const endType = draggedEndpoint.getAttribute('data-end-type');
+        
+        if (!connectionEndpoints[bundleKey]) {
+            connectionEndpoints[bundleKey] = {};
+        }
+        
+        if (endType === 'from') {
+            connectionEndpoints[bundleKey].fromX = newX;
+            connectionEndpoints[bundleKey].fromY = newY;
+        } else {
+            connectionEndpoints[bundleKey].toX = newX;
+            connectionEndpoints[bundleKey].toY = newY;
+        }
+        
+        // Redraw connections to show updated position
+        drawInterRackConnections();
+        
+        e.preventDefault();
+    });
+    
+    document.addEventListener('mouseup', (e) => {
+        if (isDraggingEndpoint && draggedEndpoint) {
+            draggedEndpoint.setAttribute('opacity', '0.8');
+            draggedEndpoint.setAttribute('r', '10');
+            draggedEndpoint.setAttribute('fill', '#4299e1');
+            
+            // Save to localStorage
+            saveConnectionEndpoints();
+            
+            console.log('Finished dragging endpoint, saved position');
+            
+            isDraggingEndpoint = false;
+            draggedEndpoint = null;
+        }
+    });
+    
+    console.log('Connection endpoint dragging initialized');
+}
+
+// Draw visible fiber fanouts - simplified approach with correct directions
+function drawVisibleFiberFanouts(parentGroup, fromX, fromY, toX, toY, coreCount, fromRack, toRack) {
+    const coreColors = ['#f6ad55', '#ed8936', '#f6e05e', '#fbb6ce', '#fc8181', '#f093fb'];
+    const fanoutLength = 13; // Reduced by another 20% (was 16, now ~13)
+    const fanoutSpread = 6;
+    
+    console.log(`Drawing ${coreCount} fiber fanouts from (${fromX},${fromY}) to (${toX},${toY})`);
+    
+    // Draw fanouts at source (fromX, fromY) - going TOWARD the SR rack
+    for (let i = 0; i < coreCount; i++) {
+        const offset = (i - (coreCount - 1) / 2) * fanoutSpread;
+        let startX, startY, endX, endY;
+        
+        if (fromRack === 'SR' && toRack === 'G2C') {
+            // Horizontal - fanout to the LEFT toward SR rack edge
+            startX = fromX;
+            startY = fromY + offset;
+            endX = fromX - fanoutLength;
+            endY = fromY + offset;
+        } else if (fromRack === 'SR' && toRack === 'G2B') {
+            // Diagonal - fanout toward bottom-right corner of SR rack
+            startX = fromX;
+            startY = fromY;
+            endX = fromX + fanoutLength * 0.7; // Go diagonally right
+            endY = fromY + fanoutLength * 0.7; // Go diagonally down
+        } else {
+            continue;
+        }
+        
+        // Create fiber line
+        const fiberLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        fiberLine.setAttribute('x1', startX);
+        fiberLine.setAttribute('y1', startY);
+        fiberLine.setAttribute('x2', endX);
+        fiberLine.setAttribute('y2', endY);
+        fiberLine.setAttribute('stroke', coreColors[i % coreColors.length]);
+        fiberLine.setAttribute('stroke-width', '2.5');
+        fiberLine.setAttribute('stroke-linecap', 'round');
+        fiberLine.setAttribute('opacity', '0.9');
+        
+        // Create end circle
+        const endCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        endCircle.setAttribute('cx', endX);
+        endCircle.setAttribute('cy', endY);
+        endCircle.setAttribute('r', '3');
+        endCircle.setAttribute('fill', coreColors[i % coreColors.length]);
+        endCircle.setAttribute('stroke', 'white');
+        endCircle.setAttribute('stroke-width', '1.5');
+        
+        // Create label
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', endX + (fromRack === 'SR' && toRack === 'G2C' ? 10 : 0));
+        label.setAttribute('y', endY + (fromRack === 'SR' && toRack === 'G2B' ? 12 : 4));
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('style', `font-size: 0.6rem; font-weight: 700; fill: ${coreColors[i % coreColors.length]};`);
+        label.textContent = `C${i + 1}`;
+        
+        parentGroup.appendChild(fiberLine);
+        parentGroup.appendChild(endCircle);
+        parentGroup.appendChild(label);
     }
     
-    const labelWidth = Math.max(labelText.length * 6 + 12, 60);
+    // Draw fanouts at destination (toX, toY) - going TOWARD the destination rack
+    for (let i = 0; i < coreCount; i++) {
+        const offset = (i - (coreCount - 1) / 2) * fanoutSpread;
+        let startX, startY, endX, endY;
+        
+        if (fromRack === 'SR' && toRack === 'G2C') {
+            // Horizontal - fanout to the RIGHT toward G2C rack edge
+            startX = toX;
+            startY = toY + offset;
+            endX = toX + fanoutLength;
+            endY = toY + offset;
+        } else if (fromRack === 'SR' && toRack === 'G2B') {
+            // Diagonal - fanout toward top-right corner of G2B rack
+            startX = toX;
+            startY = toY;
+            endX = toX + fanoutLength * 0.7; // Go diagonally right
+            endY = toY - fanoutLength * 0.7; // Go diagonally up
+        } else {
+            continue;
+        }
+        
+        // Create fiber line
+        const fiberLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        fiberLine.setAttribute('x1', startX);
+        fiberLine.setAttribute('y1', startY);
+        fiberLine.setAttribute('x2', endX);
+        fiberLine.setAttribute('y2', endY);
+        fiberLine.setAttribute('stroke', coreColors[i % coreColors.length]);
+        fiberLine.setAttribute('stroke-width', '2.5');
+        fiberLine.setAttribute('stroke-linecap', 'round');
+        fiberLine.setAttribute('opacity', '0.9');
+        
+        // Create end circle
+        const endCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        endCircle.setAttribute('cx', endX);
+        endCircle.setAttribute('cy', endY);
+        endCircle.setAttribute('r', '3');
+        endCircle.setAttribute('fill', coreColors[i % coreColors.length]);
+        endCircle.setAttribute('stroke', 'white');
+        endCircle.setAttribute('stroke-width', '1.5');
+        
+        // Create label
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', endX + (fromRack === 'SR' && toRack === 'G2C' ? -10 : 0));
+        label.setAttribute('y', endY + (fromRack === 'SR' && toRack === 'G2B' ? -8 : 4));
+        label.setAttribute('text-anchor', 'middle');
+        label.setAttribute('style', `font-size: 0.6rem; font-weight: 700; fill: ${coreColors[i % coreColors.length]};`);
+        label.textContent = `C${i + 1}`;
+        
+        parentGroup.appendChild(fiberLine);
+        parentGroup.appendChild(endCircle);
+        parentGroup.appendChild(label);
+    }
     
-    // Label background
-    const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    labelBg.setAttribute('x', labelX - labelWidth / 2);
-    labelBg.setAttribute('y', labelY - 8);
-    labelBg.setAttribute('width', labelWidth);
-    labelBg.setAttribute('height', 16);
-    labelBg.setAttribute('class', 'connection-label-bg');
+    console.log(`Added ${coreCount * 2} fanout elements (${coreCount} at each end)`);
+}
+
+
+
+// Create SVG arrow markers
+function createArrowMarkers(svg) {
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     
-    // Label text
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', labelX);
-    text.setAttribute('y', labelY);
-    text.setAttribute('class', 'connection-label');
-    text.textContent = labelText;
+    // Cable bundle arrow (smaller size)
+    const cableBundleMarker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    cableBundleMarker.setAttribute('id', 'arrow-cable-bundle');
+    cableBundleMarker.setAttribute('viewBox', '0 0 10 10');
+    cableBundleMarker.setAttribute('refX', '10');
+    cableBundleMarker.setAttribute('refY', '5');
+    cableBundleMarker.setAttribute('markerWidth', '6');
+    cableBundleMarker.setAttribute('markerHeight', '6');
+    cableBundleMarker.setAttribute('orient', 'auto');
+    cableBundleMarker.setAttribute('markerUnits', 'strokeWidth');
     
-    // Add elements to group
-    connectionGroup.appendChild(path);
-    connectionGroup.appendChild(labelBg);
-    connectionGroup.appendChild(text);
+    const cableBundlePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    cableBundlePath.setAttribute('d', 'M0,0 L0,10 L10,5 z');
+    cableBundlePath.setAttribute('fill', '#2d3748');
+    cableBundlePath.setAttribute('class', 'connection-arrow cable-bundle');
     
-    // Add hover effects with improved tooltip
-    connectionGroup.addEventListener('mouseenter', () => {
-        path.classList.add('highlighted');
-        showConnectionTooltip(connection, labelX, labelY + 30);
+    cableBundleMarker.appendChild(cableBundlePath);
+    defs.appendChild(cableBundleMarker);
+    
+    // Standard connection type arrows
+    const connectionTypes = [
+        { type: 'fiber', color: '#f6ad55' },
+        { type: 'ethernet', color: '#4299e1' },
+        { type: 'power', color: '#e53e3e' },
+        { type: 'management', color: '#9f7aea' }
+    ];
+    
+    connectionTypes.forEach(({ type, color }) => {
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+        marker.setAttribute('id', `arrow-${type}`);
+        marker.setAttribute('viewBox', '0 0 10 10');
+        marker.setAttribute('refX', '9');
+        marker.setAttribute('refY', '3');
+        marker.setAttribute('markerWidth', '6');
+        marker.setAttribute('markerHeight', '6');
+        marker.setAttribute('orient', 'auto');
+        marker.setAttribute('markerUnits', 'strokeWidth');
+        
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M0,0 L0,6 L9,3 z');
+        path.setAttribute('fill', color);
+        path.setAttribute('class', `connection-arrow ${type}`);
+        
+        marker.appendChild(path);
+        defs.appendChild(marker);
     });
     
-    connectionGroup.addEventListener('mouseleave', () => {
-        path.classList.remove('highlighted');
-        hideConnectionTooltip();
+    svg.appendChild(defs);
+}
+
+// Group connections by cable bundle (same source and destination racks)
+function groupConnectionsByBundle() {
+    const bundles = {};
+    
+    interRackConnections.forEach(connection => {
+        const bundleKey = `${connection.from.rack}-${connection.to.rack}`;
+        if (!bundles[bundleKey]) {
+            bundles[bundleKey] = {
+                id: bundleKey,
+                from: connection.from.rack,
+                to: connection.to.rack,
+                connections: [],
+                coreCount: 0
+            };
+        }
+        bundles[bundleKey].connections.push(connection);
+        bundles[bundleKey].coreCount++;
     });
     
-    svg.appendChild(connectionGroup);
+    return bundles;
+}
+
+
+// Show bundle tooltip
+function showBundleTooltip(bundle, x, y) {
+    console.log(`📋 Cable Bundle: ${bundle.coreCount} fiber cores from ${rackConfigurations[bundle.from].name} to ${rackConfigurations[bundle.to].name}`);
+    
+    // Create tooltip element if it doesn't exist
+    let tooltip = document.getElementById('bundle-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'bundle-tooltip';
+        tooltip.style.cssText = `
+            position: absolute;
+            background: rgba(45, 55, 72, 0.95);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            backdrop-filter: blur(4px);
+        `;
+        document.body.appendChild(tooltip);
+    }
+    
+    tooltip.innerHTML = `
+        <div style="font-weight: 600; margin-bottom: 4px;">${bundle.coreCount}-Core Fiber Cable</div>
+        <div style="font-size: 0.7rem; opacity: 0.9;">
+            ${rackConfigurations[bundle.from].name} → ${rackConfigurations[bundle.to].name}
+        </div>
+        <div style="font-size: 0.7rem; opacity: 0.8; margin-top: 2px;">
+            ${bundle.connections.length} active connections
+        </div>
+    `;
+    
+    tooltip.style.left = (x + 10) + 'px';
+    tooltip.style.top = (y - 40) + 'px';
+    tooltip.style.display = 'block';
+}
+
+// Hide bundle tooltip
+function hideBundleTooltip() {
+    const tooltip = document.getElementById('bundle-tooltip');
+    if (tooltip) {
+        tooltip.style.display = 'none';
+    }
 }
 
 // Highlight connections for a specific rack
@@ -658,6 +1168,7 @@ function exportTopology() {
     const topologyData = {
         racks: rackConfigurations,
         connections: interRackConnections,
+        positions: rackPositions,
         exportedAt: new Date().toISOString(),
         version: '1.0'
     };
@@ -674,6 +1185,34 @@ function exportTopology() {
     URL.revokeObjectURL(url);
     
     console.log('💾 Topology exported');
+}
+
+// Reset rack positions to default
+function resetRackPositions() {
+    if (confirm('Reset all rack positions and connection endpoints to default layout?')) {
+        localStorage.removeItem('topologyRackPositions');
+        localStorage.removeItem('topologyConnectionEndpoints');
+        rackPositions = {};
+        connectionEndpoints = {};
+        location.reload();
+        console.log('↺ Rack positions and connection endpoints reset');
+    }
+}
+
+// Toggle legend visibility
+function toggleLegend() {
+    const legend = document.getElementById('connectionLegend');
+    const toggleBtn = document.getElementById('legendToggleBtn');
+    
+    if (legend.style.display === 'none') {
+        legend.style.display = 'block';
+        toggleBtn.textContent = '📖 Hide Legend';
+        console.log('Legend shown');
+    } else {
+        legend.style.display = 'none';
+        toggleBtn.textContent = '📖 Legend';
+        console.log('Legend hidden');
+    }
 }
 
 // Drill down to individual rack view
