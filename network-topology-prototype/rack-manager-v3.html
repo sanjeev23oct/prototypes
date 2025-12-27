@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Management v5 - Gate 2C Rack Configuration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            overflow-x: auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100vh - 80px);
+            gap: 1rem;
+            padding: 1rem;
+            min-height: 800px;
+        }
+
+        /* Toolbox Panel */
+        .toolbox {
+            width: 300px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toolbox.collapsed {
+            width: 60px;
+            padding: 1rem 0.5rem;
+        }
+
+        .toolbox.collapsed .toolbox-content {
+            display: none;
+        }
+
+        .toolbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .toolbox-toggle {
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .toolbox-toggle:hover {
+            background: #3182ce;
+        }
+
+        .toolbox h3 {
+            color: #4a5568;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .tool-category {
+            margin-bottom: 2rem;
+        }
+
+        .tool-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .tool-item:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tool-item:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+
+        .tool-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 0.75rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 0.8rem;
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-name {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 0.9rem;
+        }
+
+        .tool-desc {
+            font-size: 0.75rem;
+            color: #718096;
+            margin-top: 0.2rem;
+        }
+
+        /* Device Colors */
+        .switch { background: #4299e1; }
+        .patch-panel { background: #48bb78; }
+        .server { background: #ed8936; }
+        .ups { background: #9f7aea; }
+        .pdu { background: #38b2ac; }
+
+        /* Cable Colors */
+        .cat6 { background: #3182ce; }
+        .fiber { background: #d69e2e; }
+        .power { background: #e53e3e; }
+
+        /* Rack View */
+        .rack-container {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            overflow: auto;
+            position: relative;
+        }
+
+        .rack-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .rack-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .rack-details {
+            color: #718096;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .rack-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3182ce;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        /* Rack Visual */
+        .rack-visual {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            position: relative;
+            min-height: 600px;
+            width: 100%;
+        }
+
+        .rack {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .rack-frame {
+            background: #4a5568;
+            border-radius: 8px;
+            padding: 1rem;
+            min-height: 600px;
+            width: 100%;
+            position: relative;
+        }
+
+        .rack-units {
+            display: flex;
+            flex-direction: column-reverse;
+            height: 100%;
+            gap: 2px;
+        }
+
+        .rack-unit {
+            height: 32px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: all 0.2s ease;
+            margin-bottom: 2px;
+        }
+
+        .rack-unit:hover {
+            background: #edf2f7;
+            border-color: #cbd5e0;
+        }
+
+        .rack-unit.occupied {
+            background: #bee3f8;
+            border-color: #4299e1;
+            height: 36px;
+        }
+
+        .rack-unit.drop-zone {
+            background: #c6f6d5;
+            border-color: #48bb78;
+            border-style: dashed;
+            border-width: 2px;
+        }
+
+        /* Empty Range Styling */
+        .empty-range {
+            height: 40px;
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            margin: 3px 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .empty-range:hover {
+            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+            border-color: #cbd5e0;
+        }
+
+        .empty-range-label {
+            font-size: 0.85rem;
+            color: #718096;
+            font-weight: 500;
+        }
+
+        .empty-range-toggle {
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .empty-range-toggle:hover {
+            background: #3182ce;
+            transform: scale(1.1);
+        }
+
+        .empty-range.expanded .empty-range-toggle {
+            background: #e53e3e;
+        }
+
+        .empty-range.expanded .empty-range-toggle:hover {
+            background: #c53030;
+        }
+
+        .unit-number {
+            position: absolute;
+            left: -50px;
+            font-size: 0.75rem;
+            color: #a0aec0;
+            font-weight: 600;
+            width: 40px;
+            text-align: right;
+        }
+
+        .device-in-rack {
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            color: white;
+            font-weight: 500;
+            font-size: 0.8rem;
+            cursor: pointer;
+            position: relative;
+            justify-content: space-between;
+        }
+
+        .device-ports {
+            display: flex;
+            gap: 3px;
+            flex-wrap: wrap;
+            max-width: 300px;
+            align-items: center;
+        }
+
+        .port {
+            width: 14px;
+            height: 14px;
+            background: #718096;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .port:hover {
+            background: #4299e1;
+            transform: scale(1.3);
+            z-index: 10;
+        }
+
+        .port.connected {
+            background: #48bb78;
+            box-shadow: 0 0 8px rgba(72, 187, 120, 0.6);
+        }
+
+        .port.selected {
+            background: #ed8936;
+            transform: scale(1.4);
+            box-shadow: 0 0 12px rgba(237, 137, 54, 0.8);
+            z-index: 10;
+        }
+
+        /* Cable Visualization */
+        .cables-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .cable {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .cable-line {
+            stroke-width: 4;
+            fill: none;
+            opacity: 0.9;
+            filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+            transition: all 0.3s ease;
+        }
+
+        .cable-line:hover {
+            stroke-width: 6;
+            opacity: 1;
+        }
+
+        .cable-ethernet {
+            stroke: #4299e1;
+            stroke-dasharray: none;
+        }
+
+        .cable-fiber {
+            stroke: #f6ad55;
+            stroke-dasharray: 8,4;
+            stroke-linecap: round;
+        }
+
+        .cable-power {
+            stroke: #e53e3e;
+            stroke-width: 5;
+            stroke-dasharray: none;
+        }
+
+        .cable-label {
+            font-size: 0.75rem;
+            fill: #2d3748;
+            font-weight: 700;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .cable-label-bg {
+            fill: rgba(255,255,255,0.95);
+            stroke: rgba(0,0,0,0.1);
+            stroke-width: 1;
+            rx: 4;
+            ry: 4;
+        }
+
+        /* Enhanced port styling for better cable connection visibility */
+        .port {
+            width: 16px;
+            height: 16px;
+            background: #718096;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.4);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65rem;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .port:hover {
+            background: #4299e1;
+            transform: scale(1.4);
+            z-index: 15;
+            box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+        }
+
+        .port.connected {
+            background: #48bb78;
+            border-color: #38a169;
+            box-shadow: 0 0 12px rgba(72, 187, 120, 0.6);
+            animation: pulse-connected 2s infinite;
+        }
+
+        .port.selected {
+            background: #ed8936;
+            transform: scale(1.5);
+            box-shadow: 0 0 16px rgba(237, 137, 54, 0.8);
+            z-index: 15;
+            border-color: #dd6b20;
+        }
+
+        @keyframes pulse-connected {
+            0%, 100% { box-shadow: 0 0 12px rgba(72, 187, 120, 0.6); }
+            50% { box-shadow: 0 0 20px rgba(72, 187, 120, 0.9); }
+        }
+
+        /* Cable connection indicators */
+        .cable-connection-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border: 2px solid #4299e1;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .cable-connection-point.fiber {
+            border-color: #f6ad55;
+            background: #fed7aa;
+        }
+
+        .cable-connection-point.power {
+            border-color: #e53e3e;
+            background: #fed7d7;
+        }
+
+        /* Connection Panel */
+        .connection-panel {
+            width: 350px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .connection-panel h3 {
+            color: #4a5568;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+
+        .connection-form {
+            display: none;
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .connection-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .connections-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .connection-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .connection-from, .connection-to {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .connection-cable {
+            color: #718096;
+            margin-top: 0.25rem;
+        }
+
+        .connection-actions {
+            margin-top: 0.5rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-available { background: #48bb78; }
+        .status-connected { background: #4299e1; }
+        .status-maintenance { background: #ed8936; }
+        .status-failed { background: #e53e3e; }
+
+        /* Drag and Drop Styles */
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .drag-preview {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            background: rgba(66, 153, 225, 0.9);
+            color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .main-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .toolbox, .connection-panel {
+                width: 100%;
+                max-height: 200px;
+            }
+            
+            .rack-visual {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .rack {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .rack-frame {
+                padding: 0.5rem;
+            }
+            
+            .device-ports {
+                max-width: 200px;
+            }
+            
+            .port {
+                width: 12px;
+                height: 12px;
+                font-size: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏗️ Gate 2C Network Rack - Live Configuration</h1>
+        <p>Real-time view of Gate 2C Security Room network infrastructure based on actual deployment data</p>
+        <div style="margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.9;">
+            <strong>Location:</strong> Gate-2C Security Room • 
+            <strong>Switch:</strong> D-Link 1210-28P (PoE, Manageable) • 
+            <strong>Data Source:</strong> rack2c.txt
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- Toolbox Panel -->
+        <div class="toolbox" id="toolbox">
+            <div class="toolbox-header">
+                <h3 style="margin: 0;">🧰 Device Toolbox</h3>
+                <button class="toolbox-toggle" onclick="toggleToolbox()">
+                    <span id="toolboxToggleIcon">◀</span>
+                </button>
+            </div>
+            
+            <div class="toolbox-content">
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Network Devices</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="switch" data-ports="28">
+                        <div class="tool-icon switch">SW</div>
+                        <div class="tool-info">
+                            <div class="tool-name">28-Port Switch</div>
+                            <div class="tool-desc">D-Link 1210-28P PoE</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="switch" data-ports="48">
+                        <div class="tool-icon switch">SW</div>
+                        <div class="tool-info">
+                            <div class="tool-name">48-Port Switch</div>
+                            <div class="tool-desc">Gigabit Ethernet Switch</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="patch-panel" data-ports="24">
+                        <div class="tool-icon patch-panel">PP</div>
+                        <div class="tool-info">
+                            <div class="tool-name">24-Port Patch Panel</div>
+                            <div class="tool-desc">Cat6 RJ45 Patch Panel</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="patch-panel" data-ports="48">
+                        <div class="tool-icon patch-panel">PP</div>
+                        <div class="tool-info">
+                            <div class="tool-name">48-Port Patch Panel</div>
+                            <div class="tool-desc">Cat6 RJ45 Patch Panel</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="patch-panel" data-ports="24">
+                        <div class="tool-icon patch-panel" style="background: #d69e2e;">LIU</div>
+                        <div class="tool-info">
+                            <div class="tool-name">24-Port LIU Panel</div>
+                            <div class="tool-desc">Single Mode Fiber SC</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="patch-panel" data-ports="12">
+                        <div class="tool-icon patch-panel" style="background: #d69e2e;">LIU</div>
+                        <div class="tool-info">
+                            <div class="tool-name">12-Port LIU Panel</div>
+                            <div class="tool-desc">Fiber Optic LIU</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="2">
+                        <div class="tool-icon server" style="background: #805ad5;">WiFi</div>
+                        <div class="tool-info">
+                            <div class="tool-name">WiFi Access Point</div>
+                            <div class="tool-desc">D-Link DAP-2230</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="4">
+                        <div class="tool-icon server">SV</div>
+                        <div class="tool-info">
+                            <div class="tool-name">1U Server</div>
+                            <div class="tool-desc">Rack Mount Server</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Power Infrastructure</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="ups" data-ports="0">
+                        <div class="tool-icon ups">UPS</div>
+                        <div class="tool-info">
+                            <div class="tool-name">UPS Unit</div>
+                            <div class="tool-desc">BPE 650VA</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="pdu" data-ports="6">
+                        <div class="tool-icon pdu" style="background: #e53e3e;">PS</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Power Strip</div>
+                            <div class="tool-desc">Wago with MCB & Switch</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="device" data-device-type="server" data-ports="2">
+                        <div class="tool-icon server" style="background: #38b2ac;">IOT</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Power IOT Device</div>
+                            <div class="tool-desc">RSSB PM 201</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tool-category">
+                    <h4 style="color: #718096; font-size: 0.9rem; margin-bottom: 0.75rem;">Cables</h4>
+                    
+                    <div class="tool-item" draggable="true" data-type="cable" data-cable-type="cat6">
+                        <div class="tool-icon cat6">C6</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Cat6 Cable</div>
+                            <div class="tool-desc">Ethernet Patch Cable</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="cable" data-cable-type="fiber">
+                        <div class="tool-icon fiber">FO</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Fiber Optic</div>
+                            <div class="tool-desc">12 Core Fiber Cable</div>
+                        </div>
+                    </div>
+
+                    <div class="tool-item" draggable="true" data-type="cable" data-cable-type="power">
+                        <div class="tool-icon power">PW</div>
+                        <div class="tool-info">
+                            <div class="tool-name">Power Cable</div>
+                            <div class="tool-desc">IEC Power Cord</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rack View -->
+        <div class="rack-container">
+            <div class="rack-header">
+                <div class="rack-info">
+                    <div class="rack-title" id="rackTitle">Gate 2C Network Rack - Security Room</div>
+                    <div class="rack-details" id="rackDetails">D-Link 1210-28P Switch • 12-Core Fiber from SR LIU 2 • PoE Enabled • Manageable</div>
+                </div>
+                <div class="rack-controls">
+                    <button class="btn btn-secondary" onclick="toggleCableVisibility()">Toggle Cables</button>
+                    <button class="btn btn-secondary" onclick="clearRack()">Clear Rack</button>
+                    <button class="btn btn-primary" onclick="saveConfiguration()">Save Config</button>
+                </div>
+            </div>
+
+            <div class="rack-visual">
+                <div class="rack">
+                    <div class="rack-frame">
+                        <div class="rack-units" id="rackUnits">
+                            <!-- Rack units will be generated by JavaScript -->
+                        </div>
+                        <!-- Cable visualization container -->
+                        <svg class="cables-container" id="cablesContainer">
+                            <!-- Cables will be drawn here -->
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Panel -->
+        <div class="connection-panel">
+            <h3>🔌 Gate 2C Connections</h3>
+            
+            <div class="connection-form" id="connectionForm">
+                <div class="form-group">
+                    <label class="form-label">Connection Type</label>
+                    <select class="form-select" id="connectionType">
+                        <option value="ethernet">Ethernet</option>
+                        <option value="fiber">Fiber Optic</option>
+                        <option value="power">Power</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable Length (meters)</label>
+                    <input type="number" class="form-input" id="cableLength" value="1" min="0.1" step="0.1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Cable ID</label>
+                    <input type="text" class="form-input" id="cableId" placeholder="Auto-generated">
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="createConnection()">Create Connection</button>
+                    <button class="btn btn-secondary" onclick="cancelConnection()">Cancel</button>
+                </div>
+            </div>
+
+            <div class="connections-list" id="connectionsList">
+                <p style="color: #718096; font-style: italic; text-align: center; padding: 2rem;">
+                    Click on two ports to create a connection
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let rackData = {};
+        let selectedPorts = [];
+        let connectionMode = false;
+        let dragPreview = null;
+        let connections = [];
+        let deviceCounter = 1;
+        let cableCounter = 1;
+        let cablesVisible = true;
+        let currentRackId = 'R001';
+        let rackConfigurations = {};
+
+        // Initialize Gate 2C rack configuration based on rack2c.txt data
+        function initializeRackConfigurations() {
+            rackConfigurations = {
+                'G2C': {
+                    name: 'Gate 2C Network Rack - Security Room',
+                    details: 'D-Link 1210-28P Switch • 12-Core Fiber from SR LIU 2 • PoE Enabled • Manageable',
+                    location: 'Gate-2C Security Room',
+                    devices: {
+                        // LIU Panel (Unit 42)
+                        42: {
+                            deviceId: 'LIU-G2C-001',
+                            deviceType: 'patch-panel',
+                            portCount: 12,
+                            ports: {},
+                            name: '12-Core Fiber LIU (From SR LIU 2)',
+                            details: 'Ports 13-16 to Gate 2C Switch, Ports 17-20 direct to Gate 2B'
+                        },
+                        
+                        // Main Switch (Unit 40)
+                        40: {
+                            deviceId: 'SW-G2C-001',
+                            deviceType: 'switch',
+                            portCount: 28,
+                            ports: {},
+                            name: 'D-Link 1210-28P PoE Switch',
+                            details: 'MAC: 78-32-1B-1E-5E-66, Serial: S30R2H9005621, Asset: 743156'
+                        },
+                        
+                        // Patch Panel 1 (Unit 38)
+                        38: {
+                            deviceId: 'PP-G2C-001',
+                            deviceType: 'patch-panel',
+                            portCount: 24,
+                            ports: {},
+                            name: 'Patch Panel 1 (PP-1)',
+                            details: 'Field connections to various endpoints'
+                        },
+                        
+                        // WiFi Access Point (Unit 36)
+                        36: {
+                            deviceId: 'WIFI-G2C-001',
+                            deviceType: 'server',
+                            portCount: 2,
+                            ports: {},
+                            name: 'D-Link DAP-2230 WiFi AP',
+                            details: 'Asset ID: 7ef5f5, Connected to Switch Ports 3&4'
+                        },
+                        
+                        // UPS (Unit 3)
+                        3: {
+                            deviceId: 'UPS-G2C-001',
+                            deviceType: 'ups',
+                            portCount: 0,
+                            ports: {},
+                            name: 'BPE 650VA UPS',
+                            details: 'Asset ID: aa2e17'
+                        },
+                        
+                        // Power Strip (Unit 2)
+                        2: {
+                            deviceId: 'PS-G2C-001',
+                            deviceType: 'pdu',
+                            portCount: 6,
+                            ports: {},
+                            name: 'Wago Power Strip',
+                            details: 'With MCB & Rocker Switch, Asset ID: W/MCB'
+                        },
+                        
+                        // Power IOT Device (Unit 1)
+                        1: {
+                            deviceId: 'IOT-G2C-001',
+                            deviceType: 'server',
+                            portCount: 2,
+                            ports: {},
+                            name: 'RSSB PM 201 Power IOT',
+                            details: 'Asset ID: a4sh8d'
+                        }
+                    },
+                    connections: [
+                        // LIU to Switch connections
+                        {
+                            id: 'conn-liu-sw-1',
+                            portA: 'LIU-G2C-001-port-1',
+                            portB: 'SW-G2C-001-port-1',
+                            cableId: 'FIBER-G2C-001',
+                            connectionType: 'fiber',
+                            cableLength: 2.0,
+                            status: 'active',
+                            description: 'SR LIU 2 Port 13 to Gate 2C Switch Port 1'
+                        },
+                        {
+                            id: 'conn-liu-sw-2',
+                            portA: 'LIU-G2C-001-port-2',
+                            portB: 'SW-G2C-001-port-2',
+                            cableId: 'FIBER-G2C-002',
+                            connectionType: 'fiber',
+                            cableLength: 2.0,
+                            status: 'active',
+                            description: 'SR LIU 2 Port 14 to Gate 2C Switch Port 2'
+                        },
+                        {
+                            id: 'conn-liu-sw-3',
+                            portA: 'LIU-G2C-001-port-3',
+                            portB: 'SW-G2C-001-port-4',
+                            cableId: 'FIBER-G2C-003',
+                            connectionType: 'fiber',
+                            cableLength: 2.0,
+                            status: 'active',
+                            description: 'SR LIU 2 Port 15 to Gate 2C Switch Port 4'
+                        },
+                        {
+                            id: 'conn-liu-sw-4',
+                            portA: 'LIU-G2C-001-port-4',
+                            portB: 'SW-G2C-001-port-6',
+                            cableId: 'FIBER-G2C-004',
+                            connectionType: 'fiber',
+                            cableLength: 2.0,
+                            status: 'active',
+                            description: 'SR LIU 2 Port 16 to Gate 2C Switch Port 6'
+                        },
+                        
+                        // Switch to WiFi connections
+                        {
+                            id: 'conn-sw-wifi-1',
+                            portA: 'SW-G2C-001-port-3',
+                            portB: 'WIFI-G2C-001-port-1',
+                            cableId: 'CAT6-WIFI-001',
+                            connectionType: 'ethernet',
+                            cableLength: 3.0,
+                            status: 'active',
+                            description: 'Switch Port 3 to WiFi AP'
+                        },
+                        
+                        // Switch to Patch Panel connections
+                        {
+                            id: 'conn-sw-pp-1',
+                            portA: 'SW-G2C-001-port-8',
+                            portB: 'PP-G2C-001-port-15',
+                            cableId: 'CAT6-PP-001',
+                            connectionType: 'ethernet',
+                            cableLength: 1.5,
+                            status: 'active',
+                            description: 'Switch Port 8 to PP Port 15 (CCTV)'
+                        },
+                        {
+                            id: 'conn-sw-pp-2',
+                            portA: 'SW-G2C-001-port-10',
+                            portB: 'PP-G2C-001-port-16',
+                            cableId: 'CAT6-PP-002',
+                            connectionType: 'ethernet',
+                            cableLength: 1.5,
+                            status: 'active',
+                            description: 'Switch Port 10 to PP Port 16 (Road/Dera Mor)'
+                        },
+                        {
+                            id: 'conn-sw-pp-3',
+                            portA: 'SW-G2C-001-port-12',
+                            portB: 'PP-G2C-001-port-17',
+                            cableId: 'CAT6-PP-003',
+                            connectionType: 'ethernet',
+                            cableLength: 1.5,
+                            status: 'active',
+                            description: 'Switch Port 12 to PP Port 17 (CCTV)'
+                        },
+                        {
+                            id: 'conn-sw-pp-4',
+                            portA: 'SW-G2C-001-port-14',
+                            portB: 'PP-G2C-001-port-18',
+                            cableId: 'CAT6-PP-004',
+                            connectionType: 'ethernet',
+                            cableLength: 1.5,
+                            status: 'active',
+                            description: 'Switch Port 14 to PP Port 18 (CCTV)'
+                        }
+                    ]
+                }
+            };
+        }
+
+        // Switch between different rack configurations
+        function switchRack(rackId) {
+            currentRackId = 'G2C';
+            const config = rackConfigurations['G2C'];
+            
+            if (!config) return;
+            
+            // Update UI
+            document.getElementById('rackTitle').textContent = config.name;
+            document.getElementById('rackDetails').textContent = config.details;
+            
+            // Clear current rack
+            clearRackSilent();
+            
+            // Load new rack configuration
+            loadRackConfiguration(config);
+        }
+
+        function clearRackSilent() {
+            // Clear all rack content
+            const rackUnits = document.getElementById('rackUnits');
+            rackUnits.innerHTML = '';
+            
+            // Clear cables
+            const svg = document.getElementById('cablesContainer');
+            svg.innerHTML = '';
+            
+            // Clear data
+            rackData = {};
+            connections = [];
+            selectedPorts = [];
+            
+            hideConnectionForm();
+            updateConnectionsList();
+        }
+
+        function loadRackConfiguration(config) {
+            console.log('Loading rack configuration:', config);
+            
+            // Load devices into rackData first
+            rackData = { ...config.devices };
+            console.log('RackData loaded:', rackData);
+            
+            // Build the smart rack display
+            buildRackDisplay();
+            
+            // Add devices to their units
+            Object.entries(config.devices).forEach(([unitNumber, deviceConfig]) => {
+                const unit = parseInt(unitNumber);
+                console.log(`Adding device to unit ${unit}:`, deviceConfig);
+                addDeviceToRackFromConfig(unit, deviceConfig);
+            });
+            
+            // Load connections
+            connections = [...config.connections];
+            
+            // Draw cables after a short delay to ensure devices are rendered
+            setTimeout(() => {
+                connections.forEach(connection => {
+                    // Mark ports as connected
+                    const portA = document.querySelector(`[data-port-id="${connection.portA}"]`);
+                    const portB = document.querySelector(`[data-port-id="${connection.portB}"]`);
+                    if (portA) portA.classList.add('connected');
+                    if (portB) portB.classList.add('connected');
+                    
+                    // Draw cable
+                    drawCable(connection);
+                });
+                
+                updateConnectionsList();
+            }, 100);
+        }
+
+        function addDeviceToRackFromConfig(unitNumber, deviceConfig) {
+            const unit = document.querySelector(`[data-unit="${unitNumber}"]`);
+            if (!unit) {
+                console.error(`Unit ${unitNumber} not found`);
+                return;
+            }
+            
+            // Remove the occupied check since we want to add the device
+            const deviceId = deviceConfig.deviceId;
+            const deviceType = deviceConfig.deviceType;
+            const portCount = deviceConfig.portCount;
+            const deviceName = deviceConfig.name;
+            
+            // Create device element
+            const device = document.createElement('div');
+            device.className = `device-in-rack ${deviceType}`;
+            device.dataset.deviceId = deviceId;
+            device.dataset.deviceType = deviceType;
+            device.innerHTML = `
+                <span title="${deviceName}">${deviceName}</span>
+                <div class="device-ports" id="ports-${deviceId}"></div>
+            `;
+            
+            // Add ports
+            const portsContainer = device.querySelector('.device-ports');
+            for (let i = 1; i <= portCount; i++) {
+                const port = document.createElement('div');
+                port.className = 'port';
+                port.dataset.portId = `${deviceId}-port-${i}`;
+                port.dataset.deviceId = deviceId;
+                port.dataset.portNumber = i;
+                port.dataset.unitNumber = unitNumber;
+                port.title = `${deviceName} - Port ${i}`;
+                port.textContent = i; // Show port number
+                port.addEventListener('click', handlePortClick);
+                portsContainer.appendChild(port);
+            }
+            
+            // Add to rack unit
+            unit.appendChild(device);
+            unit.classList.add('occupied');
+        }
+
+        // Initialize rack
+        function initializeRack() {
+            const rackUnits = document.getElementById('rackUnits');
+            rackUnits.innerHTML = '';
+            
+            // Initialize Gate 2C configuration
+            initializeRackConfigurations();
+            
+            // Load Gate 2C rack
+            switchRack('G2C');
+        }
+
+        // Build rack display with collapsible empty ranges
+        function buildRackDisplay() {
+            const rackUnits = document.getElementById('rackUnits');
+            rackUnits.innerHTML = '';
+            
+            const occupiedUnits = Object.keys(rackData).map(u => parseInt(u)).sort((a, b) => a - b);
+            console.log('Occupied units:', occupiedUnits);
+            const totalUnits = 42;
+            
+            let currentUnit = 1;
+            
+            while (currentUnit <= totalUnits) {
+                if (occupiedUnits.includes(currentUnit)) {
+                    // Create occupied unit
+                    console.log(`Creating occupied unit ${currentUnit}`);
+                    createRackUnit(currentUnit, rackUnits);
+                    currentUnit++;
+                } else {
+                    // Find range of empty units
+                    let rangeStart = currentUnit;
+                    let rangeEnd = currentUnit;
+                    
+                    while (rangeEnd <= totalUnits && !occupiedUnits.includes(rangeEnd)) {
+                        rangeEnd++;
+                    }
+                    rangeEnd--; // Last empty unit
+                    
+                    if (rangeEnd - rangeStart >= 2) {
+                        // Create collapsible empty range for 3+ units
+                        console.log(`Creating empty range ${rangeStart}-${rangeEnd}`);
+                        createEmptyRange(rangeStart, rangeEnd, rackUnits);
+                    } else {
+                        // Create individual units for 1-2 empty units
+                        for (let i = rangeStart; i <= rangeEnd; i++) {
+                            console.log(`Creating individual empty unit ${i}`);
+                            createRackUnit(i, rackUnits);
+                        }
+                    }
+                    
+                    currentUnit = rangeEnd + 1;
+                }
+            }
+        }
+
+        function createRackUnit(unitNumber, container) {
+            const unit = document.createElement('div');
+            unit.className = 'rack-unit';
+            unit.dataset.unit = unitNumber;
+            
+            const unitNumberDiv = document.createElement('div');
+            unitNumberDiv.className = 'unit-number';
+            unitNumberDiv.textContent = unitNumber;
+            unit.appendChild(unitNumberDiv);
+            
+            // Add drop zone functionality
+            unit.addEventListener('dragover', handleDragOver);
+            unit.addEventListener('drop', handleDrop);
+            unit.addEventListener('dragleave', handleDragLeave);
+            
+            container.appendChild(unit);
+        }
+
+        function createEmptyRange(startUnit, endUnit, container) {
+            const emptyRange = document.createElement('div');
+            emptyRange.className = 'empty-range';
+            emptyRange.dataset.startUnit = startUnit;
+            emptyRange.dataset.endUnit = endUnit;
+            
+            const label = document.createElement('div');
+            label.className = 'empty-range-label';
+            label.textContent = `Units ${startUnit}-${endUnit}: Empty (${endUnit - startUnit + 1} units)`;
+            
+            const toggleBtn = document.createElement('button');
+            toggleBtn.className = 'empty-range-toggle';
+            toggleBtn.textContent = '+';
+            toggleBtn.onclick = (e) => {
+                e.stopPropagation();
+                toggleEmptyRange(emptyRange);
+            };
+            
+            emptyRange.appendChild(label);
+            emptyRange.appendChild(toggleBtn);
+            
+            // Make the whole range clickable
+            emptyRange.onclick = () => toggleEmptyRange(emptyRange);
+            
+            container.appendChild(emptyRange);
+        }
+
+        function toggleEmptyRange(emptyRange) {
+            const startUnit = parseInt(emptyRange.dataset.startUnit);
+            const endUnit = parseInt(emptyRange.dataset.endUnit);
+            const toggleBtn = emptyRange.querySelector('.empty-range-toggle');
+            
+            if (emptyRange.classList.contains('expanded')) {
+                // Collapse: remove individual units
+                emptyRange.classList.remove('expanded');
+                toggleBtn.textContent = '+';
+                
+                // Remove individual units
+                for (let i = startUnit; i <= endUnit; i++) {
+                    const unit = document.querySelector(`[data-unit="${i}"]`);
+                    if (unit && unit !== emptyRange) {
+                        unit.remove();
+                    }
+                }
+            } else {
+                // Expand: add individual units
+                emptyRange.classList.add('expanded');
+                toggleBtn.textContent = '−';
+                
+                // Add individual units after this range element
+                for (let i = endUnit; i >= startUnit; i--) {
+                    const unit = document.createElement('div');
+                    unit.className = 'rack-unit';
+                    unit.dataset.unit = i;
+                    
+                    const unitNumberDiv = document.createElement('div');
+                    unitNumberDiv.className = 'unit-number';
+                    unitNumberDiv.textContent = i;
+                    unit.appendChild(unitNumberDiv);
+                    
+                    // Add drop zone functionality
+                    unit.addEventListener('dragover', handleDragOver);
+                    unit.addEventListener('drop', handleDrop);
+                    unit.addEventListener('dragleave', handleDragLeave);
+                    
+                    // Insert after the empty range
+                    emptyRange.parentNode.insertBefore(unit, emptyRange.nextSibling);
+                }
+            }
+        }
+
+        // Drag and drop functionality
+        function setupDragAndDrop() {
+            const toolItems = document.querySelectorAll('.tool-item');
+            
+            toolItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', '');
+            e.target.classList.add('dragging');
+            
+            // Create drag preview
+            createDragPreview(e);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            removeDragPreview();
+        }
+
+        function createDragPreview(e) {
+            const preview = document.createElement('div');
+            preview.className = 'drag-preview';
+            preview.textContent = e.target.querySelector('.tool-name').textContent;
+            document.body.appendChild(preview);
+            dragPreview = preview;
+            
+            document.addEventListener('mousemove', updateDragPreview);
+        }
+
+        function updateDragPreview(e) {
+            if (dragPreview) {
+                dragPreview.style.left = (e.clientX + 10) + 'px';
+                dragPreview.style.top = (e.clientY + 10) + 'px';
+            }
+        }
+
+        function removeDragPreview() {
+            if (dragPreview) {
+                document.body.removeChild(dragPreview);
+                dragPreview = null;
+                document.removeEventListener('mousemove', updateDragPreview);
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drop-zone');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drop-zone');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drop-zone');
+            
+            const draggedElement = document.querySelector('.dragging');
+            if (!draggedElement) return;
+            
+            const unitNumber = parseInt(e.currentTarget.dataset.unit);
+            const deviceType = draggedElement.dataset.deviceType;
+            const devicePorts = parseInt(draggedElement.dataset.ports) || 0;
+            
+            // Check if unit is already occupied
+            if (e.currentTarget.classList.contains('occupied')) {
+                alert('This rack unit is already occupied!');
+                return;
+            }
+            
+            // Add device to rack
+            addDeviceToRack(unitNumber, deviceType, devicePorts);
+        }
+
+        function addDeviceToRack(unitNumber, deviceType, portCount) {
+            // Check if unit exists (might be in collapsed range)
+            let unit = document.querySelector(`[data-unit="${unitNumber}"]`);
+            
+            if (!unit) {
+                // Unit might be in a collapsed range, need to expand it first
+                const emptyRange = findEmptyRangeContaining(unitNumber);
+                if (emptyRange) {
+                    toggleEmptyRange(emptyRange);
+                    unit = document.querySelector(`[data-unit="${unitNumber}"]`);
+                }
+            }
+            
+            if (!unit) {
+                console.error(`Could not find or create unit ${unitNumber}`);
+                return;
+            }
+            
+            const deviceId = `${deviceType}-${deviceCounter++}`;
+            
+            // Store in rack data first
+            rackData[unitNumber] = {
+                deviceId,
+                deviceType,
+                portCount,
+                ports: {},
+                name: `${deviceType.toUpperCase().replace('-', ' ')} ${deviceId}`
+            };
+            
+            // Rebuild the entire rack display to handle the new occupied unit
+            buildRackDisplay();
+            
+            // Now add the device to the newly created unit
+            unit = document.querySelector(`[data-unit="${unitNumber}"]`);
+            if (unit) {
+                addDeviceToRackFromConfig(unitNumber, rackData[unitNumber]);
+            }
+            
+            console.log(`Added ${deviceType} to unit ${unitNumber}`);
+        }
+
+        function findEmptyRangeContaining(unitNumber) {
+            const emptyRanges = document.querySelectorAll('.empty-range');
+            for (const range of emptyRanges) {
+                const startUnit = parseInt(range.dataset.startUnit);
+                const endUnit = parseInt(range.dataset.endUnit);
+                if (unitNumber >= startUnit && unitNumber <= endUnit) {
+                    return range;
+                }
+            }
+            return null;
+        }
+
+        function handlePortClick(e) {
+            e.stopPropagation();
+            const port = e.target;
+            const portId = port.dataset.portId;
+            
+            if (port.classList.contains('connected')) {
+                // Port is already connected, show connection details
+                showConnectionDetails(portId);
+                return;
+            }
+            
+            if (selectedPorts.includes(portId)) {
+                // Deselect port
+                port.classList.remove('selected');
+                selectedPorts = selectedPorts.filter(p => p !== portId);
+            } else {
+                // Select port
+                if (selectedPorts.length >= 2) {
+                    // Clear previous selections
+                    clearPortSelections();
+                }
+                
+                port.classList.add('selected');
+                selectedPorts.push(portId);
+            }
+            
+            // Show connection form if two ports are selected
+            if (selectedPorts.length === 2) {
+                showConnectionForm();
+            } else {
+                hideConnectionForm();
+            }
+        }
+
+        function clearPortSelections() {
+            selectedPorts.forEach(portId => {
+                const port = document.querySelector(`[data-port-id="${portId}"]`);
+                if (port) port.classList.remove('selected');
+            });
+            selectedPorts = [];
+        }
+
+        function showConnectionForm() {
+            const form = document.getElementById('connectionForm');
+            form.classList.add('active');
+            
+            // Auto-generate cable ID
+            document.getElementById('cableId').value = `CABLE-${cableCounter++}`;
+        }
+
+        function hideConnectionForm() {
+            const form = document.getElementById('connectionForm');
+            form.classList.remove('active');
+        }
+
+        function createConnection() {
+            if (selectedPorts.length !== 2) {
+                alert('Please select exactly two ports to connect.');
+                return;
+            }
+            
+            const connectionType = document.getElementById('connectionType').value;
+            const cableLength = parseFloat(document.getElementById('cableLength').value);
+            const cableId = document.getElementById('cableId').value || `CABLE-${cableCounter++}`;
+            
+            const connection = {
+                id: `conn-${connections.length + 1}`,
+                portA: selectedPorts[0],
+                portB: selectedPorts[1],
+                cableId,
+                connectionType,
+                cableLength,
+                status: 'active',
+                createdAt: new Date().toISOString()
+            };
+            
+            connections.push(connection);
+            
+            // Update port visuals
+            selectedPorts.forEach(portId => {
+                const port = document.querySelector(`[data-port-id="${portId}"]`);
+                if (port) {
+                    port.classList.remove('selected');
+                    port.classList.add('connected');
+                }
+            });
+            
+            // Draw cable
+            drawCable(connection);
+            
+            // Clear selections
+            selectedPorts = [];
+            hideConnectionForm();
+            updateConnectionsList();
+            
+            console.log('Connection created:', connection);
+        }
+
+        // Enhanced cable visualization functions
+        function drawCable(connection) {
+            const svg = document.getElementById('cablesContainer');
+            const portA = document.querySelector(`[data-port-id="${connection.portA}"]`);
+            const portB = document.querySelector(`[data-port-id="${connection.portB}"]`);
+            
+            if (!portA || !portB) return;
+            
+            const rackFrame = document.querySelector('.rack-frame');
+            const frameRect = rackFrame.getBoundingClientRect();
+            const portARect = portA.getBoundingClientRect();
+            const portBRect = portB.getBoundingClientRect();
+            
+            // Calculate relative positions within the rack frame
+            const startX = portARect.left - frameRect.left + portARect.width / 2;
+            const startY = portARect.top - frameRect.top + portARect.height / 2;
+            const endX = portBRect.left - frameRect.left + portBRect.width / 2;
+            const endY = portBRect.top - frameRect.top + portBRect.height / 2;
+            
+            // Enhanced cable routing with better curves
+            const distance = Math.abs(endY - startY);
+            const horizontalOffset = Math.abs(endX - startX);
+            
+            // Create more realistic cable routing
+            let pathData;
+            if (distance > 100) {
+                // Long distance - use S-curve for better routing
+                const midY = (startY + endY) / 2;
+                const curve1X = startX + (horizontalOffset > 200 ? -60 : -30);
+                const curve2X = endX + (horizontalOffset > 200 ? -60 : -30);
+                
+                pathData = `M ${startX} ${startY} 
+                           C ${curve1X} ${startY} ${curve1X} ${midY} ${(startX + endX) / 2} ${midY}
+                           C ${curve2X} ${midY} ${curve2X} ${endY} ${endX} ${endY}`;
+            } else {
+                // Short distance - simple curve
+                const midX = (startX + endX) / 2;
+                const curveOffset = Math.min(distance * 0.4, 40);
+                
+                pathData = `M ${startX} ${startY} 
+                           Q ${midX - curveOffset} ${startY} ${midX} ${(startY + endY) / 2}
+                           Q ${midX + curveOffset} ${endY} ${endX} ${endY}`;
+            }
+            
+            // Create cable group
+            const cableGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            cableGroup.setAttribute('class', 'cable');
+            cableGroup.setAttribute('data-connection-id', connection.id);
+            
+            // Create cable shadow for depth
+            const shadowPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            shadowPath.setAttribute('d', pathData);
+            shadowPath.setAttribute('stroke', 'rgba(0,0,0,0.2)');
+            shadowPath.setAttribute('stroke-width', '6');
+            shadowPath.setAttribute('fill', 'none');
+            shadowPath.setAttribute('transform', 'translate(2,2)');
+            
+            // Create main cable path
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', pathData);
+            path.setAttribute('class', `cable-line cable-${connection.connectionType}`);
+            
+            // Set cable-specific properties
+            if (connection.connectionType === 'fiber') {
+                path.setAttribute('stroke-dasharray', '8,4');
+                path.setAttribute('stroke-linecap', 'round');
+            } else if (connection.connectionType === 'power') {
+                path.setAttribute('stroke-width', '5');
+            }
+            
+            // Create enhanced cable label with background
+            const labelX = (startX + endX) / 2;
+            const labelY = (startY + endY) / 2 - 12;
+            
+            // Label background
+            const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            const labelText = `${connection.cableId} (${connection.connectionType.toUpperCase()})`;
+            const labelWidth = labelText.length * 6 + 12;
+            
+            labelBg.setAttribute('x', labelX - labelWidth / 2);
+            labelBg.setAttribute('y', labelY - 8);
+            labelBg.setAttribute('width', labelWidth);
+            labelBg.setAttribute('height', 16);
+            labelBg.setAttribute('class', 'cable-label-bg');
+            
+            // Label text
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('x', labelX);
+            text.setAttribute('y', labelY);
+            text.setAttribute('class', 'cable-label');
+            text.textContent = labelText;
+            
+            // Connection points at each end
+            const startPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            startPoint.setAttribute('cx', startX);
+            startPoint.setAttribute('cy', startY);
+            startPoint.setAttribute('r', '4');
+            startPoint.setAttribute('class', `cable-connection-point ${connection.connectionType}`);
+            
+            const endPoint = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            endPoint.setAttribute('cx', endX);
+            endPoint.setAttribute('cy', endY);
+            endPoint.setAttribute('r', '4');
+            endPoint.setAttribute('class', `cable-connection-point ${connection.connectionType}`);
+            
+            // Add elements to group in correct order
+            cableGroup.appendChild(shadowPath);
+            cableGroup.appendChild(path);
+            cableGroup.appendChild(startPoint);
+            cableGroup.appendChild(endPoint);
+            cableGroup.appendChild(labelBg);
+            cableGroup.appendChild(text);
+            
+            // Add hover effects
+            cableGroup.addEventListener('mouseenter', () => {
+                path.style.strokeWidth = connection.connectionType === 'power' ? '7' : '6';
+                path.style.opacity = '1';
+                labelBg.style.fill = 'rgba(255,255,255,1)';
+                text.style.fontWeight = '800';
+            });
+            
+            cableGroup.addEventListener('mouseleave', () => {
+                path.style.strokeWidth = connection.connectionType === 'power' ? '5' : '4';
+                path.style.opacity = '0.9';
+                labelBg.style.fill = 'rgba(255,255,255,0.95)';
+                text.style.fontWeight = '700';
+            });
+            
+            svg.appendChild(cableGroup);
+        }
+
+        function redrawAllCables() {
+            const svg = document.getElementById('cablesContainer');
+            // Clear existing cables
+            svg.innerHTML = '';
+            
+            // Redraw all connections
+            connections.forEach(connection => {
+                drawCable(connection);
+            });
+        }
+
+        function toggleCableVisibility() {
+            cablesVisible = !cablesVisible;
+            const svg = document.getElementById('cablesContainer');
+            svg.style.display = cablesVisible ? 'block' : 'none';
+            
+            const button = event.target;
+            button.textContent = cablesVisible ? 'Hide Cables' : 'Show Cables';
+        }
+
+        // Update cable positions when window resizes
+        window.addEventListener('resize', () => {
+            setTimeout(redrawAllCables, 100);
+        });
+
+        function cancelConnection() {
+            clearPortSelections();
+            hideConnectionForm();
+        }
+
+        function updateConnectionsList() {
+            const list = document.getElementById('connectionsList');
+            
+            if (connections.length === 0) {
+                list.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #718096; font-style: italic;">
+                        <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔌</div>
+                        <div>Click on two ports to create a connection</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = connections.map(conn => {
+                const portAInfo = getPortInfo(conn.portA);
+                const portBInfo = getPortInfo(conn.portB);
+                
+                // Get connection type styling
+                const typeColors = {
+                    ethernet: { bg: '#e6fffa', border: '#4299e1', icon: '🌐' },
+                    fiber: { bg: '#fffaf0', border: '#f6ad55', icon: '💡' },
+                    power: { bg: '#fed7d7', border: '#e53e3e', icon: '⚡' }
+                };
+                
+                const style = typeColors[conn.connectionType] || typeColors.ethernet;
+                
+                return `
+                    <div class="connection-item" style="background: ${style.bg}; border-left: 4px solid ${style.border};">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="font-size: 1.2rem;">${style.icon}</span>
+                                <span style="font-weight: 600; color: #2d3748;">${conn.cableId}</span>
+                            </div>
+                            <span style="background: ${style.border}; color: white; padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.7rem; font-weight: 600;">
+                                ${conn.connectionType.toUpperCase()}
+                            </span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <div style="flex: 1; text-align: center;">
+                                <div style="font-weight: 500; color: #4a5568; font-size: 0.85rem;">${portAInfo.device}</div>
+                                <div style="font-size: 0.75rem; color: #718096;">Port ${portAInfo.port}</div>
+                            </div>
+                            <div style="color: #a0aec0; font-size: 1.2rem;">↔</div>
+                            <div style="flex: 1; text-align: center;">
+                                <div style="font-weight: 500; color: #4a5568; font-size: 0.85rem;">${portBInfo.device}</div>
+                                <div style="font-size: 0.75rem; color: #718096;">Port ${portBInfo.port}</div>
+                            </div>
+                        </div>
+                        
+                        ${conn.description ? `
+                            <div style="font-size: 0.75rem; color: #718096; margin-bottom: 0.5rem; font-style: italic;">
+                                ${conn.description}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-size: 0.75rem; color: #718096;">
+                                📏 ${conn.cableLength}m • 
+                                <span style="color: ${conn.status === 'active' ? '#48bb78' : '#e53e3e'};">
+                                    ● ${conn.status}
+                                </span>
+                            </div>
+                            <div class="connection-actions">
+                                <button class="btn btn-small btn-secondary" onclick="editConnection('${conn.id}')" style="margin-right: 0.25rem;">
+                                    📝 Edit
+                                </button>
+                                <button class="btn btn-small btn-danger" onclick="deleteConnection('${conn.id}')">
+                                    🗑️ Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getPortInfo(portId) {
+            const [deviceId, , portNumber] = portId.split('-');
+            return {
+                device: deviceId.toUpperCase(),
+                port: portNumber
+            };
+        }
+
+        function deleteConnection(connectionId) {
+            const connection = connections.find(c => c.id === connectionId);
+            if (!connection) return;
+            
+            // Remove connected status from ports
+            [connection.portA, connection.portB].forEach(portId => {
+                const port = document.querySelector(`[data-port-id="${portId}"]`);
+                if (port) {
+                    port.classList.remove('connected');
+                }
+            });
+            
+            // Remove cable visual
+            const cableElement = document.querySelector(`[data-connection-id="${connectionId}"]`);
+            if (cableElement) {
+                cableElement.remove();
+            }
+            
+            // Remove connection
+            connections = connections.filter(c => c.id !== connectionId);
+            updateConnectionsList();
+            
+            console.log('Connection deleted:', connectionId);
+        }
+
+        function showConnectionDetails(portId) {
+            const connection = connections.find(c => c.portA === portId || c.portB === portId);
+            if (connection) {
+                const portAInfo = getPortInfo(connection.portA);
+                const portBInfo = getPortInfo(connection.portB);
+                
+                const typeIcons = {
+                    ethernet: '🌐',
+                    fiber: '💡',
+                    power: '⚡'
+                };
+                
+                const details = `
+Connection Details ${typeIcons[connection.connectionType] || '🔌'}
+
+Cable ID: ${connection.cableId}
+Type: ${connection.connectionType.toUpperCase()}
+Length: ${connection.cableLength}m
+Status: ${connection.status.toUpperCase()}
+
+From: ${portAInfo.device} Port ${portAInfo.port}
+To: ${portBInfo.device} Port ${portBInfo.port}
+
+${connection.description ? `Description: ${connection.description}` : ''}
+                `.trim();
+                
+                alert(details);
+            }
+        }
+
+        function editConnection(connectionId) {
+            const connection = connections.find(c => c.id === connectionId);
+            if (!connection) return;
+            
+            const newLength = prompt(`Edit cable length for ${connection.cableId}:`, connection.cableLength);
+            if (newLength && !isNaN(newLength)) {
+                connection.cableLength = parseFloat(newLength);
+                updateConnectionsList();
+                redrawAllCables();
+                console.log(`Updated cable length for ${connection.cableId} to ${newLength}m`);
+            }
+        }
+
+        function clearRack() {
+            if (!confirm('Are you sure you want to clear the entire rack? This will remove all devices and connections.')) {
+                return;
+            }
+            
+            // Clear rack units
+            document.querySelectorAll('.rack-unit').forEach(unit => {
+                unit.classList.remove('occupied');
+                const device = unit.querySelector('.device-in-rack');
+                if (device) {
+                    unit.removeChild(device);
+                }
+            });
+            
+            // Clear cables
+            const svg = document.getElementById('cablesContainer');
+            svg.innerHTML = '';
+            
+            // Clear data
+            rackData = {};
+            connections = [];
+            selectedPorts = [];
+            deviceCounter = 1;
+            cableCounter = 1;
+            
+            hideConnectionForm();
+            updateConnectionsList();
+            
+            console.log('Rack cleared');
+        }
+
+        function toggleToolbox() {
+            const toolbox = document.getElementById('toolbox');
+            const toggleIcon = document.getElementById('toolboxToggleIcon');
+            
+            toolbox.classList.toggle('collapsed');
+            
+            if (toolbox.classList.contains('collapsed')) {
+                toggleIcon.textContent = '▶';
+            } else {
+                toggleIcon.textContent = '◀';
+            }
+        }
+
+        function saveConfiguration() {
+            const config = {
+                rackId: 'G2C',
+                rackName: 'Gate 2C Network Rack',
+                devices: rackData,
+                connections: connections,
+                savedAt: new Date().toISOString()
+            };
+            
+            console.log('Gate 2C Configuration saved:', config);
+            alert('Gate 2C rack configuration saved successfully!');
+            
+            // Download config
+            downloadConfig(config);
+        }
+
+        function downloadConfig(config) {
+            const dataStr = JSON.stringify(config, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `rack-config-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeRack();
+            setupDragAndDrop();
+            
+            console.log('Rack Manager initialized');
+        });
+    </script>
+</body>
+</html>

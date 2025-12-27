@@ -1,0 +1,1006 @@
+/* Gate 2C Rack Manager Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    color: #333;
+    overflow-x: auto;
+}
+
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.header p {
+    opacity: 0.9;
+    margin-top: 0.5rem;
+}
+
+/* Ensure main container has proper bottom padding to avoid legend overlap */
+.main-container {
+    display: flex;
+    height: calc(100vh - 80px);
+    gap: 1rem;
+    padding: 1rem;
+    padding-bottom: 8rem; /* Extra padding to avoid legend overlap */
+    min-height: 800px;
+}
+
+/* Toolbox Panel */
+.toolbox {
+    width: 300px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.toolbox.collapsed {
+    width: 60px;
+    padding: 1rem 0.5rem;
+}
+
+.toolbox.collapsed .toolbox-content {
+    display: none;
+}
+
+.toolbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.toolbox-toggle {
+    background: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.toolbox-toggle:hover {
+    background: #3182ce;
+}
+
+.toolbox h3 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.tool-category {
+    margin-bottom: 2rem;
+}
+
+.tool-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: grab;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.tool-item:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tool-item:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+.tool-icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 0.75rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+    font-size: 0.8rem;
+}
+
+.tool-info {
+    flex: 1;
+}
+
+.tool-name {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.9rem;
+}
+
+.tool-desc {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 0.2rem;
+}
+
+/* Device Colors */
+.switch { background: #4299e1; }
+.patch-panel { background: #48bb78; }
+.server { background: #ed8936; }
+.ups { background: #9f7aea; }
+.pdu { background: #38b2ac; }
+
+/* Cable Colors */
+.cat6 { background: #3182ce; }
+.fiber { background: #d69e2e; }
+.power { background: #e53e3e; }
+
+/* Rack View */
+.rack-container {
+    flex: 1;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    overflow: auto;
+    position: relative;
+}
+
+.rack-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.rack-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.rack-details {
+    color: #718096;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.rack-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: #4299e1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #3182ce;
+}
+
+.btn-secondary {
+    background: #e2e8f0;
+    color: #4a5568;
+}
+
+.btn-secondary:hover {
+    background: #cbd5e0;
+}
+
+/* Rack Visual */
+.rack-visual {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    position: relative;
+    min-height: 600px;
+    width: 100%;
+}
+
+.rack {
+    background: #2d3748;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.2);
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+}
+
+.rack-frame {
+    background: #4a5568;
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 600px;
+    width: 100%;
+    position: relative;
+}
+
+.rack-units {
+    display: flex;
+    flex-direction: column-reverse;
+    height: 100%;
+    gap: 2px;
+}
+
+.rack-unit {
+    height: 32px;
+    background: #f7fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    transition: all 0.2s ease;
+    margin-bottom: 2px;
+}
+
+.rack-unit:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+.rack-unit.occupied {
+    background: #bee3f8;
+    border-color: #4299e1;
+    height: 36px;
+}
+
+.rack-unit.drop-zone {
+    background: #c6f6d5;
+    border-color: #48bb78;
+    border-style: dashed;
+    border-width: 2px;
+}
+
+/* Empty Range Styling */
+.empty-range {
+    height: 40px;
+    background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+    margin: 3px 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.empty-range:hover {
+    background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+    border-color: #cbd5e0;
+}
+
+.empty-range-label {
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.empty-range-toggle {
+    background: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+}
+
+.empty-range-toggle:hover {
+    background: #3182ce;
+    transform: scale(1.1);
+}
+
+.empty-range.expanded .empty-range-toggle {
+    background: #e53e3e;
+}
+
+.empty-range.expanded .empty-range-toggle:hover {
+    background: #c53030;
+}
+
+.unit-number {
+    position: absolute;
+    left: -50px;
+    font-size: 0.75rem;
+    color: #a0aec0;
+    font-weight: 600;
+    width: 40px;
+    text-align: right;
+}
+
+.device-in-rack {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 1rem;
+    color: white;
+    font-weight: 500;
+    font-size: 0.8rem;
+    cursor: pointer;
+    position: relative;
+    justify-content: space-between;
+}
+
+.device-ports {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    max-width: 300px;
+    align-items: center;
+}
+
+/* Enhanced port styling for better cable connection visibility */
+.port {
+    width: 16px;
+    height: 16px;
+    background: #718096;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255,255,255,0.4);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.port:hover {
+    background: #4299e1;
+    transform: scale(1.4);
+    z-index: 15;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
+}
+
+.port.connected {
+    background: #48bb78;
+    border-color: #38a169;
+    box-shadow: 0 0 12px rgba(72, 187, 120, 0.6);
+    animation: pulse-connected 2s infinite;
+}
+
+.port.selected {
+    background: #ed8936;
+    transform: scale(1.5);
+    box-shadow: 0 0 16px rgba(237, 137, 54, 0.8);
+    z-index: 15;
+    border-color: #dd6b20;
+}
+
+/* Uplink port styling - visually distinguish from regular ports */
+.port.uplink {
+    background: #9f7aea;
+    border-color: #805ad5;
+    box-shadow: 0 0 8px rgba(159, 122, 234, 0.4);
+    animation: pulse-uplink 3s infinite;
+}
+
+.port.uplink:hover {
+    background: #805ad5;
+    box-shadow: 0 4px 16px rgba(128, 90, 213, 0.6);
+}
+
+.port.uplink.connected {
+    background: #667eea;
+    border-color: #5a67d8;
+    box-shadow: 0 0 12px rgba(102, 126, 234, 0.8);
+    animation: pulse-uplink-connected 2s infinite;
+}
+
+@keyframes pulse-connected {
+    0%, 100% { box-shadow: 0 0 12px rgba(72, 187, 120, 0.6); }
+    50% { box-shadow: 0 0 20px rgba(72, 187, 120, 0.9); }
+}
+
+@keyframes pulse-uplink {
+    0%, 100% { box-shadow: 0 0 8px rgba(159, 122, 234, 0.4); }
+    50% { box-shadow: 0 0 16px rgba(159, 122, 234, 0.7); }
+}
+
+@keyframes pulse-uplink-connected {
+    0%, 100% { box-shadow: 0 0 12px rgba(102, 126, 234, 0.8); }
+    50% { box-shadow: 0 0 24px rgba(102, 126, 234, 1); }
+}
+
+/* Port Legend and Status Indicators */
+.port-legend {
+    position: fixed;
+    bottom: 4rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    font-size: 0.8rem;
+    min-width: 200px;
+    z-index: 100;
+    backdrop-filter: blur(15px);
+    max-width: 85vw;
+    transition: all 0.3s ease;
+}
+
+.port-legend h4 {
+    margin: 0 0 0.75rem 0;
+    color: #2d3748;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.legend-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.legend-section {
+    min-width: 200px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.legend-port {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 2px solid rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.legend-port.available {
+    background: #718096;
+    border-color: rgba(255,255,255,0.4);
+}
+
+.legend-port.connected {
+    background: #48bb78;
+    border-color: #38a169;
+    box-shadow: 0 0 6px rgba(72, 187, 120, 0.4);
+}
+
+.legend-port.uplink {
+    background: #9f7aea;
+    border-color: #805ad5;
+    box-shadow: 0 0 6px rgba(159, 122, 234, 0.4);
+}
+
+.legend-port.uplink-connected {
+    background: #667eea;
+    border-color: #5a67d8;
+    box-shadow: 0 0 6px rgba(102, 126, 234, 0.6);
+}
+
+.legend-port.selected {
+    background: #ed8936;
+    border-color: #dd6b20;
+    box-shadow: 0 0 6px rgba(237, 137, 54, 0.6);
+}
+
+.legend-text {
+    color: #4a5568;
+    font-weight: 500;
+    font-size: 0.8rem;
+}
+
+.legend-description {
+    color: #718096;
+    font-size: 0.7rem;
+    margin-left: 1.5rem;
+    margin-top: -0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.legend-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: #4299e1;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(66, 153, 225, 0.3);
+    z-index: 101;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s ease;
+}
+
+.legend-toggle:hover {
+    background: #3182ce;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(66, 153, 225, 0.4);
+}
+
+.port-legend.hidden {
+    display: none;
+}
+
+/* Ensure legend doesn't interfere with scrolling */
+body {
+    padding-bottom: 2rem;
+}
+
+/* Add visual separation for the legend */
+.port-legend::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: #cbd5e0;
+    border-radius: 2px;
+}
+
+/* Cable Legend */
+.cable-legend {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+.cable-legend h4 {
+    margin: 0 0 0.75rem 0;
+    color: #2d3748;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.cable-legend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+
+.legend-cable {
+    width: 30px;
+    height: 3px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.legend-cable.ethernet {
+    background: #4299e1;
+}
+
+.legend-cable.fiber {
+    background: #f6ad55;
+    background-image: repeating-linear-gradient(
+        90deg,
+        #f6ad55,
+        #f6ad55 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
+.legend-cable.power {
+    background: #e53e3e;
+    height: 4px;
+}
+
+/* Responsive legend */
+@media (max-width: 768px) {
+    .legend-content {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+    
+    .port-legend {
+        max-width: 95vw;
+        padding: 1rem;
+        bottom: 5rem;
+    }
+    
+    .legend-text {
+        font-size: 0.75rem;
+    }
+    
+    .main-container {
+        padding-bottom: 10rem; /* More padding on mobile */
+    }
+}
+
+/* Port tooltip styling */
+.port-tooltip {
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(45, 55, 72, 0.95);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    max-width: 250px;
+    text-align: center;
+    line-height: 1.3;
+    pointer-events: none;
+}
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    max-width: 250px;
+    text-align: center;
+    line-height: 1.3;
+}
+
+.port-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(45, 55, 72, 0.95);
+}
+
+.port:hover .port-tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* Enhanced tooltip for uplink ports */
+.port.uplink .port-tooltip {
+    background: rgba(128, 90, 213, 0.95);
+    border: 1px solid rgba(159, 122, 234, 0.5);
+}
+
+.port.uplink .port-tooltip::after {
+    border-top-color: rgba(128, 90, 213, 0.95);
+}
+
+/* Ensure tooltips don't interfere with each other */
+.device-ports {
+    position: relative;
+    z-index: 1;
+}
+
+.port {
+    position: relative;
+    z-index: 2;
+}
+
+.port:hover {
+    z-index: 25;
+}
+
+/* Cable Visualization */
+.cables-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.cable {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.cable-line {
+    stroke-width: 4;
+    fill: none;
+    opacity: 0.9;
+    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));
+    transition: all 0.3s ease;
+}
+
+.cable-line:hover {
+    stroke-width: 6;
+    opacity: 1;
+}
+
+.cable-ethernet {
+    stroke: #4299e1;
+    stroke-dasharray: none;
+}
+
+.cable-fiber {
+    stroke: #f6ad55;
+    stroke-dasharray: 8,4;
+    stroke-linecap: round;
+}
+
+.cable-power {
+    stroke: #e53e3e;
+    stroke-width: 5;
+    stroke-dasharray: none;
+}
+
+.cable-label {
+    font-size: 0.75rem;
+    fill: #2d3748;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+}
+
+.cable-label-bg {
+    fill: rgba(255,255,255,0.95);
+    stroke: rgba(0,0,0,0.1);
+    stroke-width: 1;
+    rx: 4;
+    ry: 4;
+}
+
+/* Cable connection indicators */
+.cable-connection-point {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    border: 2px solid #4299e1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+.cable-connection-point.fiber {
+    border-color: #f6ad55;
+    background: #fed7aa;
+}
+
+.cable-connection-point.power {
+    border-color: #e53e3e;
+    background: #fed7d7;
+}
+
+/* Connection Panel */
+.connection-panel {
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.connection-panel h3 {
+    color: #4a5568;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.connection-form {
+    display: none;
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.connection-form.active {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+}
+
+.connections-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.connection-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.connection-from, .connection-to {
+    font-weight: 500;
+    color: #2d3748;
+}
+
+.connection-cable {
+    color: #718096;
+    margin-top: 0.25rem;
+}
+
+.connection-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.btn-danger {
+    background: #e53e3e;
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #c53030;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+.status-available { background: #48bb78; }
+.status-connected { background: #4299e1; }
+.status-maintenance { background: #ed8936; }
+.status-failed { background: #e53e3e; }
+
+/* Drag and Drop Styles */
+.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg);
+}
+
+.drag-preview {
+    position: fixed;
+    pointer-events: none;
+    z-index: 1000;
+    background: rgba(66, 153, 225, 0.9);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1400px) {
+    .main-container {
+        flex-direction: column;
+        height: auto;
+        padding-bottom: 8rem;
+    }
+    
+    .toolbox, .connection-panel {
+        width: 100%;
+        max-height: 200px;
+    }
+    
+    .rack-visual {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .rack {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .rack-frame {
+        padding: 0.5rem;
+    }
+    
+    .device-ports {
+        max-width: 200px;
+    }
+    
+    .port {
+        width: 12px;
+        height: 12px;
+        font-size: 0.5rem;
+    }
+}
