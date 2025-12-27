@@ -177,7 +177,7 @@ body {
 /* Rack Nodes */
 .rack-node {
     position: absolute;
-    width: 280px;
+    width: 260px;
     background: white;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0,0,0,0.1);
@@ -187,6 +187,7 @@ body {
     overflow: hidden;
     z-index: 10;
     pointer-events: auto;
+    min-height: 200px;
 }
 
 .rack-node:hover {
@@ -202,20 +203,21 @@ body {
     z-index: 20;
 }
 
-/* Position racks in topology */
+/* Position racks in topology - Improved positioning to prevent overlaps */
 #rack-SR {
-    top: 50px;
-    left: 50px;
+    top: 60px;
+    left: 60px;
 }
 
 #rack-G2C {
-    top: 200px;
-    right: 100px;
+    top: 60px;
+    right: 60px;
 }
 
 #rack-G2B {
-    bottom: 100px;
-    right: 50px;
+    bottom: 120px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .rack-header {
@@ -540,7 +542,24 @@ body {
     }
     
     .rack-node {
-        width: 240px;
+        width: 220px;
+    }
+    
+    /* Adjust positioning for smaller screens */
+    #rack-SR {
+        top: 40px;
+        left: 40px;
+    }
+
+    #rack-G2C {
+        top: 40px;
+        right: 40px;
+    }
+
+    #rack-G2B {
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
     }
 }
 
@@ -548,20 +567,23 @@ body {
     .main-container {
         grid-template-columns: 1fr;
         grid-template-rows: auto 1fr;
+        height: calc(100vh - 120px);
     }
     
     .topology-controls {
-        max-height: 200px;
+        max-height: 180px;
+        padding: 1rem;
     }
     
     .rack-node {
-        width: 200px;
+        width: 180px;
         position: relative !important;
-        margin: 1rem;
+        margin: 0.75rem auto;
         top: auto !important;
         left: auto !important;
         right: auto !important;
         bottom: auto !important;
+        transform: none !important;
     }
     
     .topology-canvas {
@@ -570,6 +592,11 @@ body {
         align-items: center;
         padding: 1rem;
         overflow-y: auto;
+        min-height: 400px;
+    }
+    
+    .topology-connections {
+        display: none; /* Hide connections on mobile for clarity */
     }
     
     .rack-detail-panel {
@@ -588,7 +615,10 @@ body {
     }
     
     .connection-legend {
-        display: none;
+        position: relative;
+        transform: none;
+        margin: 1rem auto;
+        max-width: 90%;
     }
 }
 

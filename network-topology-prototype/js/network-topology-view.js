@@ -12,14 +12,14 @@ const rackConfigurations = {
         id: 'SR',
         name: 'Server Room',
         location: 'Main Data Center',
-        description: 'Primary server room with core infrastructure',
+        description: 'Primary server room with core infrastructure and fiber distribution hub',
         devices: {
             42: {
                 deviceId: 'LIU-SR-002',
                 deviceType: 'liu',
                 portCount: 24,
                 name: 'Server Room LIU 2',
-                details: '24-Port Fiber LIU - Distribution Hub',
+                details: '24-Port Fiber LIU - Distribution Hub for Gate 2C & 2B',
                 ports: {
                     'LIU-SR-002-port-13': { number: 13, status: 'uplink', connectedTo: 'Gate 2C LIU Port 1', notes: 'To Gate 2C Switch Port 1' },
                     'LIU-SR-002-port-14': { number: 14, status: 'uplink', connectedTo: 'Gate 2C LIU Port 2', notes: 'To Gate 2C Switch Port 2' },
@@ -35,43 +35,43 @@ const rackConfigurations = {
                 deviceId: 'SW-SR-001',
                 deviceType: 'switch',
                 portCount: 48,
-                name: 'Core Switch SR-001',
-                details: 'Cisco Catalyst 9300 - Core Distribution Switch'
+                name: 'Core Distribution Switch',
+                details: 'Cisco Catalyst 9300 - 48-Port Managed Switch'
             },
             38: {
                 deviceId: 'SRV-SR-001',
                 deviceType: 'server',
                 portCount: 4,
-                name: 'Application Server 1',
-                details: 'Dell PowerEdge R740'
+                name: 'Application Server',
+                details: 'Dell PowerEdge R740 - Primary Application Server'
             },
             36: {
                 deviceId: 'SRV-SR-002',
                 deviceType: 'server',
                 portCount: 4,
                 name: 'Database Server',
-                details: 'Dell PowerEdge R740'
+                details: 'Dell PowerEdge R740 - MySQL Database Server'
             },
             34: {
                 deviceId: 'SRV-SR-003',
                 deviceType: 'server',
                 portCount: 4,
-                name: 'File Server',
-                details: 'Dell PowerEdge R640'
+                name: 'File & Backup Server',
+                details: 'Dell PowerEdge R640 - NAS & Backup Storage'
             },
             3: {
                 deviceId: 'UPS-SR-001',
                 deviceType: 'ups',
                 portCount: 0,
-                name: 'APC Smart-UPS 3000VA',
-                details: 'Primary UPS for Server Room'
+                name: 'Primary UPS System',
+                details: 'APC Smart-UPS 3000VA - Rack Mount UPS'
             },
             2: {
                 deviceId: 'UPS-SR-002',
                 deviceType: 'ups',
                 portCount: 0,
-                name: 'APC Smart-UPS 3000VA',
-                details: 'Secondary UPS for Server Room'
+                name: 'Secondary UPS System',
+                details: 'APC Smart-UPS 3000VA - Backup Power'
             }
         },
         stats: {
@@ -84,9 +84,9 @@ const rackConfigurations = {
     
     'G2C': {
         id: 'G2C',
-        name: 'Gate 2C',
+        name: 'Gate 2C Network Rack',
         location: 'Security Room',
-        description: 'Gate 2C Security Room network infrastructure',
+        description: 'D-Link 1210-28P Switch • 12-Core Fiber from SR LIU 2 • PoE Enabled • Manageable',
         devices: {
             42: {
                 deviceId: 'LIU-G2C-001',
@@ -147,43 +147,57 @@ const rackConfigurations = {
     
     'G2B': {
         id: 'G2B',
-        name: 'Gate 2B',
-        location: 'Security Room',
-        description: 'Gate 2B Security Room network infrastructure',
+        name: 'Gate 2B Network Rack',
+        location: 'Security Checkpoint',
+        description: 'Direct fiber connection from SR • Access control & CCTV infrastructure',
         devices: {
+            42: {
+                deviceId: 'LIU-G2B-001',
+                deviceType: 'liu',
+                portCount: 8,
+                name: 'Direct Fiber Interface',
+                details: 'Direct 4-core fiber connection from Server Room LIU 2'
+            },
             40: {
                 deviceId: 'SW-G2B-001',
                 deviceType: 'switch',
                 portCount: 24,
                 name: 'Access Switch G2B',
-                details: 'D-Link DGS-1024D - Unmanaged Switch'
+                details: 'D-Link DGS-1024D - 24-Port Unmanaged Switch'
             },
             38: {
                 deviceId: 'CCTV-G2B-001',
                 deviceType: 'cctv',
-                portCount: 1,
+                portCount: 4,
                 name: 'CCTV NVR System',
-                details: 'Network Video Recorder for Gate 2B cameras'
+                details: 'Network Video Recorder - 4 Camera Channels'
             },
             36: {
                 deviceId: 'AC-G2B-001',
                 deviceType: 'generic',
                 portCount: 2,
-                name: 'Access Control System',
-                details: 'Card reader and access control interface'
+                name: 'Access Control Panel',
+                details: 'Card reader and barrier control interface'
+            },
+            34: {
+                deviceId: 'INTERCOM-G2B-001',
+                deviceType: 'generic',
+                portCount: 1,
+                name: 'Intercom System',
+                details: 'IP-based intercom for gate communication'
             },
             3: {
                 deviceId: 'UPS-G2B-001',
                 deviceType: 'ups',
                 portCount: 0,
                 name: 'APC Back-UPS 650VA',
-                details: 'Local UPS for Gate 2B equipment'
+                details: 'Local UPS for Gate 2B critical equipment'
             }
         },
         stats: {
             utilization: 45,
-            totalConnections: 4,
-            activeDevices: 4,
+            totalConnections: 6,
+            activeDevices: 6,
             powerConsumption: '0.8kW'
         }
     }
@@ -416,7 +430,7 @@ function drawInterRackConnections() {
     });
 }
 
-// Draw individual connection
+// Draw individual connection with improved positioning
 function drawConnection(connection) {
     const svg = document.getElementById('topologyConnections');
     
@@ -430,43 +444,94 @@ function drawConnection(connection) {
     const toRect = toRack.getBoundingClientRect();
     const canvasRect = document.getElementById('topologyCanvas').getBoundingClientRect();
     
-    // Calculate connection points (center of racks)
-    const fromX = fromRect.left - canvasRect.left + fromRect.width / 2;
-    const fromY = fromRect.top - canvasRect.top + fromRect.height / 2;
-    const toX = toRect.left - canvasRect.left + toRect.width / 2;
-    const toY = toRect.top - canvasRect.top + toRect.height / 2;
+    // Calculate connection points with better logic
+    let fromX, fromY, toX, toY;
     
-    // Create curved path for better visualization
-    const midX = (fromX + toX) / 2;
-    const midY = (fromY + toY) / 2;
-    const distance = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
-    const curvature = Math.min(distance * 0.3, 100);
+    // Determine optimal connection points based on rack positions
+    if (connection.from.rack === 'SR' && connection.to.rack === 'G2C') {
+        // Server Room to Gate 2C - connect right side of SR to left side of G2C
+        fromX = (fromRect.right - canvasRect.left) - 10;
+        fromY = (fromRect.top - canvasRect.top) + fromRect.height / 2;
+        toX = (toRect.left - canvasRect.left) + 10;
+        toY = (toRect.top - canvasRect.top) + toRect.height / 2;
+    } else if (connection.from.rack === 'SR' && connection.to.rack === 'G2B') {
+        // Server Room to Gate 2B - connect bottom of SR to top of G2B
+        fromX = (fromRect.left - canvasRect.left) + fromRect.width / 2;
+        fromY = (fromRect.bottom - canvasRect.top) - 10;
+        toX = (toRect.left - canvasRect.left) + toRect.width / 2;
+        toY = (toRect.top - canvasRect.top) + 10;
+    } else if (connection.from.rack === 'G2C' && connection.to.rack === 'G2B') {
+        // Gate 2C to Gate 2B - connect bottom-left of G2C to top-right of G2B
+        fromX = (fromRect.left - canvasRect.left) + fromRect.width * 0.3;
+        fromY = (fromRect.bottom - canvasRect.top) - 10;
+        toX = (toRect.right - canvasRect.left) - fromRect.width * 0.3;
+        toY = (toRect.top - canvasRect.top) + 10;
+    } else {
+        // Default center-to-center for any other connections
+        fromX = (fromRect.left - canvasRect.left) + fromRect.width / 2;
+        fromY = (fromRect.top - canvasRect.top) + fromRect.height / 2;
+        toX = (toRect.left - canvasRect.left) + toRect.width / 2;
+        toY = (toRect.top - canvasRect.top) + toRect.height / 2;
+    }
     
-    // Adjust curve based on relative positions
-    const curveOffsetX = (toY - fromY) * 0.2;
-    const curveOffsetY = (fromX - toX) * 0.2;
+    // Create smooth curved path with better control points
+    const deltaX = toX - fromX;
+    const deltaY = toY - fromY;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
-    const pathData = `M ${fromX} ${fromY} Q ${midX + curveOffsetX} ${midY + curveOffsetY} ${toX} ${toY}`;
+    let pathData;
+    
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontal-dominant connection - use horizontal curve
+        const controlOffset = Math.min(Math.abs(deltaX) * 0.4, 100);
+        const control1X = fromX + (deltaX > 0 ? controlOffset : -controlOffset);
+        const control1Y = fromY;
+        const control2X = toX - (deltaX > 0 ? controlOffset : -controlOffset);
+        const control2Y = toY;
+        
+        pathData = `M ${fromX} ${fromY} C ${control1X} ${control1Y} ${control2X} ${control2Y} ${toX} ${toY}`;
+    } else {
+        // Vertical-dominant connection - use vertical curve
+        const controlOffset = Math.min(Math.abs(deltaY) * 0.4, 80);
+        const control1X = fromX;
+        const control1Y = fromY + (deltaY > 0 ? controlOffset : -controlOffset);
+        const control2X = toX;
+        const control2Y = toY - (deltaY > 0 ? controlOffset : -controlOffset);
+        
+        pathData = `M ${fromX} ${fromY} C ${control1X} ${control1Y} ${control2X} ${control2Y} ${toX} ${toY}`;
+    }
     
     // Create connection group
     const connectionGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     connectionGroup.setAttribute('class', 'connection-group');
     connectionGroup.setAttribute('data-connection-id', connection.id);
     
-    // Create connection path
+    // Create connection path with better styling
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', pathData);
     path.setAttribute('class', `connection-line ${connection.type}`);
     
-    // Create connection label
-    const labelX = midX + curveOffsetX;
-    const labelY = midY + curveOffsetY - 10;
+    // Create connection label with better positioning
+    const midX = (fromX + toX) / 2;
+    const midY = (fromY + toY) / 2;
+    
+    // Adjust label position to avoid overlapping with the line
+    const labelOffsetY = deltaY > 0 ? -20 : 20;
+    const labelX = midX;
+    const labelY = midY + labelOffsetY;
+    
+    // Simplified and cleaner label text
+    let labelText = connection.description;
+    if (labelText.includes('12-Core Fiber - Core')) {
+        labelText = `Core ${labelText.split('Core ')[1]}`;
+    } else if (labelText.includes('Direct Fiber to Gate 2B - Core')) {
+        labelText = `G2B Core ${labelText.split('Core ')[1]}`;
+    }
+    
+    const labelWidth = Math.max(labelText.length * 6 + 12, 60);
     
     // Label background
     const labelBg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    const labelText = connection.description;
-    const labelWidth = labelText.length * 6 + 12;
-    
     labelBg.setAttribute('x', labelX - labelWidth / 2);
     labelBg.setAttribute('y', labelY - 8);
     labelBg.setAttribute('width', labelWidth);
@@ -485,10 +550,10 @@ function drawConnection(connection) {
     connectionGroup.appendChild(labelBg);
     connectionGroup.appendChild(text);
     
-    // Add hover effects
+    // Add hover effects with improved tooltip
     connectionGroup.addEventListener('mouseenter', () => {
         path.classList.add('highlighted');
-        showConnectionTooltip(connection, labelX, labelY);
+        showConnectionTooltip(connection, labelX, labelY + 30);
     });
     
     connectionGroup.addEventListener('mouseleave', () => {
