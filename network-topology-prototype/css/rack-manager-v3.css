@@ -1239,3 +1239,14 @@ textarea.form-control {
         opacity: 0;
     }
 }
+/* Connection mode button styling */
+.btn-warning {
+    background: #f6ad55;
+    color: white;
+    border: 1px solid #ed8936;
+}
+
+.btn-warning:hover {
+    background: #ed8936;
+    border-color: #dd6b20;
+}

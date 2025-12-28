@@ -1016,8 +1016,40 @@ function handlePortClick(e) {
     const portNumber = port.dataset.portNumber;
     const unitNumber = port.dataset.unitNumber;
     
-    // Open port edit modal
-    openPortEditModal(portId, deviceId, portNumber, unitNumber);
+    // Check if we're in connection mode (Shift key held or connection mode enabled)
+    if (e.shiftKey || connectionMode) {
+        // Connection mode - original functionality
+        if (port.classList.contains('connected')) {
+            // Port is already connected, show connection details
+            showConnectionDetails(portId);
+            return;
+        }
+        
+        if (selectedPorts.includes(portId)) {
+            // Deselect port
+            port.classList.remove('selected');
+            selectedPorts = selectedPorts.filter(p => p !== portId);
+        } else {
+            // Select port
+            if (selectedPorts.length >= 2) {
+                // Clear previous selections
+                clearPortSelections();
+            }
+            
+            port.classList.add('selected');
+            selectedPorts.push(portId);
+        }
+        
+        // Show connection form if two ports are selected
+        if (selectedPorts.length === 2) {
+            showConnectionForm();
+        } else {
+            hideConnectionForm();
+        }
+    } else {
+        // Edit mode - open port edit modal (default behavior)
+        openPortEditModal(portId, deviceId, portNumber, unitNumber);
+    }
 }
 
 function clearPortSelections() {
@@ -1524,6 +1556,26 @@ function toggleLegend() {
         toggleBtn.textContent = '📋 Show Legend';
     } else {
         toggleBtn.textContent = '📋 Hide Legend';
+    }
+}
+
+function toggleConnectionMode() {
+    connectionMode = !connectionMode;
+    const btn = document.getElementById('connectionModeBtn');
+    
+    if (connectionMode) {
+        btn.textContent = '📝 Edit Mode';
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-warning');
+        showNotification('Connection Mode: Click two ports to create connections between them', 'info');
+    } else {
+        btn.textContent = '🔗 Connection Mode';
+        btn.classList.remove('btn-warning');
+        btn.classList.add('btn-secondary');
+        // Clear any selected ports when exiting connection mode
+        clearPortSelections();
+        hideConnectionForm();
+        showNotification('Edit Mode: Click ports to edit their information', 'info');
     }
 }
 

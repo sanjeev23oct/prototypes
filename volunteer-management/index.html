@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Records Management - Prototype</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/volunteer-management.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-users text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-bold text-gray-900">Volunteer Records Management</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-600">Total Records: <span id="totalCount" class="font-semibold">0</span></span>
+                    <button onclick="volunteerApp.exportData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                    <button onclick="volunteerApp.saveToLocalStorage()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-save mr-2"></i>Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Spreadsheet Controls -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button onclick="volunteerApp.addMultipleRows(5)" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-plus mr-2"></i>Add 5 Rows
+                    </button>
+                    <button onclick="volunteerApp.addNewRow()" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-user-plus mr-2"></i>Add Row
+                    </button>
+                    <button onclick="volunteerApp.deleteSelectedRows()" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-trash mr-2"></i>Delete Selected
+                    </button>
+                    <div class="relative">
+                        <button onclick="toggleDeleteMenu()" 
+                                class="bg-red-800 hover:bg-red-900 text-white px-4 py-2 rounded-lg transition flex items-center">
+                            <i class="fas fa-trash-alt mr-2"></i>More Delete Options
+                            <i class="fas fa-chevron-down ml-2"></i>
+                        </button>
+                        <div id="deleteMenu" class="hidden absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-48">
+                            <button onclick="volunteerApp.deleteAllRows(); toggleDeleteMenu();" 
+                                    class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-700 border-b">
+                                <i class="fas fa-trash-alt mr-2"></i>Delete All Records
+                            </button>
+                            <button onclick="volunteerApp.deleteEmptyRows(); toggleDeleteMenu();" 
+                                    class="w-full text-left px-4 py-2 hover:bg-orange-50 text-orange-700 border-b">
+                                <i class="fas fa-eraser mr-2"></i>Delete Empty Rows
+                            </button>
+                            <button onclick="volunteerApp.deleteLastRows(1); toggleDeleteMenu();" 
+                                    class="w-full text-left px-4 py-2 hover:bg-yellow-50 text-yellow-700 border-b">
+                                <i class="fas fa-minus mr-2"></i>Delete Last Row
+                            </button>
+                            <button onclick="volunteerApp.deleteLastRows(5); toggleDeleteMenu();" 
+                                    class="w-full text-left px-4 py-2 hover:bg-yellow-50 text-yellow-700">
+                                <i class="fas fa-minus-circle mr-2"></i>Delete Last 5 Rows
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="volunteerSpreadsheet.copySelectedRows()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-copy mr-2"></i>Copy
+                    </button>
+                    <button onclick="volunteerSpreadsheet.handlePaste()" 
+                            class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-paste mr-2"></i>Paste
+                    </button>
+                    <button onclick="volunteerSpreadsheet.fillDown()" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-arrow-down mr-2"></i>Fill Down
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="volunteerApp.validateAllRecords()" 
+                            class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-check-circle mr-2"></i>Validate All
+                    </button>
+                    <button onclick="volunteerApp.showDuplicateCheck()" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>Check Duplicates
+                    </button>
+                </div>
+                <div class="ml-auto text-sm text-gray-600">
+                    <div><span class="font-medium">Excel Integration:</span> Click any cell and paste (Ctrl+V)</div>
+                    <div class="text-xs">
+                        <span class="font-medium">Delete:</span> Select rows (click numbers) → Delete Selected • 
+                        <span class="font-medium">Shortcuts:</span> Ctrl+Shift+Del (all) • Ctrl+Alt+Del (empty)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Excel Integration Instructions -->
+        <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg shadow-md p-6 mb-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-file-excel text-green-600 text-2xl"></i>
+                </div>
+                <div class="ml-4 flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Excel Integration Guide</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div class="bg-white p-3 rounded-lg">
+                            <h4 class="font-medium text-blue-600 mb-1">📥 Import from Excel</h4>
+                            <p class="text-gray-600">Copy rows from Excel and paste directly (Ctrl+V) or use "Paste from Excel" button</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg">
+                            <h4 class="font-medium text-green-600 mb-1">📤 Export to Excel</h4>
+                            <p class="text-gray-600">Select rows and copy (Ctrl+C) to paste into Excel, or use Export button</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg">
+                            <h4 class="font-medium text-purple-600 mb-1">📋 Template</h4>
+                            <p class="text-gray-600">Download Excel template with sample data and correct column format</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Volunteer Filters -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <label class="text-sm font-medium text-gray-700">Filter by Gender:</label>
+                <div class="flex gap-2">
+                    <button onclick="volunteerApp.filterByGender('all')" id="filter-all" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white">
+                        All
+                    </button>
+                    <button onclick="volunteerApp.filterByGender('Male')" id="filter-male" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Male
+                    </button>
+                    <button onclick="volunteerApp.filterByGender('Female')" id="filter-female" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Female
+                    </button>
+                </div>
+                
+                <label class="text-sm font-medium text-gray-700 ml-4">Initiation Status:</label>
+                <div class="flex gap-2">
+                    <button onclick="volunteerApp.filterByInitiation('all')" id="filter-init-all" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-green-600 text-white">
+                        All
+                    </button>
+                    <button onclick="volunteerApp.filterByInitiation('true')" id="filter-initiated" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Initiated
+                    </button>
+                    <button onclick="volunteerApp.filterByInitiation('false')" id="filter-not-initiated" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Not Initiated
+                    </button>
+                </div>
+                
+                <div class="ml-auto flex items-center gap-4">
+                    <input type="text" id="searchInput" placeholder="Search volunteers..." 
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button onclick="volunteerApp.clearAll()" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition font-medium">
+                        <i class="fas fa-broom mr-2"></i>Clear All Data
+                    </button>
+                    <button onclick="volunteerApp.loadSampleData()" class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                        Load Sample Data
+                    </button>
+                    <button onclick="volunteerApp.generateExcelTemplate()" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                        Download Excel Template
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Excel-like Spreadsheet -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-auto max-h-96">
+                <table class="spreadsheet-table w-full">
+                    <thead>
+                        <tr>
+                            <th class="column-header row-number">#</th>
+                            <th class="column-header">Name</th>
+                            <th class="column-header">Father/Husband Name</th>
+                            <th class="column-header">Age</th>
+                            <th class="column-header">Is Initiated</th>
+                            <th class="column-header">Initiated By</th>
+                            <th class="column-header">Aadhar Number</th>
+                            <th class="column-header">Address</th>
+                            <th class="column-header">Mobile Number</th>
+                            <th class="column-header">Emergency Number</th>
+                            <th class="column-header">Gender</th>
+                            <th class="column-header">Badge Number</th>
+                            <th class="column-header">Sewa Start Date</th>
+                            <th class="column-header">Sewa End Date</th>
+                            <th class="column-header">Operation</th>
+                            <th class="column-header">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="volunteerTableBody">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <i class="fas fa-users text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No volunteers found</h3>
+            <p class="text-gray-600 mb-6">Start by adding volunteers to the spreadsheet</p>
+            <button onclick="volunteerApp.addNewRow()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">
+                Add First Volunteer
+            </button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Total Volunteers</span>
+                    <i class="fas fa-users text-blue-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="totalCount">0</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Initiated</span>
+                    <i class="fas fa-user-check text-green-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="initiatedCount">0</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Not Initiated</span>
+                    <i class="fas fa-user-clock text-orange-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="notInitiatedCount">0</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Active Badges</span>
+                    <i class="fas fa-id-badge text-purple-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="badgeCount">0</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50"></div>
+
+    <!-- JavaScript Files -->
+    <script src="js/volunteer-data.js"></script>
+    <script src="js/volunteer-utils.js"></script>
+    <script src="js/volunteer-spreadsheet.js"></script>
+    <script src="js/volunteer-app.js"></script>
+    
+    <script>
+        // Toggle delete menu dropdown
+        function toggleDeleteMenu() {
+            const menu = document.getElementById('deleteMenu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // Close delete menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('deleteMenu');
+            const button = event.target.closest('button');
+            
+            if (!button || !button.onclick || !button.onclick.toString().includes('toggleDeleteMenu')) {
+                menu.classList.add('hidden');
+            }
+        });
+        
+        // Keyboard shortcuts for delete operations
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+Shift+Delete: Delete all
+            if (e.ctrlKey && e.shiftKey && e.key === 'Delete') {
+                e.preventDefault();
+                volunteerApp.deleteAllRows();
+            }
+            // Ctrl+Alt+Delete: Delete empty rows
+            else if (e.ctrlKey && e.altKey && e.key === 'Delete') {
+                e.preventDefault();
+                volunteerApp.deleteEmptyRows();
+            }
+        });
+        
+        // Row context menu
+        function showRowMenu(event, volunteerId) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Remove existing menu
+            const existingMenu = document.getElementById('rowContextMenu');
+            if (existingMenu) existingMenu.remove();
+            
+            // Create context menu
+            const menu = document.createElement('div');
+            menu.id = 'rowContextMenu';
+            menu.className = 'fixed bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-48';
+            menu.style.left = event.pageX + 'px';
+            menu.style.top = event.pageY + 'px';
+            
+            const volunteer = volunteerApp.getAllVolunteers().find(v => v.id === volunteerId);
+            const volunteerName = volunteer ? (volunteer.name || 'Unnamed') : 'Unknown';
+            
+            menu.innerHTML = `
+                <div class="px-3 py-2 border-b bg-gray-50 font-medium text-sm text-gray-700">
+                    ${volunteerName}
+                </div>
+                <button onclick="volunteerApp.duplicateVolunteer(${volunteerId}); closeRowMenu();" 
+                        class="w-full text-left px-4 py-2 hover:bg-blue-50 text-blue-700 border-b">
+                    <i class="fas fa-copy mr-2"></i>Duplicate Record
+                </button>
+                <button onclick="volunteerApp.deleteVolunteer(${volunteerId}); closeRowMenu();" 
+                        class="w-full text-left px-4 py-2 hover:bg-red-50 text-red-700 border-b">
+                    <i class="fas fa-trash mr-2"></i>Delete Record
+                </button>
+                <button onclick="volunteerSpreadsheet.toggleRowSelection(${volunteerId}, {ctrlKey: false, shiftKey: false}); closeRowMenu();" 
+                        class="w-full text-left px-4 py-2 hover:bg-green-50 text-green-700 border-b">
+                    <i class="fas fa-check-square mr-2"></i>Select Row
+                </button>
+                <button onclick="focusOnVolunteer(${volunteerId}); closeRowMenu();" 
+                        class="w-full text-left px-4 py-2 hover:bg-yellow-50 text-yellow-700">
+                    <i class="fas fa-eye mr-2"></i>Focus on Row
+                </button>
+            `;
+            
+            document.body.appendChild(menu);
+            
+            // Close menu when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', closeRowMenu);
+            }, 100);
+        }
+        
+        function closeRowMenu() {
+            const menu = document.getElementById('rowContextMenu');
+            if (menu) menu.remove();
+            document.removeEventListener('click', closeRowMenu);
+        }
+        
+        function focusOnVolunteer(volunteerId) {
+            const volunteer = volunteerApp.getAllVolunteers().find(v => v.id === volunteerId);
+            if (volunteer) {
+                const filteredIndex = volunteerApp.getFilteredVolunteers().findIndex(v => v.id === volunteerId);
+                if (filteredIndex >= 0) {
+                    const row = document.querySelector(`tr[data-volunteer-id="${volunteerId}"]`);
+                    if (row) {
+                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        row.classList.add('highlight-error');
+                        setTimeout(() => {
+                            row.classList.remove('highlight-error');
+                        }, 2000);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

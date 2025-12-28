@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Records Upload - Prototype</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .editable-cell {
+            min-height: 40px;
+            padding: 8px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            cursor: text;
+        }
+        .editable-cell:hover {
+            border-color: #d1d5db;
+            background-color: #f9fafb;
+        }
+        .editable-cell:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .row-selected {
+            background-color: #dbeafe !important;
+        }
+        .row-number {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            font-weight: 500;
+            text-align: center;
+            width: 50px;
+            user-select: none;
+            cursor: pointer;
+        }
+        .row-number:hover {
+            background-color: #e5e7eb;
+        }
+        .spreadsheet-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .spreadsheet-table th,
+        .spreadsheet-table td {
+            border-right: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .spreadsheet-table th:first-child,
+        .spreadsheet-table td:first-child {
+            border-left: 1px solid #e5e7eb;
+        }
+        .spreadsheet-table thead th {
+            border-top: 1px solid #e5e7eb;
+        }
+        .column-header {
+            background-color: #f9fafb;
+            font-weight: 600;
+            text-align: center;
+            padding: 12px 8px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .cell-input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 8px;
+            outline: none;
+            font-family: inherit;
+        }
+        .cell-input:focus {
+            background-color: white;
+            box-shadow: inset 0 0 0 2px #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center">
+                    <i class="fas fa-users text-blue-600 text-2xl mr-3"></i>
+                    <h1 class="text-2xl font-bold text-gray-900">Volunteer Records Management</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span class="text-sm text-gray-600">Total Records: <span id="totalCount" class="font-semibold">0</span></span>
+                    <button onclick="exportData()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-download mr-2"></i>Export
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Spreadsheet Controls -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <button onclick="addMultipleRows()" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-plus mr-2"></i>Add 5 Rows
+                    </button>
+                    <button onclick="addNewRow()" 
+                            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-user-plus mr-2"></i>Add Row
+                    </button>
+                    <button onclick="deleteSelectedRows()" 
+                            class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-trash mr-2"></i>Delete Selected
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copySelectedRows()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-copy mr-2"></i>Copy
+                    </button>
+                    <button onclick="pasteRows()" 
+                            class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-paste mr-2"></i>Paste
+                    </button>
+                    <button onclick="fillDown()" 
+                            class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-arrow-down mr-2"></i>Fill Down
+                    </button>
+                </div>
+                <div class="ml-auto text-sm text-gray-600">
+                    <span class="font-medium">Tip:</span> Use Ctrl+Click to select multiple rows, Tab to navigate cells
+                </div>
+            </div>
+        </div>
+
+        <!-- Volunteer Type Filter -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <label class="text-sm font-medium text-gray-700">Filter by Type:</label>
+                <div class="flex gap-2">
+                    <button onclick="filterByType('all')" id="filter-all" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white">
+                        All
+                    </button>
+                    <button onclick="filterByType('permanent')" id="filter-permanent" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Permanent
+                    </button>
+                    <button onclick="filterByType('temporary')" id="filter-temporary" 
+                            class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Temporary
+                    </button>
+                </div>
+                <div class="ml-auto flex items-center gap-4">
+                    <input type="text" id="searchInput" placeholder="Search volunteers..." 
+                           class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <button onclick="clearAll()" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Volunteer Type
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Volunteer ID
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Mobile Number
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Aadhar Card
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Address
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Event/Cause
+                            </th>
+                            <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="volunteerTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <i class="fas fa-users text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No volunteers found</h3>
+            <p class="text-gray-600 mb-6">Start by uploading a file or adding volunteers manually</p>
+            <button onclick="addNewRow()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition">
+                Add First Volunteer
+            </button>
+        </div>
+    </main>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50"></div>
+
+    <script>
+        // Mock data and state management
+        let volunteers = [];
+        let filteredVolunteers = [];
+        let currentFilter = 'all';
+        let nextTempId = 1001; // Starting temp ID for temporary volunteers
+
+        /**
+         * BUSINESS RULE: Volunteer ID Generation
+         * - Permanent volunteers: Use existing Volunteer ID from database
+         * - Temporary volunteers: Auto-generate temp ID (TEMP-XXXX format)
+         * - Temp IDs can be reused for future events
+         * 
+         * Discussed with: Society Management Team
+         * Date: 2024-12-28
+         */
+        function generateTempId() {
+            return `TEMP-${nextTempId++}`;
+        }
+
+        /**
+         * BUSINESS RULE: Volunteer Types
+         * - Permanent: Long-term society members with permanent ID
+         * - Temporary: Event-specific volunteers with reusable temp ID
+         */
+        function addNewRow() {
+            const newVolunteer = {
+                id: Date.now(), // Unique row ID for editing
+                type: 'temporary',
+                volunteerId: generateTempId(),
+                name: '',
+                mobile: '',
+                aadhar: '',
+                address: '',
+                event: '',
+                isNew: true
+            };
+            
+            volunteers.push(newVolunteer);
+            applyFilters();
+            showToast('New volunteer row added', 'success');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('volunteerTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredVolunteers.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            tbody.innerHTML = filteredVolunteers.map(volunteer => `
+                <tr class="hover:bg-gray-50 ${volunteer.isNew ? 'bg-blue-50' : ''}">
+                    <td class="px-4 py-3">
+                        <select onchange="updateVolunteer(${volunteer.id}, 'type', this.value)" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="permanent" ${volunteer.type === 'permanent' ? 'selected' : ''}>Permanent</option>
+                            <option value="temporary" ${volunteer.type === 'temporary' ? 'selected' : ''}>Temporary</option>
+                        </select>
+                    </td>
+                    <td class="px-4 py-3">
+                        ${volunteer.type === 'permanent' ? 
+                            `<input type="text" value="${volunteer.volunteerId}" 
+                                    onchange="updateVolunteer(${volunteer.id}, 'volunteerId', this.value)"
+                                    placeholder="Enter existing ID"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">` :
+                            `<span class="px-3 py-2 bg-gray-100 rounded-lg text-gray-700 font-mono">${volunteer.volunteerId}</span>`
+                        }
+                    </td>
+                    <td class="px-4 py-3">
+                        <div contenteditable="true" 
+                             class="editable-cell" 
+                             onblur="updateVolunteer(${volunteer.id}, 'name', this.textContent)"
+                             data-placeholder="Enter full name">${volunteer.name}</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div contenteditable="true" 
+                             class="editable-cell" 
+                             onblur="updateVolunteer(${volunteer.id}, 'mobile', this.textContent)"
+                             data-placeholder="Enter mobile number">${volunteer.mobile}</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div contenteditable="true" 
+                             class="editable-cell" 
+                             onblur="updateVolunteer(${volunteer.id}, 'aadhar', this.textContent)"
+                             data-placeholder="Enter Aadhar number">${volunteer.aadhar}</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div contenteditable="true" 
+                             class="editable-cell" 
+                             onblur="updateVolunteer(${volunteer.id}, 'address', this.textContent)"
+                             data-placeholder="Enter address">${volunteer.address}</div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <div contenteditable="true" 
+                             class="editable-cell" 
+                             onblur="updateVolunteer(${volunteer.id}, 'event', this.textContent)"
+                             data-placeholder="Enter event/cause">${volunteer.event}</div>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <button onclick="deleteVolunteer(${volunteer.id})" 
+                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updateTotalCount();
+        }
+
+        function updateVolunteer(id, field, value) {
+            const volunteer = volunteers.find(v => v.id === id);
+            if (volunteer) {
+                volunteer[field] = value.trim();
+                volunteer.isNew = false;
+                
+                // Auto-generate temp ID when switching to temporary
+                if (field === 'type' && value === 'temporary' && !volunteer.volunteerId.startsWith('TEMP-')) {
+                    volunteer.volunteerId = generateTempId();
+                }
+                
+                applyFilters();
+            }
+        }
+
+        function deleteVolunteer(id) {
+            if (confirm('Are you sure you want to delete this volunteer record?')) {
+                volunteers = volunteers.filter(v => v.id !== id);
+                applyFilters();
+                showToast('Volunteer record deleted', 'success');
+            }
+        }
+
+        function filterByType(type) {
+            currentFilter = type;
+            
+            // Update button styles
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+                btn.className = 'px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300';
+            });
+            document.getElementById(`filter-${type}`).className = 'px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white';
+            
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredVolunteers = volunteers.filter(volunteer => {
+                const matchesType = currentFilter === 'all' || volunteer.type === currentFilter;
+                const matchesSearch = !searchTerm || 
+                    volunteer.name.toLowerCase().includes(searchTerm) ||
+                    volunteer.mobile.includes(searchTerm) ||
+                    volunteer.volunteerId.toLowerCase().includes(searchTerm) ||
+                    volunteer.event.toLowerCase().includes(searchTerm);
+                
+                return matchesType && matchesSearch;
+            });
+            
+            renderTable();
+        }
+
+        function updateTotalCount() {
+            document.getElementById('totalCount').textContent = volunteers.length;
+        }
+
+        function clearAll() {
+            if (confirm('Are you sure you want to clear all volunteer records? This action cannot be undone.')) {
+                volunteers = [];
+                applyFilters();
+                showToast('All records cleared', 'success');
+            }
+        }
+
+        // File upload simulation (in real implementation, would parse Excel/CSV)
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Simulate file processing
+                showToast('Processing file...', 'info');
+                
+                setTimeout(() => {
+                    // Mock data from file upload
+                    const mockUploadData = [
+                        {
+                            id: Date.now() + 1,
+                            type: 'permanent',
+                            volunteerId: 'VOL001',
+                            name: 'Rajesh Kumar',
+                            mobile: '9876543210',
+                            aadhar: '1234-5678-9012',
+                            address: '123 Main St, Mumbai',
+                            event: 'Community Service'
+                        },
+                        {
+                            id: Date.now() + 2,
+                            type: 'temporary',
+                            volunteerId: generateTempId(),
+                            name: 'Priya Sharma',
+                            mobile: '8765432109',
+                            aadhar: '2345-6789-0123',
+                            address: '456 Park Ave, Delhi',
+                            event: 'Blood Donation Drive'
+                        },
+                        {
+                            id: Date.now() + 3,
+                            type: 'permanent',
+                            volunteerId: 'VOL002',
+                            name: 'Amit Patel',
+                            mobile: '7654321098',
+                            aadhar: '3456-7890-1234',
+                            address: '789 Garden Rd, Pune',
+                            event: 'Education Initiative'
+                        }
+                    ];
+                    
+                    volunteers.push(...mockUploadData);
+                    applyFilters();
+                    showToast(`Successfully uploaded ${mockUploadData.length} volunteer records`, 'success');
+                }, 1500);
+            }
+        });
+
+        function downloadTemplate() {
+            // In real implementation, would generate actual Excel file
+            const csvContent = `Volunteer Type,Volunteer ID,Name,Mobile Number,Aadhar Card,Address,Event/Cause
+permanent,VOL001,John Doe,9876543210,1234-5678-9012,123 Sample St,Sample Event
+temporary,,Jane Smith,8765432109,2345-6789-0123,456 Example Ave,Sample Cause`;
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'volunteer_template.csv';
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast('Template downloaded successfully', 'success');
+        }
+
+        function exportData() {
+            if (volunteers.length === 0) {
+                showToast('No data to export', 'error');
+                return;
+            }
+            
+            const csvContent = 'Volunteer Type,Volunteer ID,Name,Mobile Number,Aadhar Card,Address,Event/Cause\n' +
+                volunteers.map(v => `${v.type},${v.volunteerId},"${v.name}",${v.mobile},${v.aadhar},"${v.address}","${v.event}"`).join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `volunteer_records_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast('Data exported successfully', 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `px-6 py-3 rounded-lg shadow-lg text-white mb-2 fade-in ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            }`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'} mr-2"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTable();
+            showToast('Volunteer Records Management System loaded', 'success');
+        });
+    </script>
+</body>
+</html>
