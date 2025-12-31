@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Script Loading</title>
+</head>
+<body>
+    <h1>Check Console for Loading Messages</h1>
+    <div id="status"></div>
+    
+    <script>
+        const status = document.getElementById('status');
+        const messages = [];
+        
+        // Override console.log to capture messages
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            messages.push(args.join(' '));
+            status.innerHTML = '<pre>' + messages.join('\n') + '</pre>';
+        };
+    </script>
+    
+    <script src="js/utils.js?v=1.0.1"></script>
+    <script src="js/data.js?v=1.0.1"></script>
+    <script src="js/components.js?v=1.0.1"></script>
+    <script src="js/work-clearance.js?v=1.0.1"></script>
+    
+    <script>
+        console.log('=== Testing Global Objects ===');
+        console.log('Utils defined:', typeof Utils !== 'undefined');
+        console.log('MockData defined:', typeof MockData !== 'undefined');
+        console.log('Components defined:', typeof Components !== 'undefined');
+        console.log('WorkClearanceSystem defined:', typeof WorkClearanceSystem !== 'undefined');
+        console.log('impersonateUser defined:', typeof impersonateUser !== 'undefined');
+        
+        if (typeof WorkClearanceSystem !== 'undefined') {
+            console.log('✓ All scripts loaded successfully!');
+        } else {
+            console.error('✗ WorkClearanceSystem not loaded!');
+        }
+    </script>
+</body>
+</html>

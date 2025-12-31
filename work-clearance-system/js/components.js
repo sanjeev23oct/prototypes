@@ -704,3 +704,7 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Components;
 }
+
+
+// Log successful loading
+console.log('✓ components.js loaded successfully');

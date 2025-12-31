@@ -482,3 +482,7 @@ const Utils = {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Utils;
 }
+
+
+// Log successful loading
+console.log('✓ utils.js loaded successfully');

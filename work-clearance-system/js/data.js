@@ -378,6 +378,138 @@ const MockData = {
         return measures;
     },
 
+    // Sample data templates for quick form population
+    sampleRequests: [
+        {
+            title: "Fiber Cable Installation - Main Hall Area",
+            department: "it",
+            workType: "telecom",
+            priority: "high",
+            location: "main-hall",
+            description: "Installation of new fiber optic cables to improve network connectivity in the main satsang hall. This work involves trenching along the pathway and connecting to existing infrastructure. Coordination with multiple departments required to ensure no disruption to daily activities.",
+            startDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 2);
+                return date.toISOString().slice(0, 16);
+            },
+            endDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 4);
+                return date.toISOString().slice(0, 16);
+            },
+            duration: "16",
+            infrastructureAffected: ["fiber", "power", "telecom"],
+            notifyDepartments: ["electrical", "security", "maintenance", "construction"],
+            safetyMeasures: "Use underground utility detection equipment before digging. Install safety barriers around work area. Coordinate with electrical department for power line locations. Have emergency response team contact ready.",
+            emergencyContact: "+91-9876543216",
+            requesterName: "Neha Agarwal",
+            notes: "Work must be completed before weekend satsang. Please coordinate with security for access permissions."
+        },
+        {
+            title: "Emergency Electrical Panel Upgrade - Admin Block",
+            department: "electrical",
+            workType: "electrical",
+            priority: "urgent",
+            location: "admin-block",
+            description: "Urgent replacement of aging electrical panel in administrative block due to safety concerns. Work requires temporary power shutdown and coordination with all departments using the building. Critical infrastructure work that cannot be delayed.",
+            startDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 1);
+                return date.toISOString().slice(0, 16);
+            },
+            endDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 1);
+                date.setHours(date.getHours() + 6);
+                return date.toISOString().slice(0, 16);
+            },
+            duration: "6",
+            infrastructureAffected: ["power", "telecom", "internet"],
+            notifyDepartments: ["it", "security", "maintenance", "transport"],
+            safetyMeasures: "Complete power shutdown required. Use lockout/tagout procedures. Have backup generator ready for critical systems. Ensure all personnel are aware of power outage schedule.",
+            emergencyContact: "+91-9876543213",
+            requesterName: "Amit Singh",
+            notes: "Backup power arrangements made for security systems. IT department has been notified about server shutdown procedures."
+        },
+        {
+            title: "Garden Renovation - Meditation Hall Surroundings",
+            department: "landscaping",
+            workType: "landscaping",
+            priority: "medium",
+            location: "meditation-hall",
+            description: "Comprehensive landscaping renovation around the meditation hall including new plant installations, pathway improvements, and irrigation system upgrades. Work involves soil preparation, plant installation, and minor excavation for irrigation pipes.",
+            startDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 7);
+                return date.toISOString().slice(0, 16);
+            },
+            endDate: () => {
+                const date = new Date();
+                date.setDate(date.getDate() + 10);
+                return date.toISOString().slice(0, 16);
+            },
+            duration: "24",
+            infrastructureAffected: ["water", "drainage"],
+            notifyDepartments: ["maintenance", "security", "plumbing"],
+            safetyMeasures: "Check for underground utilities before digging. Use proper tools for soil work. Ensure pathway safety during work hours. Coordinate with meditation schedule to minimize noise.",
+            emergencyContact: "+91-9876543212",
+            requesterName: "Priya Sharma",
+            notes: "Work scheduled to avoid meditation hours (6 AM - 8 AM and 6 PM - 8 PM). Special care needed for existing mature trees."
+        }
+    ],
+
+    // Department user profiles for impersonation
+    departmentUsers: [
+        {
+            id: "electrical_head",
+            name: "Amit Singh",
+            department: "electrical",
+            role: "Department Head",
+            permissions: ["approve_electrical", "view_all_electrical", "create_requests"],
+            avatar: "👨‍🔧"
+        },
+        {
+            id: "security_head", 
+            name: "Vikram Yadav",
+            department: "security",
+            role: "Security Chief",
+            permissions: ["approve_security", "view_all_security", "emergency_override"],
+            avatar: "👮‍♂️"
+        },
+        {
+            id: "it_head",
+            name: "Neha Agarwal", 
+            department: "it",
+            role: "IT Manager",
+            permissions: ["approve_it", "view_all_it", "infrastructure_access"],
+            avatar: "👩‍💻"
+        },
+        {
+            id: "maintenance_head",
+            name: "Rajesh Kumar",
+            department: "maintenance", 
+            role: "Maintenance Supervisor",
+            permissions: ["approve_maintenance", "view_all_maintenance", "facility_access"],
+            avatar: "🔧"
+        },
+        {
+            id: "construction_head",
+            name: "Suresh Patel",
+            department: "construction",
+            role: "Construction Manager", 
+            permissions: ["approve_construction", "view_all_construction", "site_access"],
+            avatar: "👷‍♂️"
+        },
+        {
+            id: "admin_director",
+            name: "Dr. Rajesh Gupta",
+            department: "administration",
+            role: "Campus Director",
+            permissions: ["approve_all", "view_all", "override_all", "policy_changes"],
+            avatar: "👨‍💼"
+        }
+    ],
+
     // Get current statistics
     getStatistics: () => {
         const requests = MockData.generateWorkRequests();
@@ -387,15 +519,46 @@ const MockData = {
             completed: requests.filter(r => r.status === 'completed' && Utils.date.isToday(r.actualEndDate)).length,
             risks: requests.filter(r => r.riskLevel === 'high' && r.status !== 'completed').length
         };
+    },
+
+    // Get sample request by index
+    getSampleRequest: (index = 0) => {
+        const sample = MockData.sampleRequests[index] || MockData.sampleRequests[0];
+        return {
+            ...sample,
+            startDate: sample.startDate(),
+            endDate: sample.endDate()
+        };
+    },
+
+    // Get department user by ID
+    getDepartmentUser: (userId) => {
+        return MockData.departmentUsers.find(user => user.id === userId);
+    },
+
+    // Get users by department
+    getUsersByDepartment: (departmentId) => {
+        return MockData.departmentUsers.filter(user => user.department === departmentId);
     }
 };
 
-// Initialize data in localStorage if not exists
-if (!Utils.storage.get('workRequests')) {
-    Utils.storage.set('workRequests', MockData.generateWorkRequests());
+// Initialize data in localStorage if not exists (only in browser environment)
+if (typeof window !== 'undefined' && typeof Utils !== 'undefined') {
+    try {
+        if (!Utils.storage.get('workRequests')) {
+            Utils.storage.set('workRequests', MockData.generateWorkRequests());
+        }
+        console.log('✓ MockData initialized successfully');
+    } catch (error) {
+        console.error('Error initializing MockData:', error);
+    }
 }
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = MockData;
 }
+
+
+// Log successful loading
+console.log('✓ data.js loaded successfully');

@@ -27,7 +27,11 @@ const App = {
         this.initializeComponents();
         
         // Initialize the main system
-        WorkClearanceSystem.init();
+        if (typeof WorkClearanceSystem !== 'undefined') {
+            WorkClearanceSystem.init();
+        } else {
+            console.error('WorkClearanceSystem is not defined!');
+        }
         
         // Setup global error handling
         this.setupErrorHandling();
@@ -412,7 +416,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    App.init();
+    console.log('DOM loaded, initializing app...');
+    try {
+        App.init();
+    } catch (error) {
+        console.error('Error initializing app:', error);
+    }
 });
 
 // Handle page visibility changes (for pausing/resuming updates)

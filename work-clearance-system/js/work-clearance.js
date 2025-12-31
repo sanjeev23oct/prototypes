@@ -139,18 +139,26 @@ const WorkClearanceSystem = {
     renderDashboard() {
         const stats = this.calculateStatistics();
         
-        Utils.dom.get('pendingCount').textContent = stats.pending;
-        Utils.dom.get('activeCount').textContent = stats.active;
-        Utils.dom.get('completedCount').textContent = stats.completed;
-        Utils.dom.get('riskCount').textContent = stats.risks;
+        // These elements were removed from HTML, so check if they exist
+        const pendingCount = Utils.dom.get('pendingCount');
+        const activeCount = Utils.dom.get('activeCount');
+        const completedCount = Utils.dom.get('completedCount');
+        const riskCount = Utils.dom.get('riskCount');
+        
+        if (pendingCount) pendingCount.textContent = stats.pending;
+        if (activeCount) activeCount.textContent = stats.active;
+        if (completedCount) completedCount.textContent = stats.completed;
+        if (riskCount) riskCount.textContent = stats.risks;
         
         // Update notification badge
         const badge = Utils.dom.get('notificationBadge');
-        if (stats.notifications > 0) {
-            badge.textContent = stats.notifications;
-            Utils.dom.show(badge);
-        } else {
-            Utils.dom.hide(badge);
+        if (badge) {
+            if (stats.notifications > 0) {
+                badge.textContent = stats.notifications;
+                Utils.dom.show(badge);
+            } else {
+                Utils.dom.hide(badge);
+            }
         }
     },
 
@@ -217,11 +225,6 @@ const WorkClearanceSystem = {
             <td class="px-6 py-4 whitespace-nowrap">
                 <span class="badge status-${request.status}">
                     ${Utils.string.titleCase(request.status)}
-                </span>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <span class="badge priority-${request.priority}">
-                    ${Utils.string.titleCase(request.priority)}
                 </span>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -304,136 +307,115 @@ const WorkClearanceSystem = {
         
         form.innerHTML = `
             <div class="form-wizard">
+                <div class="mb-4 flex justify-between items-center">
+                    <button type="button" class="btn btn-secondary" onclick="WorkClearanceSystem.loadSampleData(0)">
+                        <i class="fas fa-magic"></i> Load Sample Data
+                    </button>
+                </div>
+                
                 <ul class="wizard-steps">
                     <li class="wizard-step active">
                         <div class="step-indicator">1</div>
-                        <div class="step-title">Basic Info</div>
+                        <div class="step-title">Work Details</div>
                     </li>
                     <li class="wizard-step">
                         <div class="step-indicator">2</div>
-                        <div class="step-title">Location & Risk</div>
-                    </li>
-                    <li class="wizard-step">
-                        <div class="step-indicator">3</div>
-                        <div class="step-title">Schedule & Approval</div>
+                        <div class="step-title">Coordination</div>
                     </li>
                 </ul>
                 
                 <div class="wizard-content">
-                    <!-- Step 1: Basic Information -->
+                    <!-- Step 1: Work Details & Schedule -->
                     <div class="wizard-pane active" id="step1">
-                        <div class="space-y-6">
-                            <!-- Work Request Details -->
-                            <div class="bg-white p-4 rounded-lg border">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-clipboard-list text-blue-500 mr-2"></i>
-                                    Work Request Details
-                                </h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="form-group">
-                                        <label class="form-label required">Work Title</label>
-                                        <input type="text" class="form-input" name="title" data-validate="required" 
-                                               placeholder="Brief description of work">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label required">Requesting Department</label>
-                                        <select class="form-select" name="department" data-validate="required">
-                                            <option value="">Select Your Department</option>
-                                            ${MockData.departments.map(dept => 
-                                                `<option value="${dept.id}">${dept.name}</option>`
-                                            ).join('')}
-                                        </select>
-                                        <div class="form-help">The department that is requesting to perform this work</div>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label required">Work Type</label>
-                                        <select class="form-select" name="workType" data-validate="required">
-                                            <option value="">Select Work Type</option>
-                                            ${MockData.workTypes.map(type => 
-                                                `<option value="${type.id}">${type.name}</option>`
-                                            ).join('')}
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label required">Priority</label>
-                                        <select class="form-select" name="priority" data-validate="required">
-                                            <option value="">Select Priority</option>
-                                            <option value="low">Low</option>
-                                            <option value="medium">Medium</option>
-                                            <option value="high">High</option>
-                                            <option value="urgent">Urgent</option>
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="form-group md:col-span-2">
-                                        <label class="form-label required">Work Description</label>
-                                        <textarea class="form-textarea" name="description" data-validate="required|minLength:20"
-                                                  placeholder="Detailed description of work to be performed"></textarea>
-                                    </div>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="form-group">
+                                    <label class="form-label required">Work Title</label>
+                                    <input type="text" class="form-input" name="title" data-validate="required" 
+                                           placeholder="Brief description of work">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label required">Requesting Department</label>
+                                    <select class="form-select" name="department" data-validate="required">
+                                        <option value="">Select Department</option>
+                                        ${MockData.departments.map(dept => 
+                                            `<option value="${dept.id}">${dept.name}</option>`
+                                        ).join('')}
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label required">Work Type</label>
+                                    <select class="form-select" name="workType" data-validate="required">
+                                        <option value="">Select Work Type</option>
+                                        ${MockData.workTypes.map(type => 
+                                            `<option value="${type.id}">${type.name}</option>`
+                                        ).join('')}
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label required">Location</label>
+                                    <select class="form-select" name="location" data-validate="required">
+                                        <option value="">Select Location</option>
+                                        ${MockData.locations.map(loc => 
+                                            `<option value="${loc.id}">${loc.name}</option>`
+                                        ).join('')}
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label required">Start Date & Time</label>
+                                    <input type="datetime-local" class="form-input" name="startDate" data-validate="required">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label required">End Date & Time</label>
+                                    <input type="datetime-local" class="form-input" name="endDate" data-validate="required">
+                                </div>
+                                
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label required">Work Description</label>
+                                    <textarea class="form-textarea" name="description" rows="3" data-validate="required|minLength:20"
+                                              placeholder="Detailed description of work to be performed"></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Emergency Contact</label>
+                                    <input type="tel" class="form-input" name="emergencyContact" 
+                                           placeholder="+91-XXXXXXXXXX">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">Duration (hours)</label>
+                                    <input type="number" class="form-input" name="duration" min="1" max="24" 
+                                           placeholder="Estimated hours">
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Step 2: Location & Risk Assessment -->
+                    <!-- Step 2: Coordination & Risk -->
                     <div class="wizard-pane" id="step2">
-                        <div class="space-y-6">
-                            <!-- Location & Duration -->
-                            <div class="bg-white p-4 rounded-lg border">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>
-                                    Location & Duration
-                                </h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="form-group">
-                                        <label class="form-label required">Location</label>
-                                        <select class="form-select" name="location" data-validate="required">
-                                            <option value="">Select Location</option>
-                                            ${MockData.locations.map(loc => 
-                                                `<option value="${loc.id}">${loc.name}</option>`
-                                            ).join('')}
-                                        </select>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label">Estimated Duration (hours)</label>
-                                        <input type="number" class="form-input" name="duration" min="1" max="24" 
-                                               placeholder="Hours">
-                                    </div>
-                                </div>
-                            </div>
-
+                        <div class="space-y-4">
                             <!-- Infrastructure Impact -->
-                            <div class="bg-white p-4 rounded-lg border">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-exclamation-triangle text-orange-500 mr-2"></i>
-                                    Infrastructure Impact
-                                </h4>
-                                <div class="form-group">
-                                    <label class="form-label">Infrastructure That May Be Affected</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
-                                        ${MockData.infrastructureTypes.map(infra => `
-                                            <label class="flex items-center">
-                                                <input type="checkbox" class="form-checkbox" name="infrastructure" value="${infra.id}">
-                                                <span class="ml-2 text-sm">${infra.name}</span>
-                                            </label>
-                                        `).join('')}
-                                    </div>
+                            <div class="form-group">
+                                <label class="form-label">Infrastructure That May Be Affected</label>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    ${MockData.infrastructureTypes.map(infra => `
+                                        <label class="flex items-center">
+                                            <input type="checkbox" class="form-checkbox" name="infrastructure" value="${infra.id}">
+                                            <span class="ml-2 text-sm">${infra.name}</span>
+                                        </label>
+                                    `).join('')}
                                 </div>
                             </div>
                             
                             <!-- Department Coordination -->
-                            <div class="bg-blue-50 p-4 rounded-lg border-2 border-blue-200">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-users text-blue-500 mr-2"></i>
-                                    Department Coordination & Clearance
-                                </h4>
-                                <div class="form-group">
-                                    <label class="form-label required">Departments to Notify & Seek Clearance From</label>
-                                    <div class="dept-selection-container">
+                            <div class="form-group">
+                                <label class="form-label required">Departments to Notify & Seek Clearance From</label>
+                                <div class="dept-selection-container">
                                         <div class="flex items-center justify-between mb-3">
                                             <span class="text-sm font-medium text-gray-700">Select all departments that need to provide clearance:</span>
                                             <div class="dept-selection-buttons">
@@ -486,66 +468,6 @@ const WorkClearanceSystem = {
                                     <label class="form-label">Safety Measures & Precautions</label>
                                     <textarea class="form-textarea" name="safetyMeasures" 
                                               placeholder="List safety measures and precautions to be taken"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 3: Schedule & Approval -->
-                    <div class="wizard-pane" id="step3">
-                        <div class="space-y-6">
-                            <!-- Schedule Information -->
-                            <div class="bg-white p-4 rounded-lg border">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-calendar-alt text-purple-500 mr-2"></i>
-                                    Work Schedule
-                                </h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="form-group">
-                                        <label class="form-label required">Planned Start Date & Time</label>
-                                        <input type="datetime-local" class="form-input" name="startDate" data-validate="required">
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label required">Planned End Date & Time</label>
-                                        <input type="datetime-local" class="form-input" name="endDate" data-validate="required">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Contact Information -->
-                            <div class="bg-white p-4 rounded-lg border">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-phone text-green-500 mr-2"></i>
-                                    Emergency Contact
-                                </h4>
-                                <div class="form-group">
-                                    <label class="form-label">Emergency Contact Number</label>
-                                    <input type="tel" class="form-input" name="emergencyContact" 
-                                           placeholder="+91-XXXXXXXXXX">
-                                    <div class="form-help">Contact number for emergencies during work execution</div>
-                                </div>
-                            </div>
-
-                            <!-- Additional Information -->
-                            <div class="bg-white p-4 rounded-lg border">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-sticky-note text-yellow-500 mr-2"></i>
-                                    Additional Information
-                                </h4>
-                                <div class="space-y-4">
-                                    <div class="form-group">
-                                        <label class="form-label">Additional Notes</label>
-                                        <textarea class="form-textarea" name="notes" 
-                                                  placeholder="Any additional information, special requirements, or important notes about this work"></textarea>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                        <label class="form-label">Attachments</label>
-                                        <input type="file" class="form-input" name="attachments" multiple 
-                                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-                                        <div class="form-help">Upload site plans, permits, safety documents, or other relevant files</div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1281,8 +1203,135 @@ const WorkClearanceSystem = {
                 Components.toast.success(`Work ${randomRequest.id} has been completed!`);
             }
         }, 30000);
+    },
+
+    /**
+     * Impersonate a department user (for demo/testing)
+     */
+    impersonateUser(userId) {
+        const user = MockData.getDepartmentUser(userId);
+        if (!user) {
+            Components.toast.error('User not found');
+            return;
+        }
+        
+        this.state.currentUser = {
+            id: user.id,
+            name: user.name,
+            role: user.role,
+            department: user.department,
+            permissions: user.permissions
+        };
+        
+        this.updateUserDisplay();
+        Components.toast.info(`🎭 Now impersonating: ${user.avatar} ${user.name} (${user.role})`);
+        
+        // Update active button styling
+        document.querySelectorAll('.impersonation-btn').forEach(btn => btn.classList.remove('active'));
+        const clickedBtn = document.querySelector(`button[onclick*="${userId}"]`);
+        if (clickedBtn) {
+            clickedBtn.classList.add('active');
+        }
+        
+        this.renderDashboard();
+        this.renderWorkRequests();
+    },
+
+    /**
+     * Update user display in header
+     */
+    updateUserDisplay() {
+        const user = this.state.currentUser;
+        const userDisplay = Utils.dom.get('currentUserDisplay');
+        if (userDisplay) {
+            const departmentUser = MockData.getDepartmentUser(user.id);
+            const avatar = departmentUser ? departmentUser.avatar : '👨‍💼';
+            userDisplay.textContent = `${avatar} ${user.name}`;
+        }
+        const headerUserName = document.querySelector('header .text-sm.font-medium');
+        if (headerUserName) {
+            headerUserName.textContent = user.name;
+        }
+    },
+
+    /**
+     * Load sample data into form (for quick testing)
+     */
+    loadSampleData(sampleIndex = 0) {
+        const sampleData = MockData.getSampleRequest(sampleIndex);
+        
+        // Populate form fields
+        const form = Utils.dom.get('newRequestForm');
+        if (!form) return;
+        
+        // Basic info
+        const titleInput = form.querySelector('[name="title"]');
+        if (titleInput) titleInput.value = sampleData.title;
+        
+        const deptSelect = form.querySelector('[name="department"]');
+        if (deptSelect) deptSelect.value = sampleData.department;
+        
+        const workTypeSelect = form.querySelector('[name="workType"]');
+        if (workTypeSelect) workTypeSelect.value = sampleData.workType;
+        
+        const prioritySelect = form.querySelector('[name="priority"]');
+        if (prioritySelect) prioritySelect.value = sampleData.priority;
+        
+        const descTextarea = form.querySelector('[name="description"]');
+        if (descTextarea) descTextarea.value = sampleData.description;
+        
+        // Location & duration
+        const locationSelect = form.querySelector('[name="location"]');
+        if (locationSelect) locationSelect.value = sampleData.location;
+        
+        const startDateInput = form.querySelector('[name="startDate"]');
+        if (startDateInput) startDateInput.value = sampleData.startDate;
+        
+        const endDateInput = form.querySelector('[name="endDate"]');
+        if (endDateInput) endDateInput.value = sampleData.endDate;
+        
+        const durationInput = form.querySelector('[name="duration"]');
+        if (durationInput) durationInput.value = sampleData.duration;
+        
+        // Infrastructure affected
+        if (sampleData.infrastructureAffected) {
+            sampleData.infrastructureAffected.forEach(infraId => {
+                const checkbox = form.querySelector(`[name="infrastructure"][value="${infraId}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        
+        // Notify departments
+        if (sampleData.notifyDepartments) {
+            sampleData.notifyDepartments.forEach(deptId => {
+                const checkbox = form.querySelector(`[name="notifyDepartments"][value="${deptId}"]`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        
+        // Safety measures
+        const safetyTextarea = form.querySelector('[name="safetyMeasures"]');
+        if (safetyTextarea) safetyTextarea.value = sampleData.safetyMeasures;
+        
+        // Emergency contact
+        const emergencyInput = form.querySelector('[name="emergencyContact"]');
+        if (emergencyInput) emergencyInput.value = sampleData.emergencyContact;
+        
+        // Requester name
+        const requesterInput = form.querySelector('[name="requesterName"]');
+        if (requesterInput) requesterInput.value = sampleData.requesterName;
+        
+        // Notes
+        const notesTextarea = form.querySelector('[name="notes"]');
+        if (notesTextarea) notesTextarea.value = sampleData.notes;
+        
+        Components.toast.success('Sample data loaded successfully!');
     }
 };
+
+// Make globally available
+window.WorkClearanceSystem = WorkClearanceSystem;
+window.impersonateUser = (userId) => WorkClearanceSystem.impersonateUser(userId);
 
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
