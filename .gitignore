@@ -1,6 +1,8 @@
 # Medium articles and documentation
 *.medium.md
 medium-articles/
+DEMO-ARTICLE-SUMMARY.medium.md
+demo-automation-article.medium.md
 
 # OS files
 .DS_Store
