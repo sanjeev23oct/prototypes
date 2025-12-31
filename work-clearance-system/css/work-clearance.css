@@ -1,0 +1,727 @@
+/* Work Clearance System Specific Styles */
+
+/* Status-specific colors and styles */
+.status-pending {
+    background: rgba(245, 158, 11, 0.1);
+    color: #92400e;
+    border-color: #fbbf24;
+}
+
+.status-approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: #065f46;
+    border-color: #34d399;
+}
+
+.status-active {
+    background: rgba(59, 130, 246, 0.1);
+    color: #1e40af;
+    border-color: #60a5fa;
+}
+
+.status-completed {
+    background: rgba(34, 197, 94, 0.1);
+    color: #14532d;
+    border-color: #4ade80;
+}
+
+.status-rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #991b1b;
+    border-color: #f87171;
+}
+
+.status-on-hold {
+    background: rgba(107, 114, 128, 0.1);
+    color: #374151;
+    border-color: #9ca3af;
+}
+
+/* Priority indicators */
+.priority-low {
+    color: #059669;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.priority-medium {
+    color: #d97706;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.priority-high {
+    color: #dc2626;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.priority-urgent {
+    color: #991b1b;
+    background: rgba(220, 38, 38, 0.2);
+    animation: pulse 2s infinite;
+}
+
+/* Department-specific colors */
+.dept-maintenance {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.dept-construction {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.dept-landscaping {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.dept-electrical {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.dept-plumbing {
+    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+}
+
+.dept-security {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Work type icons */
+.work-type-digging::before {
+    content: '🚧';
+    margin-right: 0.5rem;
+}
+
+.work-type-electrical::before {
+    content: '⚡';
+    margin-right: 0.5rem;
+}
+
+.work-type-plumbing::before {
+    content: '🔧';
+    margin-right: 0.5rem;
+}
+
+.work-type-construction::before {
+    content: '🏗️';
+    margin-right: 0.5rem;
+}
+
+.work-type-maintenance::before {
+    content: '🔨';
+    margin-right: 0.5rem;
+}
+
+.work-type-landscaping::before {
+    content: '🌱';
+    margin-right: 0.5rem;
+}
+
+/* Risk level indicators */
+.risk-low {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);
+}
+
+.risk-medium {
+    border-left: 4px solid #f59e0b;
+    background: linear-gradient(90deg, rgba(245, 158, 11, 0.05) 0%, transparent 100%);
+}
+
+.risk-high {
+    border-left: 4px solid #ef4444;
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);
+}
+
+.risk-critical {
+    border-left: 4px solid #dc2626;
+    background: linear-gradient(90deg, rgba(220, 38, 38, 0.1) 0%, transparent 100%);
+    animation: pulse-risk 3s infinite;
+}
+
+@keyframes pulse-risk {
+    0%, 100% { 
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
+    }
+    50% { 
+        box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+    }
+}
+
+/* Infrastructure type indicators */
+.infra-fiber {
+    color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.1);
+}
+
+.infra-power {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+}
+
+.infra-water {
+    color: #06b6d4;
+    background: rgba(6, 182, 212, 0.1);
+}
+
+.infra-gas {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.infra-telecom {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* Notification styles */
+.notification-item {
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+    background: white;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 0.75rem;
+    transition: var(--transition);
+}
+
+.notification-item:hover {
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+}
+
+.notification-item.unread {
+    background: #eff6ff;
+    border-left-color: var(--primary-color);
+}
+
+.notification-item.urgent {
+    border-left-color: var(--error-color);
+    background: #fef2f2;
+}
+
+.notification-item.success {
+    border-left-color: var(--success-color);
+    background: #f0fdf4;
+}
+
+/* Timeline styles */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--gray-200);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2.25rem;
+    top: 1.5rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px var(--gray-200);
+}
+
+.timeline-item.completed::before {
+    background: var(--success-color);
+}
+
+.timeline-item.rejected::before {
+    background: var(--error-color);
+}
+
+.timeline-item.pending::before {
+    background: var(--warning-color);
+}
+
+/* Map integration styles */
+.campus-map {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    background: var(--gray-100);
+    min-height: 400px;
+    position: relative;
+}
+
+.map-marker {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.map-marker:hover {
+    transform: scale(1.2);
+    z-index: 10;
+}
+
+.map-marker.active-work {
+    background: var(--primary-color);
+    animation: pulse 2s infinite;
+}
+
+.map-marker.completed-work {
+    background: var(--success-color);
+}
+
+.map-marker.risk-area {
+    background: var(--error-color);
+    animation: pulse-risk 2s infinite;
+}
+
+/* Form wizard styles */
+.form-wizard {
+    display: flex;
+    flex-direction: column;
+}
+
+.wizard-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 0;
+    list-style: none;
+}
+
+.wizard-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+}
+
+.wizard-step::after {
+    content: '';
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    right: -50%;
+    height: 2px;
+    background: var(--gray-200);
+    z-index: 1;
+}
+
+.wizard-step:last-child::after {
+    display: none;
+}
+
+.wizard-step.completed::after {
+    background: var(--success-color);
+}
+
+.wizard-step.active::after {
+    background: linear-gradient(90deg, var(--primary-color) 50%, var(--gray-200) 50%);
+}
+
+.step-indicator {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--gray-200);
+    color: var(--gray-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    font-weight: 600;
+    position: relative;
+    z-index: 2;
+    transition: var(--transition);
+}
+
+.wizard-step.completed .step-indicator {
+    background: var(--success-color);
+    color: white;
+}
+
+.wizard-step.active .step-indicator {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.step-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+.wizard-step.completed .step-title,
+.wizard-step.active .step-title {
+    color: var(--gray-900);
+}
+
+.wizard-content {
+    flex: 1;
+}
+
+.wizard-pane {
+    display: none;
+}
+
+.wizard-pane.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+}
+
+/* Approval workflow styles */
+.approval-chain {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+}
+
+.approver {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 80px;
+}
+
+.approver-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-bottom: 0.5rem;
+    border: 3px solid var(--gray-300);
+}
+
+.approver.approved .approver-avatar {
+    border-color: var(--success-color);
+}
+
+.approver.pending .approver-avatar {
+    border-color: var(--warning-color);
+    animation: pulse 2s infinite;
+}
+
+.approver.rejected .approver-avatar {
+    border-color: var(--error-color);
+}
+
+.approver-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.approver-role {
+    font-size: 0.625rem;
+    color: var(--gray-500);
+}
+
+.approval-arrow {
+    color: var(--gray-400);
+    font-size: 1.25rem;
+}
+
+.approval-arrow.completed {
+    color: var(--success-color);
+}
+
+/* Emergency alert styles */
+.emergency-alert {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 2px solid var(--error-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    animation: shake 0.5s ease-in-out;
+}
+
+.emergency-alert .alert-icon {
+    color: var(--error-color);
+    font-size: 1.5rem;
+    animation: bounce 1s infinite;
+}
+
+/* Infrastructure overlay styles */
+.infrastructure-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.infrastructure-line {
+    stroke-width: 3;
+    stroke-dasharray: 5,5;
+    animation: dash 1s linear infinite;
+}
+
+.infrastructure-line.fiber {
+    stroke: #8b5cf6;
+}
+
+.infrastructure-line.power {
+    stroke: #f59e0b;
+}
+
+.infrastructure-line.water {
+    stroke: #06b6d4;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -10;
+    }
+}
+
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    .wizard-steps {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .wizard-step::after {
+        display: none;
+    }
+    
+    .approval-chain {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .approval-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .campus-map {
+        min-height: 300px;
+    }
+    
+    .notification-item {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+    }
+}
+
+/* Department Selection Styles */
+.dept-selection-container {
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.dept-checkbox-label {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.dept-checkbox-label:hover {
+    background: #f0f9ff !important;
+    border-color: #bfdbfe !important;
+}
+
+.dept-checkbox-label.selected {
+    background: #dbeafe !important;
+    border-color: #93c5fd !important;
+}
+
+.dept-selection-buttons {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.dept-selection-buttons .btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.dept-selection-buttons .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dept-info-note {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.dept-clearance-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dept-clearance-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    transition: var(--transition);
+}
+
+.dept-clearance-item:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.dept-clearance-item.cleared {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.dept-clearance-item.pending {
+    background: #fffbeb;
+    border-color: #fed7aa;
+}
+
+/* Notification status indicators */
+.notification-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+}
+
+.notification-status.sent {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.notification-status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.clearance-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-weight: 500;
+}
+
+.clearance-status.received {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.clearance-status.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+/* Department selection counter */
+.dept-selection-counter {
+    font-size: 0.875rem;
+    color: var(--gray-600);
+    margin-left: 0.5rem;
+}
+
+/* Enhanced form validation for department selection */
+.dept-checkbox[data-validate]:invalid + .dept-checkbox-label {
+    border-color: var(--error-color);
+    background: #fef2f2;
+}
+
+.dept-selection-error {
+    color: var(--error-color);
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.dept-selection-container.has-error .dept-selection-error {
+    display: block;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .dept-selection-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .dept-selection-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .dept-clearance-item {
+        padding: 0.5rem;
+    }
+    
+    .dept-info-note {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+}
+@media print {
+    .emergency-alert {
+        background: white !important;
+        border: 2px solid black !important;
+    }
+    
+    .status-pending,
+    .status-approved,
+    .status-active,
+    .status-completed,
+    .status-rejected {
+        background: white !important;
+        border: 1px solid black !important;
+        color: black !important;
+    }
+    
+    .timeline::before {
+        background: black !important;
+    }
+    
+    .timeline-item::before {
+        background: black !important;
+        border-color: white !important;
+        box-shadow: none !important;
+    }
+}

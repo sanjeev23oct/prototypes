@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSSB Bhati Work Clearance System - Prototype</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Reusable CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/work-clearance.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-hard-hat text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-xl font-semibold text-gray-900">RSSB Bhati Work Clearance System</h1>
+                        <p class="text-sm text-gray-500">Infrastructure Protection & Coordination</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationBtn" class="relative p-2 text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">3</span>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" alt="User">
+                        <span class="text-sm font-medium text-gray-700">Admin User</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Pending Requests</span>
+                    <i class="fas fa-clock text-orange-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="pendingCount">12</div>
+                <div class="text-sm text-orange-600 mt-2">
+                    <i class="fas fa-arrow-up"></i> 3 urgent
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Active Works</span>
+                    <i class="fas fa-tools text-blue-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="activeCount">8</div>
+                <div class="text-sm text-blue-600 mt-2">
+                    <i class="fas fa-arrow-right"></i> In progress
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Completed Today</span>
+                    <i class="fas fa-check-circle text-green-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="completedCount">5</div>
+                <div class="text-sm text-green-600 mt-2">
+                    <i class="fas fa-arrow-up"></i> +25% from yesterday
+                </div>
+            </div>
+
+            <div class="stat-card bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-600">Risk Alerts</span>
+                    <i class="fas fa-exclamation-triangle text-red-500"></i>
+                </div>
+                <div class="text-3xl font-bold text-gray-900" id="riskCount">2</div>
+                <div class="text-sm text-red-600 mt-2">
+                    <i class="fas fa-exclamation"></i> Requires attention
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-4 mb-8">
+            <button id="newRequestBtn" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                New Work Request
+            </button>
+            <button id="viewMapBtn" class="btn btn-secondary">
+                <i class="fas fa-map"></i>
+                Campus Map
+            </button>
+            <button id="reportsBtn" class="btn btn-secondary">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </button>
+            <button id="settingsBtn" class="btn btn-secondary">
+                <i class="fas fa-cog"></i>
+                Settings
+            </button>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Work Requests List -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h2 class="text-lg font-semibold text-gray-900">Work Requests</h2>
+                            <div class="flex space-x-2">
+                                <select id="statusFilter" class="form-select text-sm">
+                                    <option value="">All Status</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="active">Active</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="rejected">Rejected</option>
+                                </select>
+                                <select id="departmentFilter" class="form-select text-sm">
+                                    <option value="">All Departments</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="construction">Construction</option>
+                                    <option value="landscaping">Landscaping</option>
+                                    <option value="electrical">Electrical</option>
+                                    <option value="plumbing">Plumbing</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Request ID</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Work Type</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requestsTableBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Recent Notifications -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Notifications</h3>
+                    <div id="notificationsList" class="space-y-3">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                            Emergency Stop All Work
+                        </button>
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-broadcast-tower text-blue-500 mr-3"></i>
+                            Send Campus Alert
+                        </button>
+                        <button class="w-full text-left p-3 rounded-lg hover:bg-gray-50 transition">
+                            <i class="fas fa-file-export text-green-500 mr-3"></i>
+                            Export Daily Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Request Modal -->
+    <div id="newRequestModal" class="modal hidden">
+        <div class="modal-content max-w-4xl">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold">New Work Clearance Request</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="newRequestForm" class="space-y-6">
+                    <!-- Form content will be loaded by JavaScript -->
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Request Details Modal -->
+    <div id="requestDetailsModal" class="modal hidden">
+        <div class="modal-content max-w-3xl">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold">Request Details</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="requestDetailsContent">
+                <!-- Content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- JavaScript Modules -->
+    <script src="js/utils.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/work-clearance.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
