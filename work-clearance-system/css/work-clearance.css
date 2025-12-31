@@ -506,7 +506,7 @@
     }
 }
 
-/* Mobile-specific styles */
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
     .wizard-steps {
         flex-direction: column;
@@ -533,6 +533,138 @@
     .notification-item {
         margin-left: -0.5rem;
         margin-right: -0.5rem;
+    }
+    
+    /* Enhanced mobile form layout */
+    .wizard-content {
+        padding: 0.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .grid.md\\:grid-cols-2 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .dept-selection-buttons {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+    }
+    
+    .dept-selection-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .dept-clearance-item {
+        padding: 0.5rem;
+    }
+    
+    .dept-info-note {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* Mobile wizard navigation */
+    .wizard-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 1rem;
+        position: sticky;
+        bottom: 0;
+        background: white;
+        border-top: 2px solid var(--gray-200);
+        margin: 0 -1rem;
+    }
+    
+    .wizard-actions > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .wizard-actions .btn {
+        width: 100%;
+        padding: 0.875rem;
+        font-size: 1rem;
+    }
+    
+    /* Mobile modal adjustments */
+    .modal-content {
+        margin: 0.5rem;
+        max-width: none;
+        max-height: 95vh;
+        overflow-y: auto;
+    }
+    
+    .modal-body {
+        padding: 1rem;
+    }
+    
+    /* Mobile header adjustments */
+    .max-w-7xl {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .h-16 {
+        height: auto;
+        min-height: 4rem;
+        padding: 0.5rem 0;
+    }
+    
+    .flex.justify-between {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-start;
+    }
+    
+    /* Mobile dashboard stats */
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    .stat-card .text-3xl {
+        font-size: 1.875rem;
+    }
+    
+    /* Mobile table responsiveness */
+    .overflow-x-auto {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .min-w-full {
+        min-width: 600px;
+    }
+    
+    /* Mobile form sections */
+    .bg-white.p-4 {
+        padding: 1rem;
+        margin: 0 -0.5rem;
+        border-radius: 0.5rem;
+    }
+    
+    .space-y-6 > * + * {
+        margin-top: 1.5rem;
+    }
+    
+    /* Mobile department selection */
+    .dept-checkbox-label {
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dept-checkbox-label .text-sm {
+        font-size: 0.875rem;
+    }
+    
+    .dept-checkbox-label .text-xs {
+        font-size: 0.75rem;
+        line-height: 1.2;
     }
 }
 

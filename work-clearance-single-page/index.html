@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSSB Bhati Work Clearance System - Single Page</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Modular CSS -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/single-page.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header-container">
+        <div class="max-w-6xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-hard-hat text-2xl text-blue-600 mr-3"></i>
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">Work Clearance Request</h1>
+                        <p class="text-sm text-gray-500">RSSB Bhati Spiritual Organization - Single Page Form</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="window.location.href='../work-clearance-system/index.html'" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-magic"></i> Wizard Version
+                    </button>
+                    <button onclick="resetForm()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                    <button onclick="saveAsDraft()" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-save"></i> Save Draft
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Form Container -->
+    <main class="form-container">
+        <form id="singlePageForm" class="space-y-0">
+            <!-- Basic Information Section -->
+            <div class="form-section" data-section="basic">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-info-circle text-blue-500"></i>
+                        Basic Information
+                    </h2>
+                    <div class="section-progress">
+                        <span class="progress-text">Step 1 of 5</span>
+                        <div class="progress-circle">
+                            <i class="fas fa-check hidden"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Work Title</label>
+                            <input type="text" class="form-input" name="title" required 
+                                   placeholder="Brief description of the work">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row two-cols">
+                        <div class="form-group">
+                            <label class="form-label required">Your Department</label>
+                            <select class="form-select" name="department" required>
+                                <option value="">Select Your Department</option>
+                                <!-- Options populated by JavaScript -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Work Type</label>
+                            <select class="form-select" name="workType" required>
+                                <option value="">Select Work Type</option>
+                                <!-- Options populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row two-cols">
+                        <div class="form-group">
+                            <label class="form-label required">Priority Level</label>
+                            <div class="priority-selector" id="prioritySelector">
+                                <!-- Priority options populated by JavaScript -->
+                            </div>
+                            <input type="hidden" name="priority" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Location</label>
+                            <select class="form-select" name="location" required>
+                                <option value="">Select Location</option>
+                                <!-- Options populated by JavaScript -->
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Work Description</label>
+                            <textarea class="form-textarea" name="description" required rows="3"
+                                      placeholder="Detailed description of the work to be performed"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule Section -->
+            <div class="form-section" data-section="schedule">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-calendar-alt text-green-500"></i>
+                        Schedule & Duration
+                    </h2>
+                    <div class="section-progress">
+                        <span class="progress-text">Step 2 of 5</span>
+                        <div class="progress-circle">
+                            <i class="fas fa-check hidden"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-content">
+                    <div class="form-row two-cols">
+                        <div class="form-group">
+                            <label class="form-label required">Start Date & Time</label>
+                            <input type="datetime-local" class="form-input" name="startDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">End Date & Time</label>
+                            <input type="datetime-local" class="form-input" name="endDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Estimated Duration</label>
+                            <div class="duration-input">
+                                <input type="number" class="form-input" name="duration" min="1" max="168" 
+                                       placeholder="Hours">
+                                <span class="duration-unit">hours</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infrastructure Section -->
+            <div class="form-section" data-section="infrastructure">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-exclamation-triangle text-orange-500"></i>
+                        Infrastructure & Safety
+                    </h2>
+                    <div class="section-progress">
+                        <span class="progress-text">Step 3 of 5</span>
+                        <div class="progress-circle">
+                            <i class="fas fa-check hidden"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-content">
+                    <div class="form-group">
+                        <label class="form-label">Infrastructure That May Be Affected</label>
+                        <div class="infrastructure-grid" id="infrastructureGrid">
+                            <!-- Infrastructure options populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Safety Measures & Precautions</label>
+                            <textarea class="form-textarea" name="safetyMeasures" rows="3"
+                                      placeholder="List safety measures and precautions to be taken"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Department Coordination Section -->
+            <div class="form-section coordination-section" data-section="departments">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-users text-purple-500"></i>
+                        Department Coordination
+                    </h2>
+                    <div class="section-progress">
+                        <span class="progress-text">Step 4 of 5</span>
+                        <div class="progress-circle">
+                            <i class="fas fa-check hidden"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-content">
+                    <div class="form-group">
+                        <label class="form-label required">Departments to Notify & Seek Clearance From</label>
+                        <div class="department-selection-container">
+                            <div class="department-controls">
+                                <span class="control-label">Select departments that need to provide clearance:</span>
+                                <div class="control-buttons">
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="selectAllDepartments()">
+                                        <i class="fas fa-check-double"></i> Select All
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-secondary" onclick="clearAllDepartments()">
+                                        <i class="fas fa-times"></i> Clear All
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="department-grid" id="departmentGrid">
+                                <!-- Department options populated by JavaScript -->
+                            </div>
+                            
+                            <div class="department-info">
+                                <div class="info-content">
+                                    <i class="fas fa-info-circle text-blue-500"></i>
+                                    <div class="info-text">
+                                        <strong>Important:</strong> Selected departments will receive advance notification and must provide clearance before work can begin. Choose all departments whose operations or infrastructure might be affected.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact & Final Details Section -->
+            <div class="form-section" data-section="contact">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-phone text-green-500"></i>
+                        Contact & Final Details
+                    </h2>
+                    <div class="section-progress">
+                        <span class="progress-text">Step 5 of 5</span>
+                        <div class="progress-circle">
+                            <i class="fas fa-check hidden"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section-content">
+                    <div class="form-row two-cols">
+                        <div class="form-group">
+                            <label class="form-label">Emergency Contact</label>
+                            <input type="tel" class="form-input" name="emergencyContact" 
+                                   placeholder="+91-XXXXXXXXXX">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Requester Name</label>
+                            <input type="text" class="form-input" name="requesterName" 
+                                   placeholder="Your full name">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Additional Notes</label>
+                            <textarea class="form-textarea" name="notes" rows="3"
+                                      placeholder="Any additional information or special requirements"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Attachments</label>
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <input type="file" class="file-input" name="attachments" multiple 
+                                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" id="fileInput">
+                                <div class="upload-placeholder">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                    <p class="text-gray-600">Click to upload or drag and drop files</p>
+                                    <p class="text-sm text-gray-500">PDF, DOC, JPG, PNG files up to 10MB each</p>
+                                </div>
+                            </div>
+                            <div class="uploaded-files" id="uploadedFiles"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Section -->
+            <div class="submit-section">
+                <div class="submit-content">
+                    <h3 class="submit-title">Ready to Submit Your Request?</h3>
+                    <p class="submit-description">Please review all information before submitting your work clearance request.</p>
+                    
+                    <div class="submit-actions">
+                        <button type="button" onclick="previewRequest()" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-eye"></i> Preview Request
+                        </button>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-paper-plane"></i>
+                            Submit Work Clearance Request
+                        </button>
+                    </div>
+                    
+                    <div class="submit-progress" id="submitProgress">
+                        <div class="progress-summary">
+                            <span id="completedSections">0</span> of 5 sections completed
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="overallProgress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold">Request Preview</h3>
+                <button class="modal-close" onclick="closePreview()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="previewContent">
+                <!-- Preview content populated by JavaScript -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closePreview()">Close</button>
+                <button class="btn btn-primary" onclick="submitFromPreview()">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-body text-center py-8">
+                <div class="success-animation mb-4">
+                    <i class="fas fa-check-circle text-6xl text-green-500"></i>
+                </div>
+                <h3 class="text-2xl font-semibold text-gray-900 mb-2">Request Submitted Successfully!</h3>
+                <p class="text-gray-600 mb-4">Your work clearance request has been submitted and is now pending approval.</p>
+                <div class="request-id mb-6">
+                    <span class="text-sm text-gray-500">Request ID:</span>
+                    <span class="font-mono font-semibold text-lg" id="generatedRequestId">WR-0001</span>
+                </div>
+                <div class="flex gap-3 justify-center">
+                    <button class="btn btn-secondary" onclick="createNewRequest()">
+                        <i class="fas fa-plus"></i> New Request
+                    </button>
+                    <button class="btn btn-primary" onclick="viewDashboard()">
+                        <i class="fas fa-th-large"></i> View Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modular JavaScript -->
+    <script src="js/utils.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/form-handler.js"></script>
+    <script src="js/validation.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
