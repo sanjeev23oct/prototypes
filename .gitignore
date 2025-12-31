@@ -1,0 +1,6 @@
+# Medium articles and documentation
+*.medium.md
+medium-articles/
+
+# OS files
+.DS_Store

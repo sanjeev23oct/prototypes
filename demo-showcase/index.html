@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Demo Mode - Live Example</title>
+    <meta name="description" content="See how to build self-demonstrating web applications with pure JavaScript - no external dependencies required">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🎬 Interactive Demo Mode</h1>
+            <p class="subtitle">Watch this form fill itself automatically - or take control anytime!</p>
+        </header>
+
+        <div class="demo-card">
+            <div class="card-header">
+                <h2>E-Commerce Checkout Demo</h2>
+                <p>Click "Play Demo" to see the magic ✨</p>
+            </div>
+
+            <form id="checkoutForm" class="checkout-form">
+                <!-- Step 1: Customer Information -->
+                <div class="form-section active" id="step1">
+                    <h3 class="section-title">📋 Customer Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input type="tel" id="phone" name="phone">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="nextStep()">Next Step →</button>
+                </div>
+
+                <!-- Step 2: Shipping Address -->
+                <div class="form-section" id="step2">
+                    <h3 class="section-title">🏠 Shipping Address</h3>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="address">Street Address *</label>
+                            <input type="text" id="address" name="address" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City *</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State *</label>
+                            <select id="state" name="state" required>
+                                <option value="">Select State</option>
+                                <option value="CA">California</option>
+                                <option value="NY">New York</option>
+                                <option value="TX">Texas</option>
+                                <option value="FL">Florida</option>
+                                <option value="WA">Washington</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="zipCode">ZIP Code *</label>
+                            <input type="text" id="zipCode" name="zipCode" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="country">Country *</label>
+                            <select id="country" name="country" required>
+                                <option value="USA">United States</option>
+                                <option value="CAN">Canada</option>
+                                <option value="UK">United Kingdom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Next Step →</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Payment Information -->
+                <div class="form-section" id="step3">
+                    <h3 class="section-title">💳 Payment Information</h3>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="card" id="paymentCard" checked>
+                            <span>Credit/Debit Card</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="paypal">
+                            <span>PayPal</span>
+                        </label>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="cardNumber">Card Number *</label>
+                            <input type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="cardName">Name on Card *</label>
+                            <input type="text" id="cardName" name="cardName">
+                        </div>
+                        <div class="form-group">
+                            <label for="expiry">Expiry Date *</label>
+                            <input type="text" id="expiry" name="expiry" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group">
+                            <label for="cvv">CVV *</label>
+                            <input type="text" id="cvv" name="cvv" placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button type="button" class="btn btn-primary" onclick="nextStep()">Review Order →</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Review & Submit -->
+                <div class="form-section" id="step4">
+                    <h3 class="section-title">✅ Review Your Order</h3>
+                    <div class="order-summary">
+                        <div class="summary-item">
+                            <span>Subtotal:</span>
+                            <span>$299.99</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Shipping:</span>
+                            <span>$9.99</span>
+                        </div>
+                        <div class="summary-item">
+                            <span>Tax:</span>
+                            <span>$24.00</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span>Total:</span>
+                            <span>$333.98</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="agreeTerms" name="agreeTerms">
+                            <span>I agree to the terms and conditions</span>
+                        </label>
+                    </div>
+                    <div class="button-group">
+                        <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button type="button" class="btn btn-success" id="placeOrderBtn" onclick="submitOrder()">Place Order 🎉</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="info-card">
+            <h3>💡 How It Works</h3>
+            <ul>
+                <li><strong>Click "Play Demo"</strong> to watch the form fill automatically</li>
+                <li><strong>Click "Pause"</strong> to stop the automation</li>
+                <li><strong>Click any field</strong> to take manual control (auto-pauses)</li>
+                <li><strong>Click "Resume"</strong> to continue from where you left off</li>
+                <li><strong>Click "Stop"</strong> to reset everything</li>
+            </ul>
+            <p class="tech-note">Built with pure JavaScript - no external dependencies! 🚀</p>
+        </div>
+    </div>
+
+    <!-- Demo Controls -->
+    <div id="demoControls" class="demo-controls">
+        <div class="demo-header">
+            <span class="demo-icon">🎬</span>
+            <span class="demo-title">Demo Mode</span>
+        </div>
+        <div class="demo-buttons">
+            <button id="playBtn" class="btn-demo btn-play">
+                <span class="btn-icon">▶</span>
+                <span class="btn-text">Play Demo</span>
+            </button>
+            <button id="pauseBtn" class="btn-demo btn-pause hidden">
+                <span class="btn-icon">⏸</span>
+                <span class="btn-text">Pause</span>
+            </button>
+            <button id="stopBtn" class="btn-demo btn-stop hidden">
+                <span class="btn-icon">⏹</span>
+                <span class="btn-text">Stop</span>
+            </button>
+        </div>
+        <div id="demoProgress" class="demo-progress hidden">
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <span id="progressText" class="progress-text">0/0</span>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="success-icon">🎉</div>
+            <h2>Order Placed Successfully!</h2>
+            <p>Thank you for your purchase. Your order has been confirmed.</p>
+            <button class="btn btn-primary" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script src="demo-engine.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
