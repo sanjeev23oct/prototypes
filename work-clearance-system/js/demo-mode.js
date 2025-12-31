@@ -67,27 +67,29 @@ const DemoMode = {
         controls.id = 'demoControls';
         controls.className = 'fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-4 z-50 border-2 border-purple-500';
         controls.innerHTML = `
-            <div class="flex items-center space-x-3">
+            <div class="flex flex-col space-y-2">
                 <div class="flex items-center space-x-2">
                     <span class="text-sm font-semibold text-purple-700">🎬 Demo Mode</span>
                 </div>
-                <button id="demoPlayBtn" class="btn btn-sm bg-green-500 hover:bg-green-600 text-white">
-                    <i class="fas fa-play"></i> Play
-                </button>
-                <button id="demoPauseBtn" class="btn btn-sm bg-yellow-500 hover:bg-yellow-600 text-white hidden">
-                    <i class="fas fa-pause"></i> Pause
-                </button>
-                <button id="demoStopBtn" class="btn btn-sm bg-red-500 hover:bg-red-600 text-white hidden">
-                    <i class="fas fa-stop"></i> Stop
-                </button>
-                <button id="demoApprovalBtn" class="btn btn-sm bg-blue-500 hover:bg-blue-600 text-white ml-2">
-                    <i class="fas fa-check-double"></i> Approval Demo
-                </button>
-                <div id="demoProgress" class="text-xs text-gray-600 hidden">
-                    <span id="demoProgressText">0/0</span>
+                <div class="flex items-center space-x-2">
+                    <button id="demoPlayBtn" class="btn btn-sm bg-green-500 hover:bg-green-600 text-white">
+                        <i class="fas fa-edit"></i> Submit Request Demo
+                    </button>
+                    <button id="demoPauseBtn" class="btn btn-sm bg-yellow-500 hover:bg-yellow-600 text-white hidden">
+                        <i class="fas fa-pause"></i> Pause
+                    </button>
+                    <button id="demoStopBtn" class="btn btn-sm bg-red-500 hover:bg-red-600 text-white hidden">
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                    <div id="demoProgress" class="text-xs text-gray-600 hidden">
+                        <span id="demoProgressText">0/0</span>
+                    </div>
                 </div>
+                <button id="demoApprovalBtn" class="btn btn-sm bg-blue-500 hover:bg-blue-600 text-white w-full">
+                    <i class="fas fa-check-double"></i> Approval Workflow Demo
+                </button>
             </div>
-            <div id="demoDescription" class="text-xs text-gray-600 mt-2 hidden max-w-md">
+            <div id="demoDescription" class="text-xs text-gray-600 mt-2 hidden max-w-md bg-blue-50 p-2 rounded">
                 <strong>Approval Demo:</strong> IT dept raises request → Selects Electrical & Security for clearance → Both depts login and approve → Request becomes APPROVED
             </div>
         `;
@@ -383,100 +385,131 @@ const DemoMode = {
         const desc = document.getElementById('demoDescription');
         desc.classList.remove('hidden');
         
-        Components.toast.info('🎬 Starting Approval Workflow Demo...', 3000);
+        Components.toast.info('🎬 Starting Approval Workflow Demo...', 5000);
         
-        await Utils.async.delay(2000);
+        await Utils.async.delay(4000);
         
         // Step 1: Impersonate IT user
-        Components.toast.info('Step 1: IT Department raises request', 3000);
-        await Utils.async.delay(1000);
+        Components.toast.info('👩‍💻 Step 1: IT Department user logs in', 5000);
+        await Utils.async.delay(3000);
         WorkClearanceSystem.impersonateUser('it_head');
+        await Utils.async.delay(3000);
+        
+        // Step 2: Open form
+        Components.toast.info('📝 Step 2: Opening new request form...', 5000);
+        await Utils.async.delay(2000);
+        WorkClearanceSystem.showNewRequestModal();
+        await Utils.async.delay(4000);
+        
+        // Step 3: Fill form - Step 1
+        Components.toast.info('✍️ Step 3: Filling request details...', 5000);
         await Utils.async.delay(2000);
         
-        // Step 2: Fill and submit form
-        Components.toast.info('Step 2: Filling request form...', 3000);
-        WorkClearanceSystem.showNewRequestModal();
-        await Utils.async.delay(1000);
-        
-        // Quick fill form
         document.querySelector('[name="title"]').value = 'Network Cable Installation';
+        await Utils.async.delay(800);
         document.querySelector('[name="department"]').value = 'it';
+        await Utils.async.delay(800);
         document.querySelector('[name="workType"]').value = 'telecom';
+        await Utils.async.delay(800);
         document.querySelector('[name="location"]').value = 'admin-block';
+        await Utils.async.delay(800);
         
         const startDate = new Date();
         startDate.setDate(startDate.getDate() + 1);
         document.querySelector('[name="startDate"]').value = startDate.toISOString().slice(0, 16);
+        await Utils.async.delay(800);
         
         const endDate = new Date();
         endDate.setDate(endDate.getDate() + 2);
         document.querySelector('[name="endDate"]').value = endDate.toISOString().slice(0, 16);
+        await Utils.async.delay(800);
         
         document.querySelector('[name="description"]').value = 'Installing new network cables in admin block for improved connectivity.';
+        await Utils.async.delay(800);
         document.querySelector('[name="emergencyContact"]').value = '+91-9876543216';
+        await Utils.async.delay(800);
         document.querySelector('[name="duration"]').value = '8';
+        await Utils.async.delay(2500);
         
-        await Utils.async.delay(1500);
-        
-        // Click next to go to step 2
-        Components.toast.info('Step 3: Selecting departments for clearance...', 3000);
+        // Step 4: Go to next step
+        Components.toast.info('➡️ Step 4: Moving to coordination step...', 5000);
+        await Utils.async.delay(2000);
         document.getElementById('nextBtn').click();
-        await Utils.async.delay(1500);
+        await Utils.async.delay(3500);
         
-        // Select departments
-        document.querySelector('[name="infrastructure"][value="fiber"]').checked = true;
-        document.querySelector('[name="infrastructure"][value="power"]').checked = true;
-        await Utils.async.delay(500);
-        
-        document.querySelector('[name="notifyDepartments"][value="electrical"]').checked = true;
-        await Utils.async.delay(500);
-        document.querySelector('[name="notifyDepartments"][value="security"]').checked = true;
-        await Utils.async.delay(500);
-        
-        document.querySelector('[name="safetyMeasures"]').value = 'Follow safety protocols. Coordinate with departments.';
-        await Utils.async.delay(1000);
-        
-        // Submit
-        Components.toast.info('Step 4: Submitting request...', 3000);
-        document.getElementById('submitBtn').click();
-        await Utils.async.delay(3000);
-        
-        // Step 3: Impersonate Electrical user
-        Components.toast.info('Step 5: Electrical Dept reviews and approves', 3000);
-        await Utils.async.delay(1500);
-        WorkClearanceSystem.impersonateUser('electrical_head');
+        // Step 5: Select departments
+        Components.toast.info('🏢 Step 5: Selecting Electrical & Security for clearance...', 5000);
         await Utils.async.delay(2000);
         
-        // Find and approve the request
+        document.querySelector('[name="infrastructure"][value="fiber"]').checked = true;
+        await Utils.async.delay(1000);
+        document.querySelector('[name="infrastructure"][value="power"]').checked = true;
+        await Utils.async.delay(2000);
+        
+        document.querySelector('[name="notifyDepartments"][value="electrical"]').checked = true;
+        await Utils.async.delay(1500);
+        document.querySelector('[name="notifyDepartments"][value="security"]').checked = true;
+        await Utils.async.delay(2000);
+        
+        document.querySelector('[name="safetyMeasures"]').value = 'Follow safety protocols. Coordinate with departments.';
+        await Utils.async.delay(3000);
+        
+        // Step 6: Submit
+        Components.toast.info('📤 Step 6: Submitting request...', 5000);
+        await Utils.async.delay(2000);
+        document.getElementById('submitBtn').click();
+        await Utils.async.delay(5000);
+        
+        // Step 7: Impersonate Electrical user
+        Components.toast.info('👨‍🔧 Step 7: Electrical Dept user logs in to review', 5000);
+        await Utils.async.delay(3000);
+        WorkClearanceSystem.impersonateUser('electrical_head');
+        await Utils.async.delay(3500);
+        
+        // Step 8: Find and view the request
         const requests = WorkClearanceSystem.state.filteredRequests;
         const newRequest = requests.find(r => r.title === 'Network Cable Installation');
         if (newRequest) {
-            Components.toast.info('Step 6: Electrical approving...', 2000);
-            await Utils.async.delay(1500);
+            Components.toast.info('👁️ Step 8: Opening request details to review...', 5000);
+            await Utils.async.delay(2500);
+            WorkClearanceSystem.viewRequest(newRequest.id);
+            await Utils.async.delay(6000);
+            
+            Components.toast.info('✅ Step 9: Electrical approving clearance...', 5000);
+            await Utils.async.delay(2500);
+            Components.modal.hide('requestDetailsModal');
+            await Utils.async.delay(1000);
             await WorkClearanceSystem.approveRequest(newRequest.id);
-            await Utils.async.delay(2000);
+            await Utils.async.delay(4000);
         }
         
-        // Step 4: Impersonate Security user
-        Components.toast.info('Step 7: Security Dept reviews and approves', 3000);
-        await Utils.async.delay(1500);
+        // Step 10: Impersonate Security user
+        Components.toast.info('👮‍♂️ Step 10: Security Dept user logs in to review', 5000);
+        await Utils.async.delay(3000);
         WorkClearanceSystem.impersonateUser('security_head');
-        await Utils.async.delay(2000);
+        await Utils.async.delay(3500);
         
-        // Approve as security
+        // Step 11: Approve as security
         if (newRequest) {
-            Components.toast.info('Step 8: Security approving...', 2000);
-            await Utils.async.delay(1500);
+            Components.toast.info('👁️ Step 11: Opening request details to review...', 5000);
+            await Utils.async.delay(2500);
+            WorkClearanceSystem.viewRequest(newRequest.id);
+            await Utils.async.delay(6000);
+            
+            Components.toast.info('✅ Step 12: Security approving clearance...', 5000);
+            await Utils.async.delay(2500);
+            Components.modal.hide('requestDetailsModal');
+            await Utils.async.delay(1000);
             await WorkClearanceSystem.approveRequest(newRequest.id);
-            await Utils.async.delay(2000);
+            await Utils.async.delay(4000);
         }
         
         // Final message
-        Components.toast.success('✅ Demo Complete! Request is now APPROVED by all departments.', 5000);
+        Components.toast.success('🎉 Demo Complete! Request is now APPROVED by all departments.', 8000);
         
         setTimeout(() => {
             desc.classList.add('hidden');
-        }, 5000);
+        }, 8000);
     }
 };
 
