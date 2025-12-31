@@ -600,3 +600,136 @@ window.viewDashboard = () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = FormHandler;
 }
+// Sample data functionality
+let sampleDataIndex = 0;
+
+window.loadSampleData = () => {
+    const sampleData = MockData.getSampleRequest(sampleDataIndex);
+    
+    // Cycle through sample data
+    sampleDataIndex = (sampleDataIndex + 1) % MockData.sampleRequests.length;
+
+    // Populate form fields
+    const form = Utils.dom.get('singlePageForm');
+    if (!form) return;
+
+    // Basic fields
+    const titleField = form.querySelector('[name="title"]');
+    if (titleField) titleField.value = sampleData.title;
+
+    const departmentField = form.querySelector('[name="department"]');
+    if (departmentField) departmentField.value = sampleData.department;
+
+    const workTypeField = form.querySelector('[name="workType"]');
+    if (workTypeField) workTypeField.value = sampleData.workType;
+
+    const locationField = form.querySelector('[name="location"]');
+    if (locationField) locationField.value = sampleData.location;
+
+    const descriptionField = form.querySelector('[name="description"]');
+    if (descriptionField) descriptionField.value = sampleData.description;
+
+    const startDateField = form.querySelector('[name="startDate"]');
+    if (startDateField) startDateField.value = sampleData.startDate;
+
+    const endDateField = form.querySelector('[name="endDate"]');
+    if (endDateField) endDateField.value = sampleData.endDate;
+
+    const durationField = form.querySelector('[name="duration"]');
+    if (durationField) durationField.value = sampleData.duration;
+
+    const safetyField = form.querySelector('[name="safetyMeasures"]');
+    if (safetyField) safetyField.value = sampleData.safetyMeasures;
+
+    const emergencyField = form.querySelector('[name="emergencyContact"]');
+    if (emergencyField) emergencyField.value = sampleData.emergencyContact;
+
+    const requesterField = form.querySelector('[name="requesterName"]');
+    if (requesterField) requesterField.value = sampleData.requesterName;
+
+    const notesField = form.querySelector('[name="notes"]');
+    if (notesField) notesField.value = sampleData.notes;
+
+    // Handle priority selection
+    FormHandler.selectPriority(sampleData.priority);
+
+    // Handle infrastructure checkboxes
+    sampleData.infrastructureAffected.forEach(infraId => {
+        const checkbox = Utils.dom.get('infrastructureGrid').querySelector(`input[value="${infraId}"]`);
+        if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            FormHandler.toggleInfrastructure(infraId, true);
+        }
+    });
+
+    // Handle department notifications
+    sampleData.notifyDepartments.forEach(deptId => {
+        const checkbox = Utils.dom.get('departmentGrid').querySelector(`input[value="${deptId}"]`);
+        if (checkbox && !checkbox.checked) {
+            checkbox.checked = true;
+            FormHandler.toggleDepartment(deptId, true);
+        }
+    });
+
+    // Trigger validation and progress update
+    FormHandler.validateSection('basic');
+    FormHandler.validateSection('schedule');
+    FormHandler.validateSection('infrastructure');
+    FormHandler.validateSection('departments');
+    FormHandler.validateSection('contact');
+    FormHandler.updateProgress();
+
+    // Show success message
+    Components.toast.success(`📝 Sample data loaded: "${sampleData.title}"`);
+};
+
+// Impersonation functionality
+let currentUser = {
+    id: 'admin_001',
+    name: 'Admin User',
+    role: 'administrator',
+    department: 'admin',
+    permissions: ['view_all', 'approve_all', 'create_request', 'emergency_stop']
+};
+
+window.impersonateUser = (userId) => {
+    const user = MockData.getDepartmentUser(userId);
+    if (!user) {
+        Components.toast.error('User not found');
+        return;
+    }
+
+    // Update current user
+    currentUser = {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        department: user.department,
+        permissions: user.permissions
+    };
+
+    // Update UI
+    updateUserDisplay();
+    
+    // Show notification
+    Components.toast.show(
+        `🎭 Now impersonating: ${user.avatar} ${user.name} (${user.role})`,
+        'user-notification',
+        5000
+    );
+
+    // Update active button
+    document.querySelectorAll('.impersonation-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.closest('.impersonation-btn').classList.add('active');
+};
+
+function updateUserDisplay() {
+    const userDisplay = Utils.dom.get('currentUserDisplay');
+    if (userDisplay) {
+        const departmentUser = MockData.getDepartmentUser(currentUser.id);
+        const avatar = departmentUser ? departmentUser.avatar : '👨‍💼';
+        userDisplay.textContent = `${avatar} ${currentUser.name}`;
+    }
+}

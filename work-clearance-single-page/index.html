@@ -44,6 +44,9 @@
                     <button onclick="window.location.href='../work-clearance-system/index.html'" class="btn btn-secondary btn-sm">
                         <i class="fas fa-magic"></i> Wizard Version
                     </button>
+                    <button onclick="loadSampleData()" class="btn btn-success btn-sm">
+                        <i class="fas fa-magic"></i> Load Sample Data
+                    </button>
                     <button onclick="resetForm()" class="btn btn-secondary btn-sm">
                         <i class="fas fa-redo"></i> Reset
                     </button>
@@ -54,6 +57,48 @@
             </div>
         </div>
     </header>
+
+    <!-- Department Impersonation Panel -->
+    <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 py-4">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <h3 class="text-sm font-semibold text-purple-900">🎭 Department Impersonation (Demo Mode)</h3>
+                    <p class="text-xs text-purple-700">Switch between different department users to test approval workflows</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-medium text-purple-700">Current User:</span>
+                    <span id="currentUserDisplay" class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-medium">👨‍💼 Admin User</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+                <button onclick="impersonateUser('electrical_head')" class="impersonation-btn bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-300">
+                    <span class="text-sm">👨‍🔧</span>
+                    <div class="text-xs font-medium">Electrical</div>
+                </button>
+                <button onclick="impersonateUser('security_head')" class="impersonation-btn bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300">
+                    <span class="text-sm">👮‍♂️</span>
+                    <div class="text-xs font-medium">Security</div>
+                </button>
+                <button onclick="impersonateUser('it_head')" class="impersonation-btn bg-green-100 hover:bg-green-200 text-green-800 border-green-300">
+                    <span class="text-sm">👩‍💻</span>
+                    <div class="text-xs font-medium">IT</div>
+                </button>
+                <button onclick="impersonateUser('maintenance_head')" class="impersonation-btn bg-orange-100 hover:bg-orange-200 text-orange-800 border-orange-300">
+                    <span class="text-sm">🔧</span>
+                    <div class="text-xs font-medium">Maintenance</div>
+                </button>
+                <button onclick="impersonateUser('construction_head')" class="impersonation-btn bg-red-100 hover:bg-red-200 text-red-800 border-red-300">
+                    <span class="text-sm">👷‍♂️</span>
+                    <div class="text-xs font-medium">Construction</div>
+                </button>
+                <button onclick="impersonateUser('admin_director')" class="impersonation-btn bg-purple-100 hover:bg-purple-200 text-purple-800 border-purple-300">
+                    <span class="text-sm">👨‍💼</span>
+                    <div class="text-xs font-medium">Director</div>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Form Container -->
     <main class="form-container">

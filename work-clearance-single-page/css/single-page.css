@@ -535,3 +535,65 @@
         color: #f9fafb;
     }
 }
+/* Impersonation Panel Styles for Single Page */
+.impersonation-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.25rem;
+    border: 2px solid;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    text-align: center;
+    min-height: 3rem;
+}
+
+.impersonation-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.impersonation-btn.active {
+    ring: 2px;
+    ring-offset: 1px;
+    ring-purple-500;
+    transform: scale(1.05);
+}
+
+/* Sample Data Button Styles */
+.btn-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 1px 3px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+}
+
+/* Enhanced notification styles for impersonation */
+.user-notification {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    color: white;
+    border: none;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .impersonation-btn {
+        min-height: 2.5rem;
+        padding: 0.375rem 0.125rem;
+    }
+    
+    .impersonation-btn .text-sm {
+        font-size: 0.75rem;
+    }
+    
+    .impersonation-btn .text-xs {
+        font-size: 0.625rem;
+    }
+}
