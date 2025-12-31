@@ -287,6 +287,34 @@ const WorkClearanceSystem = {
      * Check if user can approve request
      */
     canApproveRequest(request) {
+        // User cannot approve their own request
+        if (request.requesterId === this.state.currentUser.id) {
+            return false;
+        }
+        
+        // User cannot approve if they are from the requesting department
+        if (request.department === this.state.currentUser.department) {
+            return false;
+        }
+        
+        // Check if current user's department is in the notify list
+        const isInNotifyList = request.notifyDepartments?.some(
+            dept => dept.id === this.state.currentUser.department
+        );
+        
+        // User can approve if:
+        // 1. Request is pending
+        // 2. Their department is in the notification list
+        // 3. They haven't already approved
+        if (request.status === 'pending' && isInNotifyList) {
+            const alreadyApproved = request.notifyDepartments.find(
+                dept => dept.id === this.state.currentUser.department
+            )?.clearanceReceived;
+            
+            return !alreadyApproved;
+        }
+        
+        // Admin can approve anything
         return request.status === 'pending' && 
                this.state.currentUser.permissions.includes('approve_all');
     },
@@ -1003,27 +1031,40 @@ const WorkClearanceSystem = {
      * Approve a request
      */
     async approveRequest(requestId) {
+        const request = this.state.workRequests.find(r => r.id === requestId);
+        if (!request) return;
+        
         const confirmed = await Components.modal.confirm(
-            'Are you sure you want to approve this work request?',
-            'Approve Request'
+            `Approve clearance for "${request.title}"?\n\nYour department: ${this.state.currentUser.department.toUpperCase()}`,
+            'Approve Clearance'
         );
         
         if (!confirmed) return;
         
-        const request = this.state.workRequests.find(r => r.id === requestId);
-        if (!request) return;
+        // Find the department in notify list and mark as approved
+        const deptToApprove = request.notifyDepartments.find(
+            dept => dept.id === this.state.currentUser.department
+        );
         
-        // Update request status
-        request.status = 'approved';
-        request.updatedAt = new Date().toISOString();
-        
-        // Update approval chain
-        const pendingApproval = request.approvalChain.find(a => a.status === 'pending');
-        if (pendingApproval) {
-            pendingApproval.status = 'approved';
-            pendingApproval.approvedAt = new Date().toISOString();
-            pendingApproval.comments = 'Approved by administrator';
+        if (deptToApprove) {
+            deptToApprove.clearanceReceived = true;
+            deptToApprove.clearanceDate = new Date().toISOString();
+            deptToApprove.comments = `Approved by ${this.state.currentUser.name}`;
+            deptToApprove.notificationSent = true;
         }
+        
+        // Check if all departments have approved
+        const allApproved = request.notifyDepartments.every(dept => dept.clearanceReceived);
+        
+        if (allApproved) {
+            request.status = 'approved';
+            Components.toast.success('All departments approved! Request is now APPROVED.');
+        } else {
+            const remaining = request.notifyDepartments.filter(d => !d.clearanceReceived).length;
+            Components.toast.success(`Your clearance recorded. ${remaining} department(s) pending.`);
+        }
+        
+        request.updatedAt = new Date().toISOString();
         
         // Save changes
         Utils.storage.set('workRequests', this.state.workRequests);
@@ -1033,8 +1074,7 @@ const WorkClearanceSystem = {
         this.renderDashboard();
         this.renderWorkRequests();
         
-        // Show success message
-        Components.toast.success('Request approved successfully!');
+        // Close modal if open
         Components.modal.hide('requestDetailsModal');
     },
 
