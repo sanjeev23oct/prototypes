@@ -80,9 +80,15 @@ const DemoMode = {
                 <button id="demoStopBtn" class="btn btn-sm bg-red-500 hover:bg-red-600 text-white hidden">
                     <i class="fas fa-stop"></i> Stop
                 </button>
+                <button id="demoApprovalBtn" class="btn btn-sm bg-blue-500 hover:bg-blue-600 text-white ml-2">
+                    <i class="fas fa-check-double"></i> Approval Demo
+                </button>
                 <div id="demoProgress" class="text-xs text-gray-600 hidden">
                     <span id="demoProgressText">0/0</span>
                 </div>
+            </div>
+            <div id="demoDescription" class="text-xs text-gray-600 mt-2 hidden max-w-md">
+                <strong>Approval Demo:</strong> IT dept raises request → Selects Electrical & Security for clearance → Both depts login and approve → Request becomes APPROVED
             </div>
         `;
         document.body.appendChild(controls);
@@ -92,6 +98,7 @@ const DemoMode = {
         document.getElementById('demoPlayBtn').addEventListener('click', () => this.play());
         document.getElementById('demoPauseBtn').addEventListener('click', () => this.pause());
         document.getElementById('demoStopBtn').addEventListener('click', () => this.stop());
+        document.getElementById('demoApprovalBtn').addEventListener('click', () => this.playApprovalDemo());
 
         // Detect user interaction to pause demo (but not when demo is typing)
         document.addEventListener('focus', (e) => {
@@ -366,6 +373,110 @@ const DemoMode = {
             this.executeNextAction();
         }, duration);
         this.state.timeouts.push(timeout);
+    },
+
+    /**
+     * Play approval workflow demo
+     */
+    async playApprovalDemo() {
+        // Show description
+        const desc = document.getElementById('demoDescription');
+        desc.classList.remove('hidden');
+        
+        Components.toast.info('🎬 Starting Approval Workflow Demo...', 3000);
+        
+        await Utils.async.delay(2000);
+        
+        // Step 1: Impersonate IT user
+        Components.toast.info('Step 1: IT Department raises request', 3000);
+        await Utils.async.delay(1000);
+        WorkClearanceSystem.impersonateUser('it_head');
+        await Utils.async.delay(2000);
+        
+        // Step 2: Fill and submit form
+        Components.toast.info('Step 2: Filling request form...', 3000);
+        WorkClearanceSystem.showNewRequestModal();
+        await Utils.async.delay(1000);
+        
+        // Quick fill form
+        document.querySelector('[name="title"]').value = 'Network Cable Installation';
+        document.querySelector('[name="department"]').value = 'it';
+        document.querySelector('[name="workType"]').value = 'telecom';
+        document.querySelector('[name="location"]').value = 'admin-block';
+        
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() + 1);
+        document.querySelector('[name="startDate"]').value = startDate.toISOString().slice(0, 16);
+        
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + 2);
+        document.querySelector('[name="endDate"]').value = endDate.toISOString().slice(0, 16);
+        
+        document.querySelector('[name="description"]').value = 'Installing new network cables in admin block for improved connectivity.';
+        document.querySelector('[name="emergencyContact"]').value = '+91-9876543216';
+        document.querySelector('[name="duration"]').value = '8';
+        
+        await Utils.async.delay(1500);
+        
+        // Click next to go to step 2
+        Components.toast.info('Step 3: Selecting departments for clearance...', 3000);
+        document.getElementById('nextBtn').click();
+        await Utils.async.delay(1500);
+        
+        // Select departments
+        document.querySelector('[name="infrastructure"][value="fiber"]').checked = true;
+        document.querySelector('[name="infrastructure"][value="power"]').checked = true;
+        await Utils.async.delay(500);
+        
+        document.querySelector('[name="notifyDepartments"][value="electrical"]').checked = true;
+        await Utils.async.delay(500);
+        document.querySelector('[name="notifyDepartments"][value="security"]').checked = true;
+        await Utils.async.delay(500);
+        
+        document.querySelector('[name="safetyMeasures"]').value = 'Follow safety protocols. Coordinate with departments.';
+        await Utils.async.delay(1000);
+        
+        // Submit
+        Components.toast.info('Step 4: Submitting request...', 3000);
+        document.getElementById('submitBtn').click();
+        await Utils.async.delay(3000);
+        
+        // Step 3: Impersonate Electrical user
+        Components.toast.info('Step 5: Electrical Dept reviews and approves', 3000);
+        await Utils.async.delay(1500);
+        WorkClearanceSystem.impersonateUser('electrical_head');
+        await Utils.async.delay(2000);
+        
+        // Find and approve the request
+        const requests = WorkClearanceSystem.state.filteredRequests;
+        const newRequest = requests.find(r => r.title === 'Network Cable Installation');
+        if (newRequest) {
+            Components.toast.info('Step 6: Electrical approving...', 2000);
+            await Utils.async.delay(1500);
+            await WorkClearanceSystem.approveRequest(newRequest.id);
+            await Utils.async.delay(2000);
+        }
+        
+        // Step 4: Impersonate Security user
+        Components.toast.info('Step 7: Security Dept reviews and approves', 3000);
+        await Utils.async.delay(1500);
+        WorkClearanceSystem.impersonateUser('security_head');
+        await Utils.async.delay(2000);
+        
+        // Approve as security
+        if (newRequest) {
+            Components.toast.info('Step 8: Security approving...', 2000);
+            await Utils.async.delay(1500);
+            await WorkClearanceSystem.approveRequest(newRequest.id);
+            await Utils.async.delay(2000);
+        }
+        
+        // Final message
+        Components.toast.success('✅ Demo Complete! Request is now APPROVED by all departments.', 5000);
+        
+        setTimeout(() => {
+            desc.classList.add('hidden');
+        }, 5000);
     }
 };
 
