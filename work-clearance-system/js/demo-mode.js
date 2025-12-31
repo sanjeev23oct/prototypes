@@ -464,10 +464,16 @@ const DemoMode = {
         Components.toast.info('👨‍🔧 Step 7: Electrical Dept user logs in to review', 5000);
         await Utils.async.delay(3000);
         WorkClearanceSystem.impersonateUser('electrical_head');
-        await Utils.async.delay(3500);
+        await Utils.async.delay(2000);
+        
+        // Clear filters to see all requests
+        WorkClearanceSystem.state.currentFilters = { status: '', department: '', priority: '', search: '' };
+        WorkClearanceSystem.applyFilters();
+        WorkClearanceSystem.renderWorkRequests();
+        await Utils.async.delay(1500);
         
         // Step 8: Find and view the request
-        const requests = WorkClearanceSystem.state.filteredRequests;
+        const requests = WorkClearanceSystem.state.workRequests;
         const newRequest = requests.find(r => r.title === 'Network Cable Installation');
         if (newRequest) {
             Components.toast.info('👁️ Step 8: Opening request details to review...', 5000);
@@ -487,7 +493,13 @@ const DemoMode = {
         Components.toast.info('👮‍♂️ Step 10: Security Dept user logs in to review', 5000);
         await Utils.async.delay(3000);
         WorkClearanceSystem.impersonateUser('security_head');
-        await Utils.async.delay(3500);
+        await Utils.async.delay(2000);
+        
+        // Clear filters to see all requests
+        WorkClearanceSystem.state.currentFilters = { status: '', department: '', priority: '', search: '' };
+        WorkClearanceSystem.applyFilters();
+        WorkClearanceSystem.renderWorkRequests();
+        await Utils.async.delay(1500);
         
         // Step 11: Approve as security
         if (newRequest) {
