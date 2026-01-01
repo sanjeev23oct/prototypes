@@ -67,7 +67,9 @@ const DemoEngine = {
         { type: 'wait', duration: 1000 },
         { type: 'toast', message: '🎉 Placing order...', type: 'success', duration: 3000 },
         { type: 'wait', duration: 500 },
-        { type: 'click', selector: '#placeOrderBtn', delay: 500 }
+        { type: 'click', selector: '#placeOrderBtn', delay: 500 },
+        { type: 'wait', duration: 2000 },
+        { type: 'toast', message: '✨ Order completed successfully!', type: 'success', duration: 4000 }
     ],
 
     init() {

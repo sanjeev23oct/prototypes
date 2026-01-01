@@ -32,15 +32,20 @@ function submitOrder() {
     // Show success modal
     document.getElementById('successModal').classList.remove('hidden');
     
-    // Reset form after a delay
+    // Auto-close modal and reset after delay (for demo mode)
     setTimeout(() => {
-        document.getElementById('checkoutForm').reset();
-        currentStep = 1;
-        document.querySelectorAll('.form-section').forEach(section => {
-            section.classList.remove('active');
-        });
-        document.getElementById('step1').classList.add('active');
-    }, 2000);
+        closeModal();
+        resetForm();
+    }, 3000);
+}
+
+function resetForm() {
+    document.getElementById('checkoutForm').reset();
+    currentStep = 1;
+    document.querySelectorAll('.form-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById('step1').classList.add('active');
 }
 
 function closeModal() {
