@@ -10,14 +10,13 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>🎬 Interactive Demo Mode</h1>
-            <p class="subtitle">Watch this form fill itself automatically - or take control anytime!</p>
+            <h1>🎬 Demo Mode</h1>
+            <p class="subtitle">Click Play button ▶</p>
         </header>
 
         <div class="demo-card">
             <div class="card-header">
-                <h2>E-Commerce Checkout Demo</h2>
-                <p>Click "Play Demo" to see the magic ✨</p>
+                <h2>Checkout Demo</h2>
             </div>
 
             <form id="checkoutForm" class="checkout-form">
@@ -153,50 +152,19 @@
                     </div>
                     <div class="button-group">
                         <button type="button" class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button type="button" class="btn btn-success" id="placeOrderBtn" onclick="submitOrder()">Place Order 🎉</button>
+                        <button type="button" class="btn btn-success" id="placeOrderBtn" onclick="submitOrder(event)">Place Order 🎉</button>
                     </div>
                 </div>
             </form>
-        </div>
-
-        <div class="info-card">
-            <h3>💡 How It Works</h3>
-            <ul>
-                <li><strong>Click "Play Demo"</strong> to watch the form fill automatically</li>
-                <li><strong>Click "Pause"</strong> to stop the automation</li>
-                <li><strong>Click any field</strong> to take manual control (auto-pauses)</li>
-                <li><strong>Click "Resume"</strong> to continue from where you left off</li>
-                <li><strong>Click "Stop"</strong> to reset everything</li>
-            </ul>
-            <p class="tech-note">Built with pure JavaScript - no external dependencies! 🚀</p>
         </div>
     </div>
 
     <!-- Demo Controls -->
     <div id="demoControls" class="demo-controls">
-        <div class="demo-header">
-            <span class="demo-icon">🎬</span>
-            <span class="demo-title">Demo Mode</span>
-        </div>
         <div class="demo-buttons">
-            <button id="playBtn" class="btn-demo btn-play">
-                <span class="btn-icon">▶</span>
-                <span class="btn-text">Play Demo</span>
-            </button>
-            <button id="pauseBtn" class="btn-demo btn-pause hidden">
-                <span class="btn-icon">⏸</span>
-                <span class="btn-text">Pause</span>
-            </button>
-            <button id="stopBtn" class="btn-demo btn-stop hidden">
-                <span class="btn-icon">⏹</span>
-                <span class="btn-text">Stop</span>
-            </button>
-        </div>
-        <div id="demoProgress" class="demo-progress hidden">
-            <div class="progress-bar">
-                <div id="progressFill" class="progress-fill"></div>
-            </div>
-            <span id="progressText" class="progress-text">0/0</span>
+            <button id="playBtn" class="btn-demo btn-play" title="Play Demo">▶</button>
+            <button id="pauseBtn" class="btn-demo btn-pause hidden" title="Pause">⏸</button>
+            <button id="stopBtn" class="btn-demo btn-stop hidden" title="Stop">⏹</button>
         </div>
     </div>
 

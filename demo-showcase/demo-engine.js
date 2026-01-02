@@ -141,33 +141,19 @@ const DemoEngine = {
         const playBtn = document.getElementById('playBtn');
         const pauseBtn = document.getElementById('pauseBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const progress = document.getElementById('demoProgress');
-        const progressFill = document.getElementById('progressFill');
-        const progressText = document.getElementById('progressText');
 
         if (this.state.isPlaying && !this.state.isPaused) {
             playBtn.classList.add('hidden');
             pauseBtn.classList.remove('hidden');
             stopBtn.classList.remove('hidden');
-            progress.classList.remove('hidden');
-            
-            const percentage = (this.state.currentAction / this.actions.length) * 100;
-            progressFill.style.width = `${percentage}%`;
-            progressText.textContent = `${this.state.currentAction}/${this.actions.length}`;
         } else if (this.state.isPaused) {
             playBtn.classList.remove('hidden');
-            playBtn.querySelector('.btn-text').textContent = 'Resume';
-            playBtn.querySelector('.btn-icon').textContent = '▶';
             pauseBtn.classList.add('hidden');
             stopBtn.classList.remove('hidden');
-            progress.classList.remove('hidden');
         } else {
             playBtn.classList.remove('hidden');
-            playBtn.querySelector('.btn-text').textContent = 'Play Demo';
-            playBtn.querySelector('.btn-icon').textContent = '▶';
             pauseBtn.classList.add('hidden');
             stopBtn.classList.add('hidden');
-            progress.classList.add('hidden');
         }
     },
 

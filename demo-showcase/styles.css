@@ -24,13 +24,13 @@ body {
 }
 
 .header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    font-size: 2rem;
+    margin-bottom: 8px;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 }
 
 .subtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
     opacity: 0.95;
 }
 
@@ -38,24 +38,26 @@ body {
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    padding: 30px;
-    margin-bottom: 20px;
+    padding: 20px;
+    margin-bottom: 15px;
 }
 
 .card-header {
     text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
     border-bottom: 2px solid #f0f0f0;
 }
 
 .card-header h2 {
     color: #667eea;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
+    font-size: 1.3rem;
 }
 
 .card-header p {
     color: #666;
+    font-size: 0.9rem;
 }
 
 .checkout-form {
@@ -242,23 +244,25 @@ body {
     background: white;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    padding: 30px;
+    padding: 20px;
 }
 
 .info-card h3 {
     color: #667eea;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
 }
 
 .info-card ul {
     list-style: none;
-    margin-bottom: 15px;
+    margin-bottom: 12px;
 }
 
 .info-card li {
-    padding: 8px 0;
-    padding-left: 25px;
+    padding: 6px 0;
+    padding-left: 20px;
     position: relative;
+    font-size: 0.9rem;
 }
 
 .info-card li:before {
@@ -281,116 +285,64 @@ body {
 /* Demo Controls */
 .demo-controls {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 15px;
+    right: 15px;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    padding: 8px;
     z-index: 9999;
-    border: 3px solid #667eea;
-    min-width: 200px;
-}
-
-.demo-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.demo-icon {
-    font-size: 1.5rem;
-}
-
-.demo-title {
-    font-weight: 700;
-    color: #667eea;
-    font-size: 1.1rem;
+    border: 2px solid #667eea;
 }
 
 .demo-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    gap: 6px;
 }
 
 .btn-demo {
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 10px 16px;
     border: none;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 600;
+    border-radius: 6px;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    color: white;
 }
 
 .btn-play {
     background: #10b981;
-    color: white;
 }
 
 .btn-play:hover {
     background: #059669;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    transform: scale(1.05);
 }
 
 .btn-pause {
     background: #f59e0b;
-    color: white;
 }
 
 .btn-pause:hover {
     background: #d97706;
-    transform: translateY(-1px);
+    transform: scale(1.05);
 }
 
 .btn-stop {
     background: #ef4444;
-    color: white;
 }
 
 .btn-stop:hover {
     background: #dc2626;
-    transform: translateY(-1px);
+    transform: scale(1.05);
 }
 
 .btn-demo.hidden {
     display: none;
-}
-
-.demo-progress {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 2px solid #f0f0f0;
-}
-
-.progress-bar {
-    height: 6px;
-    background: #e0e0e0;
-    border-radius: 3px;
-    overflow: hidden;
-    margin-bottom: 8px;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
-    transition: width 0.3s ease;
-    width: 0%;
-}
-
-.progress-text {
-    font-size: 0.85rem;
-    color: #666;
-    font-weight: 600;
 }
 
 /* Toast Notifications */
@@ -491,18 +443,48 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .header {
+        margin-bottom: 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+    }
+    
+    .demo-card {
+        padding: 15px;
+    }
+    
+    .card-header h2 {
+        font-size: 1.1rem;
+    }
+    
     .form-grid {
         grid-template-columns: 1fr;
     }
     
-    .header h1 {
-        font-size: 2rem;
+    .section-title {
+        font-size: 1.1rem;
     }
     
     .demo-controls {
         bottom: 10px;
         right: 10px;
-        left: 10px;
+        padding: 6px;
+    }
+    
+    .btn-demo {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
     }
     
     .toast-container {
@@ -512,5 +494,7 @@ body {
     
     .toast {
         min-width: auto;
+        font-size: 0.9rem;
+        padding: 12px 16px;
     }
 }

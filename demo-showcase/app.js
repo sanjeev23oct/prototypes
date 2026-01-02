@@ -21,22 +21,42 @@ function prevStep() {
     }
 }
 
-function submitOrder() {
-    const agreeTerms = document.getElementById('agreeTerms').checked;
+function submitOrder(event) {
+    console.log('submitOrder called', event);
     
-    if (!agreeTerms) {
-        DemoEngine.showToast('Please agree to the terms and conditions', 'error');
-        return;
+    // Prevent default form submission if called from form
+    if (event && event.preventDefault) {
+        event.preventDefault();
+    }
+    
+    const agreeTerms = document.getElementById('agreeTerms');
+    console.log('agreeTerms element:', agreeTerms);
+    console.log('agreeTerms checked:', agreeTerms ? agreeTerms.checked : 'element not found');
+    
+    if (!agreeTerms || !agreeTerms.checked) {
+        if (typeof DemoEngine !== 'undefined' && DemoEngine.showToast) {
+            DemoEngine.showToast('Please agree to the terms and conditions', 'error');
+        } else {
+            alert('Please agree to the terms and conditions');
+        }
+        return false;
     }
     
     // Show success modal
-    document.getElementById('successModal').classList.remove('hidden');
+    const modal = document.getElementById('successModal');
+    console.log('Success modal:', modal);
+    if (modal) {
+        modal.classList.remove('hidden');
+        console.log('Modal shown');
+    }
     
     // Auto-close modal and reset after delay (for demo mode)
     setTimeout(() => {
         closeModal();
         resetForm();
     }, 3000);
+    
+    return false;
 }
 
 function resetForm() {
