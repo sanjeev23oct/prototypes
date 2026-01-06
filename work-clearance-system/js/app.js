@@ -231,7 +231,7 @@ const App = {
      * Setup service worker for PWA support
      */
     setupServiceWorker() {
-        if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
             navigator.serviceWorker.register('/sw.js')
                 .then((registration) => {
                     this.log('Service Worker registered:', registration);

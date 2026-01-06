@@ -15,12 +15,7 @@ const DemoMode = {
     },
 
     actions: [
-        // Step 1 actions
-        { type: 'typeText', selector: '[name="title"]', text: 'Fiber Cable Installation - Main Hall Area', delay: 50 },
-        { type: 'wait', duration: 300 },
-        { type: 'selectOption', selector: '[name="department"]', value: 'it', delay: 200 },
-        { type: 'wait', duration: 300 },
-        { type: 'selectOption', selector: '[name="workType"]', value: 'telecom', delay: 200 },
+        { type: 'typeText', selector: '[name="title"]', text: 'Underground Cable Laying - Main Hall', delay: 50 },
         { type: 'wait', duration: 300 },
         { type: 'selectOption', selector: '[name="location"]', value: 'main-hall', delay: 200 },
         { type: 'wait', duration: 300 },
@@ -28,31 +23,17 @@ const DemoMode = {
         { type: 'wait', duration: 300 },
         { type: 'setDateTime', selector: '[name="endDate"]', daysFromNow: 4, delay: 200 },
         { type: 'wait', duration: 300 },
-        { type: 'typeText', selector: '[name="description"]', text: 'Installation of new fiber optic cables to improve network connectivity in the main satsang hall. This work involves trenching along the pathway.', delay: 30 },
+        { type: 'typeText', selector: '[name="description"]', text: 'Digging required for underground fiber cable installation. Proper safety measures and infrastructure mapping needed.', delay: 30 },
         { type: 'wait', duration: 500 },
-        { type: 'typeText', selector: '[name="emergencyContact"]', text: '+91-9876543216', delay: 80 },
-        { type: 'wait', duration: 300 },
-        { type: 'typeText', selector: '[name="duration"]', text: '16', delay: 100 },
+        { type: 'typeText', selector: '[name="contactNumber"]', text: '+91-9876543216', delay: 80 },
         { type: 'wait', duration: 500 },
-        { type: 'click', selector: '#nextBtn', delay: 300 },
-        { type: 'wait', duration: 800 },
-        
-        // Step 2 actions
-        { type: 'checkBox', selector: '[name="infrastructure"][value="fiber"]', delay: 200 },
-        { type: 'wait', duration: 300 },
-        { type: 'checkBox', selector: '[name="infrastructure"][value="power"]', delay: 200 },
-        { type: 'wait', duration: 300 },
-        { type: 'checkBox', selector: '[name="infrastructure"][value="telecom"]', delay: 200 },
+        { type: 'scroll', selector: '.modal-body', delay: 300 },
         { type: 'wait', duration: 500 },
         { type: 'checkBox', selector: '[name="notifyDepartments"][value="electrical"]', delay: 200 },
         { type: 'wait', duration: 300 },
         { type: 'checkBox', selector: '[name="notifyDepartments"][value="security"]', delay: 200 },
         { type: 'wait', duration: 300 },
         { type: 'checkBox', selector: '[name="notifyDepartments"][value="maintenance"]', delay: 200 },
-        { type: 'wait', duration: 300 },
-        { type: 'checkBox', selector: '[name="notifyDepartments"][value="construction"]', delay: 200 },
-        { type: 'wait', duration: 500 },
-        { type: 'typeText', selector: '[name="safetyMeasures"]', text: 'Use underground utility detection equipment. Install safety barriers. Coordinate with electrical department.', delay: 40 },
         { type: 'wait', duration: 1000 },
         { type: 'toast', message: 'Demo complete! Form ready to submit.', type: 'success' }
     ],
@@ -246,6 +227,9 @@ const DemoMode = {
             case 'wait':
                 this.wait(action.duration);
                 break;
+            case 'scroll':
+                this.scrollElement(action.selector, action.delay);
+                break;
             case 'toast':
                 Components.toast[action.type || 'info'](action.message);
                 this.executeNextAction();
@@ -374,6 +358,20 @@ const DemoMode = {
         const timeout = setTimeout(() => {
             this.executeNextAction();
         }, duration);
+        this.state.timeouts.push(timeout);
+    },
+
+    scrollElement(selector, delay) {
+        const element = document.querySelector(selector);
+        if (!element) {
+            this.executeNextAction();
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            element.scrollTo({ top: element.scrollHeight, behavior: 'smooth' });
+            this.executeNextAction();
+        }, delay);
         this.state.timeouts.push(timeout);
     },
 

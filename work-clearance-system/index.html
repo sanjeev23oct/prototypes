@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSSB Bhati Work Clearance System - Prototype</title>
+    <title>RSSB Bhati Digging Approval System - Prototype</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -33,11 +33,20 @@
                         <i class="fas fa-hard-hat text-2xl text-blue-600"></i>
                     </div>
                     <div class="ml-4">
-                        <h1 class="text-xl font-semibold text-gray-900">RSSB Bhati Work Clearance System</h1>
-                        <p class="text-sm text-gray-500">Infrastructure Protection & Coordination</p>
+                        <h1 class="text-xl font-semibold text-gray-900" id="appTitle">RSSB Bhati Digging Approval System</h1>
+                        <p class="text-sm text-gray-500" id="appSubtitle">Infrastructure Protection & Coordination</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="flex items-center space-x-2 border-r pr-4">
+                        <button id="langEnBtn" class="lang-btn active px-3 py-1 text-sm font-medium rounded hover:bg-gray-100" onclick="switchLanguage('en')">
+                            English
+                        </button>
+                        <button id="langHiBtn" class="lang-btn px-3 py-1 text-sm font-medium rounded hover:bg-gray-100" onclick="switchLanguage('hi')">
+                            हिंदी
+                        </button>
+                    </div>
                     <button id="notificationBtn" class="relative p-2 text-gray-400 hover:text-gray-500">
                         <i class="fas fa-bell text-lg"></i>
                         <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">3</span>
@@ -105,7 +114,7 @@
             <div class="bg-white rounded-lg shadow-md">
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-gray-900">Work Requests</h2>
+                        <h2 class="text-lg font-semibold text-gray-900" data-i18n="workRequests">Work Requests</h2>
                         <div class="flex items-center space-x-2">
                             <button id="newRequestBtn" class="btn btn-primary" title="New Work Request">
                                 <i class="fas fa-plus"></i>
@@ -152,14 +161,19 @@
 
     <!-- New Request Modal -->
     <div id="newRequestModal" class="modal hidden">
-        <div class="modal-content max-w-4xl">
+        <div class="modal-content max-w-5xl" style="max-height: 90vh;">
             <div class="modal-header">
-                <h3 class="text-xl font-semibold">New Work Clearance Request</h3>
-                <button class="modal-close">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3 class="text-xl font-semibold" data-i18n="newRequest">New Work Clearance Request</h3>
+                <div class="flex items-center space-x-2">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="WorkClearanceSystem.loadSampleData(0)">
+                        <i class="fas fa-magic"></i> <span data-i18n="loadSample">Load Sample</span>
+                    </button>
+                    <button class="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="max-height: calc(90vh - 140px); overflow-y: auto;">
                 <form id="newRequestForm" class="space-y-6">
                     <!-- Form content will be loaded by JavaScript -->
                 </form>
@@ -186,11 +200,12 @@
     <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
     <!-- JavaScript Modules -->
-    <script src="js/utils.js?v=1.0.18"></script>
-    <script src="js/data.js?v=1.0.18"></script>
-    <script src="js/components.js?v=1.0.18"></script>
-    <script src="js/work-clearance.js?v=1.0.18"></script>
-    <script src="js/demo-mode.js?v=1.0.18"></script>
-    <script src="js/app.js?v=1.0.18"></script>
+    <script src="js/utils.js?v=1.0.19"></script>
+    <script src="js/i18n.js?v=1.0.19"></script>
+    <script src="js/data.js?v=1.0.19"></script>
+    <script src="js/components.js?v=1.0.19"></script>
+    <script src="js/work-clearance.js?v=1.0.19"></script>
+    <script src="js/demo-mode.js?v=1.0.19"></script>
+    <script src="js/app.js?v=1.0.19"></script>
 </body>
 </html>

@@ -4,28 +4,24 @@
  */
 
 const MockData = {
-    // Departments in the organization
+    // Departments in the organization with default contact persons
     departments: [
-        { id: 'maintenance', name: 'Maintenance Department', head: 'Rajesh Kumar', contact: '+91-9876543210' },
-        { id: 'construction', name: 'Construction Department', head: 'Suresh Patel', contact: '+91-9876543211' },
-        { id: 'landscaping', name: 'Landscaping Department', head: 'Priya Sharma', contact: '+91-9876543212' },
-        { id: 'electrical', name: 'Electrical Department', head: 'Amit Singh', contact: '+91-9876543213' },
-        { id: 'plumbing', name: 'Plumbing Department', head: 'Ravi Gupta', contact: '+91-9876543214' },
-        { id: 'security', name: 'Security Department', head: 'Vikram Yadav', contact: '+91-9876543215' },
-        { id: 'it', name: 'IT Department', head: 'Neha Agarwal', contact: '+91-9876543216' },
-        { id: 'transport', name: 'Transport Department', head: 'Manoj Verma', contact: '+91-9876543217' }
+        { id: 'maintenance', name: 'Maintenance Department', head: 'Rajesh Kumar', contact: '+91-9876543210', defaultContact: 'Rajesh Kumar', defaultPhone: '+91-9876543210' },
+        { id: 'construction', name: 'Construction Department', head: 'Suresh Patel', contact: '+91-9876543211', defaultContact: 'Suresh Patel', defaultPhone: '+91-9876543211' },
+        { id: 'landscaping', name: 'Landscaping Department', head: 'Priya Sharma', contact: '+91-9876543212', defaultContact: 'Priya Sharma', defaultPhone: '+91-9876543212' },
+        { id: 'electrical', name: 'Electrical Department', head: 'Amit Singh', contact: '+91-9876543213', defaultContact: 'Amit Singh', defaultPhone: '+91-9876543213' },
+        { id: 'plumbing', name: 'Plumbing Department', head: 'Ravi Gupta', contact: '+91-9876543214', defaultContact: 'Ravi Gupta', defaultPhone: '+91-9876543214' },
+        { id: 'security', name: 'Security Department', head: 'Vikram Yadav', contact: '+91-9876543215', defaultContact: 'Vikram Yadav', defaultPhone: '+91-9876543215' },
+        { id: 'it', name: 'IT Department', head: 'Neha Agarwal', contact: '+91-9876543216', defaultContact: 'Neha Agarwal', defaultPhone: '+91-9876543216' },
+        { id: 'transport', name: 'Transport Department', head: 'Manoj Verma', contact: '+91-9876543217', defaultContact: 'Manoj Verma', defaultPhone: '+91-9876543217' }
     ],
 
-    // Types of work that can be performed
+    // Fixed departments to notify for digging work
+    defaultDiggingDepartments: ['electrical', 'plumbing', 'it', 'security', 'maintenance'],
+
+    // Types of work that can be performed - focused on digging
     workTypes: [
-        { id: 'digging', name: 'Excavation/Digging', riskLevel: 'high', requiresApproval: ['infrastructure', 'safety'] },
-        { id: 'electrical', name: 'Electrical Work', riskLevel: 'medium', requiresApproval: ['electrical', 'safety'] },
-        { id: 'plumbing', name: 'Plumbing Work', riskLevel: 'medium', requiresApproval: ['infrastructure'] },
-        { id: 'construction', name: 'Construction Work', riskLevel: 'high', requiresApproval: ['infrastructure', 'safety', 'admin'] },
-        { id: 'maintenance', name: 'General Maintenance', riskLevel: 'low', requiresApproval: ['supervisor'] },
-        { id: 'landscaping', name: 'Landscaping Work', riskLevel: 'low', requiresApproval: ['supervisor'] },
-        { id: 'road-work', name: 'Road/Path Work', riskLevel: 'medium', requiresApproval: ['infrastructure', 'transport'] },
-        { id: 'telecom', name: 'Telecom Installation', riskLevel: 'medium', requiresApproval: ['it', 'infrastructure'] }
+        { id: 'digging', name: 'Excavation/Digging', riskLevel: 'high', requiresApproval: ['infrastructure', 'safety'] }
     ],
 
     // Infrastructure types that could be affected

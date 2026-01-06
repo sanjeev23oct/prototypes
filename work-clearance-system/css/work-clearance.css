@@ -887,6 +887,23 @@
     transform: scale(1.05);
 }
 
+/* Language Switcher Styles */
+.lang-btn {
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.lang-btn:hover {
+    background: #f3f4f6;
+}
+
+.lang-btn.active {
+    background: #dbeafe;
+    color: #1e40af;
+    border-color: #93c5fd;
+    font-weight: 600;
+}
+
 /* Sample Data Button Styles */
 .btn-success {
     background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -920,5 +937,10 @@
     
     .impersonation-btn .text-xs {
         font-size: 0.625rem;
+    }
+    
+    .lang-btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
     }
 }

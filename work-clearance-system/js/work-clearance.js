@@ -333,169 +333,179 @@ const WorkClearanceSystem = {
     renderNewRequestForm() {
         const form = Utils.dom.get('newRequestForm');
         
+        // Get default department for current user
+        const userDept = MockData.departments.find(d => d.id === this.state.currentUser.department) || MockData.departments[0];
+        
         form.innerHTML = `
             <div class="form-wizard">
-                <div class="mb-4 flex justify-between items-center">
-                    <button type="button" class="btn btn-secondary" onclick="WorkClearanceSystem.loadSampleData(0)">
-                        <i class="fas fa-magic"></i> Load Sample Data
-                    </button>
-                </div>
-                
-                <ul class="wizard-steps">
-                    <li class="wizard-step active">
-                        <div class="step-indicator">1</div>
-                        <div class="step-title">Work Details</div>
-                    </li>
-                    <li class="wizard-step">
-                        <div class="step-indicator">2</div>
-                        <div class="step-title">Coordination</div>
-                    </li>
-                </ul>
-                
                 <div class="wizard-content">
-                    <!-- Step 1: Work Details & Schedule -->
+                    <!-- Single Step Form -->
                     <div class="wizard-pane active" id="step1">
                         <div class="space-y-4">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="form-group">
-                                    <label class="form-label required">Work Title</label>
+                                <!-- Work Title -->
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label required" data-i18n="workTitle">Work Title</label>
                                     <input type="text" class="form-input" name="title" data-validate="required" 
-                                           placeholder="Brief description of work">
+                                           data-i18n-placeholder="enterWorkTitle" placeholder="Enter work title">
                                 </div>
                                 
+                                <!-- Requesting Department (with edit option) -->
                                 <div class="form-group">
-                                    <label class="form-label required">Requesting Department</label>
-                                    <select class="form-select" name="department" data-validate="required">
-                                        <option value="">Select Department</option>
+                                    <label class="form-label required">
+                                        <span data-i18n="requestingDept">Requesting Department</span>
+                                        <span class="text-xs text-gray-500 ml-2">(editable)</span>
+                                    </label>
+                                    <select class="form-select" name="department" data-validate="required" id="deptSelect">
                                         ${MockData.departments.map(dept => 
-                                            `<option value="${dept.id}">${dept.name}</option>`
+                                            `<option value="${dept.id}" ${dept.id === userDept.id ? 'selected' : ''}>${dept.name}</option>`
                                         ).join('')}
                                     </select>
                                 </div>
                                 
+                                <!-- Work Type (default to digging, with edit option) -->
                                 <div class="form-group">
-                                    <label class="form-label required">Work Type</label>
+                                    <label class="form-label required">
+                                        <span data-i18n="workType">Work Type</span>
+                                        <span class="text-xs text-gray-500 ml-2">(editable)</span>
+                                    </label>
                                     <select class="form-select" name="workType" data-validate="required">
-                                        <option value="">Select Work Type</option>
                                         ${MockData.workTypes.map(type => 
-                                            `<option value="${type.id}">${type.name}</option>`
+                                            `<option value="${type.id}" selected>${type.name}</option>`
                                         ).join('')}
                                     </select>
                                 </div>
                                 
+                                <!-- Location (with add new option) -->
                                 <div class="form-group">
-                                    <label class="form-label required">Location</label>
-                                    <select class="form-select" name="location" data-validate="required">
-                                        <option value="">Select Location</option>
-                                        ${MockData.locations.map(loc => 
-                                            `<option value="${loc.id}">${loc.name}</option>`
-                                        ).join('')}
-                                    </select>
+                                    <label class="form-label required" data-i18n="location">Location</label>
+                                    <div class="flex space-x-2">
+                                        <select class="form-select flex-1" name="location" data-validate="required" id="locationSelect">
+                                            <option value="" data-i18n="selectLocation">Select Location</option>
+                                            ${MockData.locations.map(loc => 
+                                                `<option value="${loc.id}">${loc.name}</option>`
+                                            ).join('')}
+                                            <option value="new">+ <span data-i18n="addNewLocation">Add New Location</span></option>
+                                        </select>
+                                    </div>
                                 </div>
                                 
+                                <!-- New Location Input (hidden by default) -->
+                                <div class="form-group hidden" id="newLocationGroup">
+                                    <label class="form-label">New Location Name</label>
+                                    <input type="text" class="form-input" name="newLocation" id="newLocationInput" 
+                                           placeholder="Enter new location name">
+                                </div>
+                                
+                                <!-- Start Date & Time -->
                                 <div class="form-group">
-                                    <label class="form-label required">Start Date & Time</label>
+                                    <label class="form-label required" data-i18n="startDateTime">Start Date & Time</label>
                                     <input type="datetime-local" class="form-input" name="startDate" data-validate="required">
                                 </div>
                                 
+                                <!-- End Date & Time -->
                                 <div class="form-group">
-                                    <label class="form-label required">End Date & Time</label>
+                                    <label class="form-label required" data-i18n="endDateTime">End Date & Time</label>
                                     <input type="datetime-local" class="form-input" name="endDate" data-validate="required">
                                 </div>
                                 
+                                <!-- Work Description -->
                                 <div class="form-group md:col-span-2">
-                                    <label class="form-label required">Work Description</label>
-                                    <textarea class="form-textarea" name="description" rows="3" data-validate="required|minLength:20"
-                                              placeholder="Detailed description of work to be performed"></textarea>
+                                    <label class="form-label required" data-i18n="workDescription">Work Description</label>
+                                    <textarea class="form-textarea" name="description" rows="2" data-validate="required|minLength:20"
+                                              data-i18n-placeholder="detailedDescription" placeholder="Detailed description of digging work to be performed"></textarea>
+                                </div>
+                                
+                                <!-- Contact Person (with default, editable) -->
+                                <div class="form-group">
+                                    <label class="form-label required">
+                                        <span data-i18n="contactName">Contact Name</span>
+                                        <span class="text-xs text-gray-500 ml-2">(editable)</span>
+                                    </label>
+                                    <input type="text" class="form-input" name="contactName" data-validate="required" 
+                                           id="contactNameInput" value="${userDept.defaultContact}"
+                                           data-i18n-placeholder="enterContactName" placeholder="Enter contact person name">
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label class="form-label">Emergency Contact</label>
-                                    <input type="tel" class="form-input" name="emergencyContact" 
-                                           placeholder="+91-XXXXXXXXXX">
+                                    <label class="form-label required">
+                                        <span data-i18n="contactNumber">Contact Number</span>
+                                        <span class="text-xs text-gray-500 ml-2">(editable)</span>
+                                    </label>
+                                    <input type="tel" class="form-input" name="contactNumber" data-validate="required" 
+                                           id="contactNumberInput" value="${userDept.defaultPhone}"
+                                           data-i18n-placeholder="enterContactNumber" placeholder="Enter contact number">
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label class="form-label">Duration (hours)</label>
-                                    <input type="number" class="form-input" name="duration" min="1" max="24" 
-                                           placeholder="Estimated hours">
+                                <!-- File Attachments -->
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label" data-i18n="attachments">Attachments</label>
+                                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                                        <div class="flex flex-col items-center space-y-3">
+                                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400"></i>
+                                            <div class="text-center">
+                                                <label class="btn btn-secondary cursor-pointer">
+                                                    <i class="fas fa-file-upload"></i> <span data-i18n="uploadFiles">Upload Files</span>
+                                                    <input type="file" name="attachments" multiple accept="image/*,video/*,.dwg,.dxf,.pdf" 
+                                                           class="hidden" id="fileInput" onchange="WorkClearanceSystem.handleFileUpload(event)">
+                                                </label>
+                                                <p class="text-xs text-gray-500 mt-2">Images, Videos, AutoCAD (.dwg, .dxf), PDF</p>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" onclick="WorkClearanceSystem.captureGeotaggedPhoto()">
+                                                <i class="fas fa-camera"></i> <span data-i18n="capturePhoto">Capture Geotagged Photo</span>
+                                            </button>
+                                        </div>
+                                        <div id="fileList" class="mt-3 space-y-2"></div>
+                                        <div id="geoLocation" class="mt-2 text-xs text-gray-600 hidden"></div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 2: Coordination & Risk -->
-                    <div class="wizard-pane" id="step2">
-                        <div class="space-y-4">
-                            <!-- Infrastructure Impact -->
-                            <div class="form-group">
-                                <label class="form-label">Infrastructure That May Be Affected</label>
-                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                    ${MockData.infrastructureTypes.map(infra => `
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="form-checkbox" name="infrastructure" value="${infra.id}">
-                                            <span class="ml-2 text-sm">${infra.name}</span>
-                                        </label>
-                                    `).join('')}
-                                </div>
-                            </div>
-                            
-                            <!-- Department Coordination -->
-                            <div class="form-group">
-                                <label class="form-label required">Departments to Notify & Seek Clearance From</label>
-                                <div class="dept-selection-container">
+                                
+                                <!-- Departments to Notify (pre-selected with edit option) -->
+                                <div class="form-group md:col-span-2">
+                                    <label class="form-label required">
+                                        <span data-i18n="departmentsToNotify">Departments to Notify</span>
+                                        <span class="text-xs text-gray-500 ml-2">(pre-selected, editable)</span>
+                                    </label>
+                                    <div class="dept-selection-container">
                                         <div class="flex items-center justify-between mb-3">
-                                            <span class="text-sm font-medium text-gray-700">Select all departments that need to provide clearance:</span>
+                                            <span class="text-sm font-medium text-gray-700">Fixed departments for digging work (you can add/remove):</span>
                                             <div class="dept-selection-buttons">
                                                 <button type="button" class="btn btn-sm btn-secondary" id="selectAllDepts">
-                                                    <i class="fas fa-check-double"></i> Select All
+                                                    <i class="fas fa-check-double"></i> <span data-i18n="selectAll">Select All</span>
                                                 </button>
                                                 <button type="button" class="btn btn-sm btn-secondary" id="clearAllDepts">
-                                                    <i class="fas fa-times"></i> Clear All
+                                                    <i class="fas fa-times"></i> <span data-i18n="clearAll">Clear All</span>
                                                 </button>
                                             </div>
                                         </div>
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                            ${MockData.departments.map(dept => `
-                                                <label class="dept-checkbox-label flex items-center p-3 bg-white rounded-lg border hover:bg-blue-50 cursor-pointer transition">
-                                                    <input type="checkbox" class="form-checkbox dept-checkbox" name="notifyDepartments" value="${dept.id}">
+                                            ${MockData.departments.map(dept => {
+                                                const isDefault = MockData.defaultDiggingDepartments.includes(dept.id);
+                                                return `
+                                                <label class="dept-checkbox-label flex items-center p-3 ${isDefault ? 'bg-blue-100 border-blue-300 selected' : 'bg-white'} rounded-lg border hover:bg-blue-50 cursor-pointer transition">
+                                                    <input type="checkbox" class="form-checkbox dept-checkbox" name="notifyDepartments" value="${dept.id}" ${isDefault ? 'checked' : ''}>
                                                     <div class="ml-3 flex-1">
                                                         <div class="flex items-center">
                                                             <div class="w-3 h-3 rounded-full dept-${dept.id} mr-2"></div>
                                                             <span class="text-sm font-medium text-gray-900">${dept.name}</span>
                                                         </div>
                                                         <div class="text-xs text-gray-500 mt-1">
-                                                            Head: ${dept.head} | ${dept.contact}
+                                                            Contact: ${dept.contact}
                                                         </div>
                                                     </div>
                                                 </label>
-                                            `).join('')}
+                                            `}).join('')}
                                         </div>
                                         <div class="dept-info-note">
                                             <div class="flex items-start">
                                                 <i class="fas fa-info-circle text-blue-500 mt-0.5 mr-2"></i>
                                                 <div class="text-sm text-blue-700">
-                                                    <strong>Important:</strong> Selected departments will receive advance notification and must provide clearance before work can begin. 
-                                                    Choose all departments whose operations or infrastructure might be affected by this work.
-                                                    <br><br>
-                                                    <strong>Note:</strong> This is different from your requesting department above - these are the departments you need permission from.
+                                                    <strong>Note:</strong> These departments are pre-selected based on typical digging work requirements. 
+                                                    You can add or remove departments as needed for your specific work.
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Safety Measures -->
-                            <div class="bg-white p-4 rounded-lg border">
-                                <h4 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                                    <i class="fas fa-shield-alt text-red-500 mr-2"></i>
-                                    Safety Measures
-                                </h4>
-                                <div class="form-group">
-                                    <label class="form-label">Safety Measures & Precautions</label>
-                                    <textarea class="form-textarea" name="safetyMeasures" 
-                                              placeholder="List safety measures and precautions to be taken"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -503,26 +513,209 @@ const WorkClearanceSystem = {
                 </div>
                 
                 <div class="wizard-actions">
-                    <button type="button" class="btn btn-secondary" id="prevBtn" style="display: none;">
-                        <i class="fas fa-arrow-left"></i> Previous
-                    </button>
-                    <div class="flex space-x-3">
+                    <div class="flex justify-end space-x-3">
                         <button type="button" class="btn btn-secondary" onclick="Components.modal.hide('newRequestModal')">
-                            Cancel
+                            <span data-i18n="cancel">Cancel</span>
                         </button>
-                        <button type="button" class="btn btn-primary" id="nextBtn">
-                            Next <i class="fas fa-arrow-right"></i>
-                        </button>
-                        <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
-                            <i class="fas fa-paper-plane"></i> Submit Request
+                        <button type="submit" class="btn btn-success" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i> <span data-i18n="submit">Submit Request</span>
                         </button>
                     </div>
                 </div>
             </div>
         `;
         
-        this.setupFormWizard();
+        this.setupSimplifiedForm();
         this.setupDepartmentSelection();
+    },
+
+    /**
+     * Setup simplified form (single step)
+     */
+    setupSimplifiedForm() {
+        const form = Utils.dom.get('newRequestForm');
+        
+        // Location select handler
+        const locationSelect = Utils.dom.get('locationSelect');
+        const newLocationGroup = Utils.dom.get('newLocationGroup');
+        const newLocationInput = Utils.dom.get('newLocationInput');
+        
+        if (locationSelect) {
+            locationSelect.addEventListener('change', (e) => {
+                if (e.target.value === 'new') {
+                    newLocationGroup.classList.remove('hidden');
+                    newLocationInput.setAttribute('data-validate', 'required');
+                } else {
+                    newLocationGroup.classList.add('hidden');
+                    newLocationInput.removeAttribute('data-validate');
+                }
+            });
+        }
+        
+        // Department change handler - update default contact
+        const deptSelect = Utils.dom.get('deptSelect');
+        const contactNameInput = Utils.dom.get('contactNameInput');
+        const contactNumberInput = Utils.dom.get('contactNumberInput');
+        
+        if (deptSelect) {
+            deptSelect.addEventListener('change', (e) => {
+                const dept = MockData.departments.find(d => d.id === e.target.value);
+                if (dept) {
+                    contactNameInput.value = dept.defaultContact;
+                    contactNumberInput.value = dept.defaultPhone;
+                }
+            });
+        }
+        
+        // Form submission
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Validate departments selected
+            const deptCheckboxes = form.querySelectorAll('.dept-checkbox');
+            const checkedDepts = Array.from(deptCheckboxes).filter(cb => cb.checked);
+            
+            if (checkedDepts.length === 0) {
+                Components.toast.error('Please select at least one department to notify');
+                return;
+            }
+            
+            if (Components.validation.validateForm(form)) {
+                this.submitNewRequest(form);
+            } else {
+                Components.toast.error('Please fill all required fields correctly');
+            }
+        });
+        
+        // Initialize i18n for form
+        if (typeof i18n !== 'undefined') {
+            i18n.updateUI();
+        }
+    },
+
+    /**
+     * Handle file upload
+     */
+    handleFileUpload(event) {
+        const files = event.target.files;
+        const fileList = Utils.dom.get('fileList');
+        
+        if (!fileList) return;
+        
+        Array.from(files).forEach(file => {
+            const fileItem = Utils.dom.create('div', {
+                className: 'flex items-center justify-between p-2 bg-gray-50 rounded'
+            });
+            
+            const fileIcon = this.getFileIcon(file.type);
+            const fileSize = Utils.number.formatFileSize(file.size);
+            
+            fileItem.innerHTML = `
+                <div class="flex items-center space-x-2">
+                    <i class="${fileIcon} text-blue-500"></i>
+                    <div>
+                        <div class="text-sm font-medium">${file.name}</div>
+                        <div class="text-xs text-gray-500">${fileSize}</div>
+                    </div>
+                </div>
+                <button type="button" class="text-red-500 hover:text-red-700" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            fileList.appendChild(fileItem);
+        });
+        
+        Components.toast.success(`${files.length} file(s) uploaded successfully`);
+    },
+
+    /**
+     * Get file icon based on type
+     */
+    getFileIcon(fileType) {
+        if (fileType.startsWith('image/')) return 'fas fa-image';
+        if (fileType.startsWith('video/')) return 'fas fa-video';
+        if (fileType.includes('pdf')) return 'fas fa-file-pdf';
+        if (fileType.includes('dwg') || fileType.includes('dxf')) return 'fas fa-drafting-compass';
+        return 'fas fa-file';
+    },
+
+    /**
+     * Capture geotagged photo
+     */
+    captureGeotaggedPhoto() {
+        if (!navigator.geolocation) {
+            Components.toast.error('Geolocation is not supported by your browser');
+            return;
+        }
+        
+        Components.toast.info('Requesting location access...');
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude.toFixed(6);
+                const lon = position.coords.longitude.toFixed(6);
+                const accuracy = position.coords.accuracy.toFixed(0);
+                
+                const geoLocation = Utils.dom.get('geoLocation');
+                if (geoLocation) {
+                    geoLocation.classList.remove('hidden');
+                    geoLocation.innerHTML = `
+                        <div class="flex items-center space-x-2 text-green-600">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>Location captured: ${lat}, ${lon} (±${accuracy}m accuracy)</span>
+                        </div>
+                    `;
+                }
+                
+                // Trigger camera
+                const cameraInput = Utils.dom.create('input', {
+                    type: 'file',
+                    accept: 'image/*',
+                    capture: 'environment'
+                });
+                
+                cameraInput.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        
+                        // Add to file list with geotag info
+                        const fileList = Utils.dom.get('fileList');
+                        const fileItem = Utils.dom.create('div', {
+                            className: 'flex items-center justify-between p-2 bg-green-50 rounded border border-green-200'
+                        });
+                        
+                        fileItem.innerHTML = `
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-camera text-green-500"></i>
+                                <div>
+                                    <div class="text-sm font-medium">${file.name}</div>
+                                    <div class="text-xs text-green-600">
+                                        <i class="fas fa-map-marker-alt"></i> ${lat}, ${lon}
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="text-red-500 hover:text-red-700" onclick="this.parentElement.remove()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        
+                        fileList.appendChild(fileItem);
+                        Components.toast.success('Geotagged photo captured successfully!');
+                    }
+                });
+                
+                cameraInput.click();
+            },
+            (error) => {
+                Components.toast.error('Unable to get location: ' + error.message);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
     },
 
     /**
@@ -765,11 +958,26 @@ const WorkClearanceSystem = {
         const id = `WR-${String(this.state.workRequests.length + 1).padStart(4, '0')}`;
         const now = new Date().toISOString();
         
-        // Get selected infrastructure
-        const infrastructure = [];
-        formData.getAll('infrastructure').forEach(infra => {
-            infrastructure.push(infra);
-        });
+        // Handle location (new or existing)
+        let locationId = formData.get('location');
+        let locationName = '';
+        
+        if (locationId === 'new') {
+            const newLocationName = formData.get('newLocation');
+            locationId = `loc-${Date.now()}`;
+            locationName = newLocationName;
+            
+            // Add to locations list
+            MockData.locations.push({
+                id: locationId,
+                name: newLocationName,
+                zone: 'custom',
+                coordinates: { x: 50, y: 50 }
+            });
+        } else {
+            const location = MockData.locations.find(l => l.id === locationId);
+            locationName = location?.name || '';
+        }
         
         // Get selected departments for notification
         const notifyDepartments = [];
@@ -789,8 +997,12 @@ const WorkClearanceSystem = {
             }
         });
         
-        // Get work type details
-        const workType = MockData.workTypes.find(t => t.id === formData.get('workType'));
+        // Get work type details (always digging)
+        const workType = MockData.workTypes.find(t => t.id === formData.get('workType')) || MockData.workTypes[0];
+        
+        // Get contact information
+        const contactName = formData.get('contactName');
+        const contactNumber = formData.get('contactNumber');
         
         return {
             id: id,
@@ -798,30 +1010,31 @@ const WorkClearanceSystem = {
             requesterName: this.state.currentUser.name,
             department: formData.get('department'),
             departmentName: MockData.departments.find(d => d.id === formData.get('department'))?.name || '',
-            workType: formData.get('workType'),
-            workTypeName: workType?.name || '',
+            workType: workType.id,
+            workTypeName: workType.name,
             title: formData.get('title'),
             description: formData.get('description'),
-            location: formData.get('location'),
-            locationName: MockData.locations.find(l => l.id === formData.get('location'))?.name || '',
+            location: locationId,
+            locationName: locationName,
             status: 'pending',
-            priority: formData.get('priority'),
-            riskLevel: workType?.riskLevel || 'medium',
-            estimatedDuration: parseInt(formData.get('duration')) || 1,
+            priority: 'high', // Default for digging work
+            riskLevel: workType.riskLevel,
+            estimatedDuration: 8, // Default 8 hours for digging
             plannedStartDate: formData.get('startDate'),
             plannedEndDate: formData.get('endDate'),
             actualStartDate: null,
             actualEndDate: null,
             createdAt: now,
             updatedAt: now,
-            infrastructureAffected: infrastructure,
+            infrastructureAffected: ['fiber', 'power', 'water'], // Default for digging
             notifyDepartments: notifyDepartments,
-            approvalChain: MockData.generateApprovalChain(workType?.requiresApproval || ['supervisor']),
+            approvalChain: MockData.generateApprovalChain(workType.requiresApproval),
             notifications: [],
             attachments: [],
             comments: [],
-            emergencyContact: formData.get('emergencyContact') || '',
-            safetyMeasures: MockData.generateSafetyMeasures(workType?.riskLevel || 'medium')
+            contactPerson: contactName,
+            contactNumber: contactNumber,
+            safetyMeasures: MockData.generateSafetyMeasures(workType.riskLevel)
         };
     },
 
@@ -1157,6 +1370,12 @@ const WorkClearanceSystem = {
      */
     renderNotifications() {
         const container = Utils.dom.get('notificationsList');
+        
+        // Skip if notifications container doesn't exist (not on all pages)
+        if (!container) {
+            return;
+        }
+        
         const notifications = this.getRecentNotifications();
         
         Utils.dom.empty(container);
@@ -1314,9 +1533,6 @@ const WorkClearanceSystem = {
         const workTypeSelect = form.querySelector('[name="workType"]');
         if (workTypeSelect) workTypeSelect.value = sampleData.workType;
         
-        const prioritySelect = form.querySelector('[name="priority"]');
-        if (prioritySelect) prioritySelect.value = sampleData.priority;
-        
         const descTextarea = form.querySelector('[name="description"]');
         if (descTextarea) descTextarea.value = sampleData.description;
         
@@ -1330,40 +1546,27 @@ const WorkClearanceSystem = {
         const endDateInput = form.querySelector('[name="endDate"]');
         if (endDateInput) endDateInput.value = sampleData.endDate;
         
-        const durationInput = form.querySelector('[name="duration"]');
-        if (durationInput) durationInput.value = sampleData.duration;
+        const contactNameInput = form.querySelector('[name="contactName"]');
+        if (contactNameInput) contactNameInput.value = sampleData.requesterName;
         
-        // Infrastructure affected
-        if (sampleData.infrastructureAffected) {
-            sampleData.infrastructureAffected.forEach(infraId => {
-                const checkbox = form.querySelector(`[name="infrastructure"][value="${infraId}"]`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
+        const contactNumberInput = form.querySelector('[name="contactNumber"]');
+        if (contactNumberInput) contactNumberInput.value = sampleData.emergencyContact;
         
         // Notify departments
         if (sampleData.notifyDepartments) {
             sampleData.notifyDepartments.forEach(deptId => {
                 const checkbox = form.querySelector(`[name="notifyDepartments"][value="${deptId}"]`);
-                if (checkbox) checkbox.checked = true;
+                if (checkbox) {
+                    checkbox.checked = true;
+                    this.updateDepartmentSelection(checkbox, true);
+                }
             });
         }
         
-        // Safety measures
-        const safetyTextarea = form.querySelector('[name="safetyMeasures"]');
-        if (safetyTextarea) safetyTextarea.value = sampleData.safetyMeasures;
-        
-        // Emergency contact
-        const emergencyInput = form.querySelector('[name="emergencyContact"]');
-        if (emergencyInput) emergencyInput.value = sampleData.emergencyContact;
-        
-        // Requester name
-        const requesterInput = form.querySelector('[name="requesterName"]');
-        if (requesterInput) requesterInput.value = sampleData.requesterName;
-        
-        // Notes
-        const notesTextarea = form.querySelector('[name="notes"]');
-        if (notesTextarea) notesTextarea.value = sampleData.notes;
+        // Update i18n
+        if (typeof i18n !== 'undefined') {
+            i18n.updateUI();
+        }
         
         Components.toast.success('Sample data loaded successfully!');
     }
