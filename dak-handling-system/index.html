@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DAK Handling System - RSSB Letter Management</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Reusable CSS -->
+    <link rel="stylesheet" href="../work-clearance-system/css/base.css">
+    <link rel="stylesheet" href="../work-clearance-system/css/components.css">
+    <link rel="stylesheet" href="css/dak-system.css">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-envelope-open-text text-2xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <h1 class="text-xl font-semibold text-gray-900">DAK Handling System</h1>
+                        <p class="text-sm text-gray-500">Letter Management & Tracking</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="notificationBtn" class="relative p-2 text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notificationBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center hidden">3</span>
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" alt="User">
+                        <div>
+                            <div class="text-sm font-medium text-gray-700" id="currentUserName">Admin User</div>
+                            <div class="text-xs text-gray-500" id="currentUserRole">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- User Impersonation Panel -->
+        <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-semibold text-purple-900">🎭 User Impersonation (Demo Mode)</h3>
+                    <p class="text-sm text-purple-700">Switch between different office users to test letter workflows</p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm font-medium text-purple-700">Current User:</span>
+                    <span id="currentUserDisplay" class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">👨‍💼 Admin User</span>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                <button onclick="DAKSystem.impersonateUser('ao_user')" class="impersonation-btn bg-blue-100 hover:bg-blue-200 text-blue-800 border-blue-300">
+                    <span class="text-lg">📝</span>
+                    <div class="text-xs font-medium">Area Office</div>
+                    <div class="text-xs opacity-75">Rajesh Kumar</div>
+                </button>
+                <button onclick="DAKSystem.impersonateUser('co_user')" class="impersonation-btn bg-green-100 hover:bg-green-200 text-green-800 border-green-300">
+                    <span class="text-lg">👨‍💼</span>
+                    <div class="text-xs font-medium">Coordinator</div>
+                    <div class="text-xs opacity-75">Amit Singh</div>
+                </button>
+                <button onclick="DAKSystem.impersonateUser('zo_user')" class="impersonation-btn bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border-yellow-300">
+                    <span class="text-lg">👔</span>
+                    <div class="text-xs font-medium">Zonal Office</div>
+                    <div class="text-xs opacity-75">Priya Sharma</div>
+                </button>
+                <button onclick="DAKSystem.impersonateUser('sci_user')" class="impersonation-btn bg-purple-100 hover:bg-purple-200 text-purple-800 border-purple-300">
+                    <span class="text-lg">🏛️</span>
+                    <div class="text-xs font-medium">SCI-Beas</div>
+                    <div class="text-xs opacity-75">Dr. Gupta</div>
+                </button>
+                <button onclick="DAKSystem.impersonateUser('so_user')" class="impersonation-btn bg-orange-100 hover:bg-orange-200 text-orange-800 border-orange-300">
+                    <span class="text-lg">📋</span>
+                    <div class="text-xs font-medium">Centre Secretary</div>
+                    <div class="text-xs opacity-75">Neha Verma</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="stat-card">
+                <div class="stat-label">Pending Letters</div>
+                <div class="stat-value text-blue-600" id="pendingCount">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 5 new today
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Marked to Me</div>
+                <div class="stat-value text-green-600" id="markedCount">0</div>
+                <div class="stat-change neutral">
+                    <i class="fas fa-minus"></i> Awaiting action
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Sent to SCI-Beas</div>
+                <div class="stat-value text-purple-600" id="sciCount">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i> 3 this week
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completed</div>
+                <div class="stat-value text-gray-600" id="completedCount">0</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-check"></i> 12 this month
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="w-full">
+            <!-- Letters List -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-900">Letters</h2>
+                        <div class="flex items-center space-x-2">
+                            <button id="newLetterBtn" class="btn btn-primary" title="New Letter Entry">
+                                <i class="fas fa-plus"></i> New Letter
+                            </button>
+                            <select id="statusFilter" class="form-select text-sm">
+                                <option value="">All Status</option>
+                                <option value="NEW">New</option>
+                                <option value="MARKED">Marked</option>
+                                <option value="SENT_TO_SCI">Sent to SCI-Beas</option>
+                                <option value="DECISION_RECEIVED">Decision Received</option>
+                                <option value="COMPLETED">Completed</option>
+                            </select>
+                            <select id="areaFilter" class="form-select text-sm">
+                                <option value="">All Areas</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Letter ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Area</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subject</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Letter Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Marked To</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lettersTableBody" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Letter Modal -->
+    <div id="newLetterModal" class="modal hidden">
+        <div class="modal-content max-w-5xl" style="max-height: 90vh;">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold">New Letter Entry</h3>
+                <div class="flex items-center space-x-2">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="DAKSystem.loadSampleLetter()">
+                        <i class="fas fa-magic"></i> Load Sample
+                    </button>
+                    <button class="modal-close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-body" style="max-height: calc(90vh - 140px); overflow-y: auto;">
+                <form id="newLetterForm" class="space-y-6">
+                    <!-- Form content will be loaded by JavaScript -->
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Letter Details Modal -->
+    <div id="letterDetailsModal" class="modal hidden">
+        <div class="modal-content max-w-4xl">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold">Letter Details</h3>
+                <button class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="letterDetailsContent">
+                <!-- Content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- JavaScript Modules -->
+    <script src="../work-clearance-system/js/utils.js"></script>
+    <script src="js/dak-data.js"></script>
+    <script src="js/dak-components.js"></script>
+    <script src="js/dak-system.js"></script>
+    <script src="js/dak-app.js"></script>
+</body>
+</html>

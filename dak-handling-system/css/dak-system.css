@@ -1,0 +1,310 @@
+/* DAK Handling System Specific Styles */
+
+/* Status Badge Colors */
+.status-NEW {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.status-MARKED {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.status-SENT_TO_SCI {
+    background: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+}
+
+.status-DECISION_RECEIVED {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.status-COMPLETED {
+    background: rgba(107, 114, 128, 0.1);
+    color: #4b5563;
+}
+
+.status-OBJECTION_RAISED {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+/* Office Type Colors */
+.office-AO {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.office-CO {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.office-ZO {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.office-SCI {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+.office-SO {
+    background: #fed7aa;
+    color: #9a3412;
+}
+
+/* Subject Type Badges */
+.subject-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.subject-donation {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.subject-scm {
+    background: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+}
+
+.subject-general {
+    background: rgba(107, 114, 128, 0.1);
+    color: #4b5563;
+}
+
+/* Letter Trail Timeline */
+.letter-trail {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.trail-item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.trail-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: #3b82f6;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.trail-item::after {
+    content: '';
+    position: absolute;
+    left: -1.125rem;
+    top: 1.25rem;
+    width: 2px;
+    height: calc(100% - 1rem);
+    background: #e5e7eb;
+}
+
+.trail-item:last-child::after {
+    display: none;
+}
+
+.trail-item.completed::before {
+    background: #10b981;
+    box-shadow: 0 0 0 2px #10b981;
+}
+
+.trail-item.pending::before {
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px #f59e0b;
+}
+
+.trail-item.objection::before {
+    background: #ef4444;
+    box-shadow: 0 0 0 2px #ef4444;
+}
+
+/* Impersonation Buttons */
+.impersonation-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    border: 2px solid;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 80px;
+}
+
+.impersonation-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Scan Upload Area */
+.scan-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.scan-upload-area:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+}
+
+.scan-upload-area.has-file {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+/* Donation Amount Badge */
+.donation-amount {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+/* Auto-marking Indicator */
+.auto-marked {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.auto-marked i {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Message Thread */
+.message-thread {
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.message-item {
+    background: white;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.message-item.objection {
+    border-left-color: #ef4444;
+}
+
+.message-item.clarification {
+    border-left-color: #10b981;
+}
+
+/* Runsheet Table */
+.runsheet-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.runsheet-table th {
+    background: #f9fafb;
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.runsheet-table td {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.runsheet-table tr:hover {
+    background: #f9fafb;
+}
+
+/* Area Blocking Warning */
+.area-blocked {
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.area-blocked-icon {
+    color: #dc2626;
+    font-size: 1.5rem;
+}
+
+/* Decision Upload Section */
+.decision-upload {
+    background: #f0fdf4;
+    border: 2px solid #bbf7d0;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+/* Email Trail */
+.email-trail-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+.email-trail-item.sent {
+    border-left: 4px solid #10b981;
+}
+
+.email-trail-item.failed {
+    border-left: 4px solid #ef4444;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .impersonation-btn {
+        min-height: 60px;
+        padding: 0.75rem;
+    }
+    
+    .letter-trail {
+        padding-left: 1.5rem;
+    }
+    
+    .trail-item::before {
+        left: -1.25rem;
+    }
+}
